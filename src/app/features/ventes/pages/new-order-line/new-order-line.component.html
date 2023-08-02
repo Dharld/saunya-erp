@@ -1,0 +1,79 @@
+<div class="relative bg-white z-20 h-full">
+  <div class="p-4 bg-primary-400 text-white flex justify-between">
+    <div>Nouvelle ligne de commande</div>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="fill-neutral-80"
+      (click)="goBack()"
+    >
+      <path
+        d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+        fill="inherit"
+      />
+    </svg>
+  </div>
+  <form [formGroup]="orderForm" class="py-2 px-4" (submit)="createOrderLine()">
+    <div class="mb-3">
+      <app-input-box
+        label="Produit"
+        placeholder="Veuillez ajouter un produit de votre catalogue"
+        name="product"
+        formControlName="product"
+      ></app-input-box>
+    </div>
+
+    <div class="flex w-full gap-1 mb-3">
+      <app-input-box
+        label="Quantité"
+        placeholder="Combien d'articles ?"
+        value="1"
+        name="quantity"
+        formControlName="quantity"
+        class="flex-1"
+        type="number"
+      ></app-input-box>
+      <app-input-box
+        label="Prix unitaire"
+        placeholder="Prix d'une unité"
+        name="unitPrice"
+        formControlName="unitPrice"
+        class="flex-1"
+        type="number"
+      ></app-input-box>
+    </div>
+
+    <div class="mb-3">
+      <app-select-box
+        label="Taxes"
+        placeholder="TVA sur le produit"
+        name="taxes"
+        formControlName="taxes"
+        [options]="taxes"
+      ></app-select-box>
+    </div>
+
+    <app-input-box
+      label="Description"
+      placeholder="Décrivez le produit"
+      formControlName="description"
+      name="description"
+      type="textarea"
+    ></app-input-box>
+
+    <div class="mt-12 flex flex-col gap-2">
+      <app-button
+        text="Ajouter une ligne de commande"
+        class="flex-"
+      ></app-button>
+      <app-button
+        text="Annuler"
+        styles="outlineButton"
+        class="flex-1"
+      ></app-button>
+    </div>
+  </form>
+</div>

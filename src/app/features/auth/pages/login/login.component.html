@@ -1,0 +1,69 @@
+<ion-content>
+  <div class="w-full h-full px-4 py-8 font-sans">
+    <h3 class="text-h3 text-primary-900">Se connecter,</h3>
+    <p class="text-neutral-200 text-body">
+      Nous sommes heureux de vous revoir. Entrez votre addresse email et votre
+      mot de passe
+    </p>
+
+    <form
+      class="mt-8 flex flex-col"
+      [formGroup]="loginForm"
+      (ngSubmit)="login()"
+    >
+      <!--  <app-input-box
+        label="Nom du serveur"
+        name="server"
+        [value]="server$ | async"
+        [readOnly]="true"
+      ></app-input-box> -->
+      <app-input-box
+        label="Nom du serveur"
+        placeholder="Nom du serveur"
+        [value]="(server$ | async)?.servername"
+        [readOnly]="true"
+      ></app-input-box>
+      <app-input-box
+        label="Email"
+        placeholder="Ex: theuser@gmail.com"
+        name="email"
+        formControlName="email"
+      ></app-input-box>
+      <app-input-box
+        label="Password"
+        placeholder="Entrez le mot de passe"
+        name="password"
+        formControlName="password"
+        type="password"
+      ></app-input-box>
+      <div *ngIf="dbs.length == 1; else many">
+        <app-input-box
+          label="DB"
+          name="db"
+          formControlName="db"
+          [value]="dbs[0]"
+          [readOnly]="true"
+        ></app-input-box>
+      </div>
+      <ng-template #many>
+        <div>
+          <app-select-box
+            formControlName="db"
+            [options]="this.dbs"
+            label="Choisissez votre DB"
+          ></app-select-box>
+        </div>
+      </ng-template>
+      <div *ngIf="errorMessage != ''" class="text-light-error text-body-small">
+        *{{ errorMessage }}
+      </div>
+      <div class="mt-12 w-full">
+        <app-button
+          text="Continuer"
+          trailingIcon="forward"
+          [loading]="loading"
+        ></app-button>
+      </div>
+    </form>
+  </div>
+</ion-content>

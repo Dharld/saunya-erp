@@ -1,0 +1,26 @@
+:host.ng-touched.ng-invalid {
+  label,
+  .supportText {
+    @apply text-error;
+  }
+
+  .input {
+    @apply ring-1 ring-error;
+
+    input {
+      @apply text-error;
+    }
+  }
+}
+
+.textarea {
+  @apply h-[150px];
+}
+
+.read-only {
+  label,
+  .supportText,
+  input {
+    @apply text-neutral-200;
+  }
+}

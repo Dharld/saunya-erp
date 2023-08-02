@@ -1,0 +1,77 @@
+<div
+  class="wrapper bg-background fixed w-[calc(var(--navigation-menu-size))] bg-light-neutral-99 h-full left-0 top-0 z-10 rounded-e-xl p-4 shadow-5 transition"
+>
+  <div class="absolute right-4 top-2 interactive-state" (click)="closeMenu()">
+    <img src="assets/icon/close.png" alt="" class="" />
+  </div>
+  <div class="text-light-on-surface mt-2">
+    <h2 class="text-label-large font-medium my-3">General</h2>
+    <ul
+      class="ml-4 flex flex-col gap-4 mt-1 border-l border-l-light-outline px-3"
+    >
+      <li class="flex gap-1 items-center">
+        <img
+          src="assets/icon/achats.png"
+          alt=""
+          class="bg-cover w-5"
+          class="filter brightness-100"
+        />
+        <span class="text-body-medium">Achats</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/inventaire.png" alt="" class="bg-cover w-5" />
+        <span class="text-body-medium">Inventaire</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/production.png" alt="" class="w-5 bg-cover" />
+        <span class="text-body-medium">Production</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/ventes.png" alt="" class="w-5 bg-cover" />
+        <span class="text-body-medium">Ventes</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/pointDeVente.png" alt="" class="w-5 bg-cover" />
+        <span class="text-body-medium">Points de Vente</span>
+      </li>
+    </ul>
+  </div>
+  <div class="text-light-onSurface mt-2">
+    <h2 class="text-label-large font-medium my-3">Gestion</h2>
+    <ul
+      class="ml-4 flex flex-col gap-4 mt-1 border-l border-l-light-outline px-4"
+    >
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/employees.png" alt="" class="bg-cover w-5" />
+        <span class="text-body-medium">Employés</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/presence.png" alt="" class="bg-cover w-5" />
+        <span class="text-body-medium">Présences</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/depense.png" alt="" class="w-5 bg-cover" />
+        <span class="text-body-medium">Facturation</span>
+      </li>
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/facturation.png" alt="" class="w-5 bg-cover" />
+        <span class="text-body-medium">Facturation</span>
+      </li>
+    </ul>
+  </div>
+  <div class="text-light-onSurface mt-2">
+    <h2 class="text-label-large font-medium my-3">Paramètres</h2>
+    <ul
+      class="ml-4 flex flex-col gap-4 mt-1 border-l border-l-light-outline px-4"
+    >
+      <li class="flex gap-1 items-center">
+        <img src="assets/icon/settings.png" alt="" class="bg-cover w-5" />
+        <span class="text-body-medium">Configuration</span>
+      </li>
+    </ul>
+  </div>
+  <div class="text-light-onSurface absolute left-4 bottom-4 flex gap-3 h-fit">
+    <img src="assets/icon/logout.png" alt="" class="w-5 h-5 object-cover" />
+    <span>Se déconnecter</span>
+  </div>
+</div>

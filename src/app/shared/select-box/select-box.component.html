@@ -1,0 +1,30 @@
+<div class="w-full group">
+  <label
+    [for]="name"
+    class="text-neutral-400 text-body-xs group-focus-within:text-primary-300 mb-1 font-medium leading-3"
+    >{{ label }}</label
+  >
+  <div
+    class="flex flex-col peer bg-neutral-90 h-[50px] rounded-[4px] p-3 group-focus-within:ring-primary-300 ring-[.5px] ring-neutral-100"
+  >
+    <div
+      class="text-neutral-200 text-body absolute top-0 bottom-0 m-auto flex items-center"
+      *ngIf="options.length == 0"
+    >
+      {{ placeholder }}
+    </div>
+    <select
+      [name]="name"
+      class="p-0 w-full h-full outline-none bg-transparent placeholder:text-neutral-200 text-body text-neutral-500 border-0 focus:ring-0"
+      (input)="setValue($event.target)"
+    >
+      <option
+        [value]="option"
+        [ngValue]="option"
+        *ngFor="let option of options"
+      >
+        {{ option }}
+      </option>
+    </select>
+  </div>
+</div>

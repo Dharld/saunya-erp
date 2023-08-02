@@ -1,0 +1,18 @@
+SaunyaERP:
+    ✔ Create the order line of a devis @started(23-07-31 21:26) @done(23-07-31 23:58) @lasted(2h32m20s)
+        ✔ Modify the model of the order line to include the id of the devis so that we can reference it easily, the particularity is that for creating a new component, we can give an id brouillon and for editing a devis we can give the id of the devis @done(23-07-31 23:58)
+        ✔ Change the route @done(23-07-31 23:58)
+        ✔ Then create a method in the VentesService that is gonna be used to add a new orderline to an existing devis @done(23-07-31 23:58)
+        ✔ Then create a method in the NewOrderline component @done(23-07-31 23:58)
+    ✔ Create a new DatePicker @done(23-08-02 10:07)
+        ✔ Do the classical design of the date picker @started(23-08-01 14:15) @done(23-08-01 14:15) @lasted(48s)
+        ✔ Implement the functionnalities of the datepicker @started(23-08-01 14:15) @done(23-08-02 10:08) @lasted(19h53m8s)
+            ✔ * Create an input that is used as a placeholder @done(23-08-01 14:15)
+            ✔ * Then show the datepicker only when the input is focus @done(23-08-01 14:52)
+            * After that, ensure that the datepicker is displaying the correct informations for each date(look at moment.js)
+                *
+            * Finally each click on one date should populate the input with the date in the following format - (DD - MMM - YYYY)
+    ☐ Create a new selected component @started(23-08-02 10:08)
+    ☐ Make a functional searchbar
+    ☐ Create the chip component
+    ☐ Make the chip component functional

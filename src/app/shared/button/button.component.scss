@@ -1,0 +1,27 @@
+.btn {
+  @apply bg-primary-500  w-full py-[12px] px-[32px] rounded-[4px] cursor-pointer transition text-white;
+
+  &:hover {
+    @apply bg-primary-300;
+  }
+
+  &.outlineButton {
+    border: 1px solid var(--primary-400);
+    color: var(--primary-400);
+    background-color: transparent;
+
+    &:hover {
+      background-color: var(--primary-500);
+      color: white;
+    }
+  }
+
+  &[disabled] {
+    @apply bg-neutral-200 text-neutral-400;
+    cursor: not-allowed;
+
+    i {
+      @apply text-neutral-400;
+    }
+  }
+}

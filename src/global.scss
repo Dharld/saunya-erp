@@ -1,0 +1,160 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "ngx-toastr/toastr";
+
+@import "@ionic/angular/css/core.css";
+
+@import "tailwindcss/base";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+// @import "@ionic/angular/css/padding.css";
+// @import "@ionic/angular/css/float-elements.css";
+// @import "@ionic/angular/css/text-alignment.css";
+// @import "@ionic/angular/css/text-transformation.css";
+// @import "@ionic/angular/css/flex-utils.css";
+
+@import url("https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
+
+[type="password"] {
+  margin: 0 !important;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+input {
+  background-clip: text !important;
+}
+
+.custom-alert .alert-wrapper {
+  @apply bg-white;
+
+  .alert-title.sc-ion-alert-md,
+  .alert-sub-title.sc-ion-alert-md,
+  .alert-input-group.sc-ion-alert-md {
+    @apply text-neutral-500;
+  }
+
+  .alert-message.sc-ion-alert-md {
+    @apply text-neutral-400;
+  }
+  .alert-button.sc-ion-alert-md {
+    @apply text-neutral-400;
+  }
+}
+
+:root {
+  --navigation-menu-size: 300px;
+  --navigation-menu-translate: -300px;
+}
+
+.interactive-state {
+  @apply p-2 cursor-pointer hover:bg-primary-100 rounded-full  transition;
+
+  img {
+    @apply w-5 bg-cover  transition;
+  }
+}
+
+ion-tab-button {
+  --background: transparent;
+  --color: var(--neutral-500);
+  --color-selected: var(--primary-500);
+  --color-focused: var(--primary-500);
+  --riple-color: var(--primary-300);
+
+  &.tab-selected {
+    border-top: 2px solid var(--primary-500);
+  }
+}
+
+@for $i from 1 through 6 {
+  h#{$i} {
+    @apply text-h#{$i};
+  }
+}
+
+[type] {
+  border: none;
+  padding: 0;
+}
+
+.no-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scroll {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.toast-error {
+  background-color: var(--red500);
+}
+
+.toast-success {
+  position: relative;
+  width: 50%;
+  background-color: var(--green-300);
+  color: var(--green-700) !important;
+  z-index: 100;
+  background-image: url("assets/icon/check__green.png");
+  opacity: 1;
+}
+.toast-error {
+  background-color: var(--red200);
+  color: var(--red700) !important;
+  background-image: unset !important;
+}
+.toast-warning {
+  background-color: var(--yellow200);
+  color: var(--yellow800) !important;
+  background-image: unset !important;
+}
+
+.toast-container .ngx-toastr {
+  margin-top: 0.1rem;
+  padding: 0.5rem 1rem;
+  padding-left: 3rem;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 0px rgba(0, 0, 0, 0.075), 0 4px 35px rgba(0, 0, 0, 0.08) !important;
+  background-position: 1rem 0.65rem;
+  background-size: 20px;
+}
+
+.day {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  width: 28px;
+  margin-inline: 2px;
+
+  &:not([data-empty="true"]) {
+    cursor: pointer;
+  }
+
+  &:not([data-empty="true"]).active,
+  &:not([data-empty="true"]):hover {
+    @apply bg-primary-400 text-white rounded-full;
+  }
+}

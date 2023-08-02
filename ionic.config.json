@@ -1,0 +1,8 @@
+{
+  "name": "saunyaERP",
+  "integrations": {
+    "cordova": {},
+    "capacitor": {}
+  },
+  "type": "angular"
+}

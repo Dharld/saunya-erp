@@ -1,0 +1,11 @@
+<ion-content [fullscreen]="true">
+  <div class="relative h-full w-full font-sans px-4 py-2">
+    <div class="flex">
+      <div class="flex-1"></div>
+      <div class="interactive-state" (click)="toggleMenu()">
+        <img src="assets/icon/menu.png" alt="" class="w-5 bg-cover" />
+      </div>
+    </div>
+    <div id="container">{{ (user$ | async)?.name }}</div>
+  </div>
+</ion-content>

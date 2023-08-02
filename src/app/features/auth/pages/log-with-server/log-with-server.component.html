@@ -1,0 +1,24 @@
+<div class="h-full w-full px-4 py-8 font-sans">
+  <h2 class="text-h3 text-primary-900">Se Connecter</h2>
+  <p class="text-neutral-200 text-body">Veuillez entrer le nom du serveur</p>
+  <div class="mt-8">
+    <app-input-box
+      label="Nom du serveur"
+      placeholder="Entrez le nom du serveur"
+      [formControl]="serverControl"
+      name="name"
+      value="https://"
+      [textSupport]="message"
+      [pending]="serverControl.status === 'PENDING'"
+    ></app-input-box>
+    <div class="mt-6 w-full">
+      <app-button
+        text="Continuer"
+        trailingIcon="forward"
+        [loading]="loading"
+        (click)="onSubmit()"
+        [state]="serverControl.valid ? '' : 'disabled'"
+      ></app-button>
+    </div>
+  </div>
+</div>

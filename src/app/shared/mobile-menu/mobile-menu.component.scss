@@ -1,0 +1,7 @@
+.wrapper {
+  transform: translateX(calc(var(--navigation-menu-translate)));
+
+  li {
+    cursor: pointer;
+  }
+}
