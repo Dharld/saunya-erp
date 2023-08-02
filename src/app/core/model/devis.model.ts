@@ -1,30 +1,19 @@
+import { fromJSDateToString } from "src/utils/luxon";
 import { OrderLine } from "./order-line.model";
-
-// export interface Devis {
-//   id?: string;
-//   client_name: string;
-//   created_at?: Date;
-//   state: string;
-//   invoice_address?: string;
-//   delivery_address?: string;
-//   expiration_date?: Date;
-//   payment_conditions?: string[];
-//   order_lines?: OrderLine[];
-// }
 
 export class Devis {
   id?: string;
   state: string;
-  created_at: Date;
+  created_at: string;
   invoice_address?: string;
   delivery_address?: string;
-  expiration_date?: Date;
-  payment_conditions?: string[];
+  expiration_date?: string;
+  payment_condition?: string;
   order_lines?: OrderLine[];
 
-  constructor(public client_name: string) {
-    this.state = "Devis";
-    this.created_at = new Date();
+  constructor(public client_name: string, state: string = "Devis") {
+    this.state = state;
+    this.created_at = fromJSDateToString(new Date(), "dd-LL-yy");
   }
 
   get total() {

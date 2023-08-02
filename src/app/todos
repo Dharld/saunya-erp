@@ -12,7 +12,17 @@ SaunyaERP:
             * After that, ensure that the datepicker is displaying the correct informations for each date(look at moment.js)
                 *
             * Finally each click on one date should populate the input with the date in the following format - (DD - MMM - YYYY)
-    ☐ Create a new selected component @started(23-08-02 10:08)
+    ✔ Finish with the logic of adding a new devis @started(23-08-02 12:25) @done(23-08-02 12:49) @lasted(24m9s)
+        ✔ We should ensure that when we click on the create button, we enter in an edition mode, that is an edited devis is generated @started(23-08-02 12:25) @done(23-08-02 12:49) @lasted(24m3s)
+        ✔ Then when we add an orderline, it should be added to the devis brouillon @done(23-08-02 12:49)
+        ✔ Finally, when we send this devis brouillon, it's added to the system and reinitialize to an empty devis @done(23-08-02 12:49)
+
+    ☐ Finish with the logic for editing a devis @started(23-08-02 13:17)
+        ✘ If we click on a existing devis, we are redirected to the page of NouveaDevis in an edit @cancelled(23-08-02 14:17)
+        - The form should be prefilled with the previous informations of the devis, thus we are gonna use  the edited devis observable to next it when we are gonna move
+        - We are gonna do the modifications
+        - And finally, we'll send the data to the 'updateDevis' method of the ventesService
+    ☐ Create a new selected component
     ☐ Make a functional searchbar
     ☐ Create the chip component
     ☐ Make the chip component functional

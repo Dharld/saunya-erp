@@ -1,10 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-} from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
@@ -19,6 +14,8 @@ import { VentesService } from 'src/app/core/services/ventes.service';
   styleUrls: ['./nouveau-devis.component.scss'],
 })
 export class NouveauDevisComponent implements OnInit {
+  mode = 'create';
+
   nouveauDevisForm!: FormGroup<any>;
   devis$ = this.venteServices.devisAsObservable();
   editedDevis!: Devis;
@@ -47,19 +44,27 @@ export class NouveauDevisComponent implements OnInit {
     private toastr: ToasterService,
     private ventesService: VentesService
   ) {
-    this.nouveauDevisForm = this.fb.group({
-      client: [this.clients[0]],
-      invoice_address: [this.invoice_addresses[0]],
-      delivery_address: [this.delivery_addresses[0]],
-      expiration_date: [''],
-      payment_conditions: [this.payment_conditions[0]],
-    });
-    this.ventesService.editedDevisAsObservable().subscribe((data) => {
-      this.editedDevis = data;
+    this.route.queryParams.subscribe((params) => {
+      this.mode = params['mode'];
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.ventesService.editedDevisAsObservable().subscribe((data) => {
+      this.editedDevis = data;
+    });
+    this.nouveauDevisForm = this.fb.group({
+      client: this.mode === 'edit' ? [this.editedDevis.client_name] : [''],
+      invoice_address:
+        this.mode === 'edit' ? [this.editedDevis.invoice_address] : [''],
+      delivery_address:
+        this.mode === 'edit' ? [this.editedDevis.delivery_address] : [''],
+      expiration_date:
+        this.mode === 'edit' ? [this.editedDevis.expiration_date] : [''],
+      payment_condition:
+        this.mode === 'edit' ? [this.editedDevis.payment_condition] : [''],
+    });
+  }
 
   goBack() {
     this.navigation.goBack();
@@ -71,15 +76,18 @@ export class NouveauDevisComponent implements OnInit {
       invoice_address,
       delivery_address,
       expiration_date,
-      payment_conditions,
+      payment_condition,
     } = this.nouveauDevisForm.value;
     this.venteServices.nextEditedDevis({
+      id: this.mode === 'edit' ? this.editedDevis.id : 'brouillon',
       client_name,
       invoice_address,
       delivery_address,
       expiration_date,
-      payment_conditions,
-      order_lines: this.editedDevis.order_lines,
+      payment_condition,
+      order_lines: this.editedDevis.order_lines
+        ? this.editedDevis.order_lines
+        : [],
     } as Devis);
     this.navigation.navigateTo(['../brouillon', 'new-order-line'], this.route);
   }
@@ -90,30 +98,47 @@ export class NouveauDevisComponent implements OnInit {
       invoice_address,
       delivery_address,
       expiration_date,
-      payment_conditions,
+      payment_condition,
     } = this.nouveauDevisForm.value;
-    /* const devis: Devis = {
-      id: 'DEVIS' + (this.venteServices.getNumberOfDevis() + 1),
+
+    let devis: any = {
       client_name,
-      state: 'Devis',
-      created_at: new Date(),
       invoice_address,
       delivery_address,
       expiration_date,
-      payment_conditions,
-    }; */
-    const devis = new Devis(client_name);
-    devis.invoice_address = invoice_address;
+      payment_condition,
+      order_lines: this.editedDevis.order_lines
+        ? this.editedDevis.order_lines
+        : [],
+    };
+
+    /* devis.invoice_address = invoice_address;
     devis.delivery_address = delivery_address;
     devis.expiration_date = expiration_date;
-    devis.payment_conditions = payment_conditions;
+    devis.payment_condition = payment_condition;
+    devis.order_lines = this.editedDevis.order_lines
+      ? this.editedDevis.order_lines
+      : []; */
+
+    if (this.mode === 'edit') {
+      devis.id = this.editedDevis.id;
+      devis.state = this.editedDevis.state;
+      devis.created_at = this.editedDevis.created_at;
+      const updateDevis$ = this.venteServices.updateDevis(devis);
+      updateDevis$.subscribe((data) => {
+        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+        this.venteServices.clearEditedDevis();
+        this.navigation.goBack();
+      });
+      return;
+    }
 
     const addDevis$ = this.venteServices.addDevis(devis);
+
     addDevis$.subscribe(() => {
-      this.toastr.showSuccess(
-        'The toastr has been successfully created',
-        'Success'
-      );
+      this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+      // Clear the edited devis
+      this.venteServices.clearEditedDevis();
       // Go back to previous screen
       this.navigation.goBack();
     });

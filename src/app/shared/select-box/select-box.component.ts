@@ -1,4 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Input,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -14,16 +21,20 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ],
 })
 export class SelectBoxComponent implements OnInit, ControlValueAccessor {
-  @Input() readOnly = false;
+  showDropDown = false;
+
+  readOnly = true;
   @Input() formControlInput = '';
   @Input() name = '';
   @Input() label = '';
 
+  @Input() value!: string;
   @Input() options: string[] = [];
-  @Input() selected = '';
 
   @Input() disabled = false;
   @Input() placeholder = '';
+
+  @ViewChild('in') in!: ElementRef;
 
   onChange = (value: string) => {};
 
@@ -31,15 +42,19 @@ export class SelectBoxComponent implements OnInit, ControlValueAccessor {
 
   constructor() {}
 
-  ngOnInit() {
-    this.selected = this.options[0];
-    this.set(this.selected);
+  ngOnInit() {}
+
+  selectOption(option: string) {
+    this.value = option;
+    this.onChange(this.value);
+    this.closeDropdown();
   }
 
   writeValue(value: any): void {
     if (!this.disabled) {
-      this.selected = value;
-      this.onChange(this.selected);
+      this.value = value;
+      this.onChange(this.value);
+      this.selectOption(value);
     }
   }
 
@@ -55,14 +70,10 @@ export class SelectBoxComponent implements OnInit, ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
-  set(value: string) {
-    this.onTouched();
-    this.onChange(value);
-    this.writeValue(value);
+  openDropdown() {
+    this.showDropDown = true;
   }
-
-  setValue(e: EventTarget | null) {
-    const value = (e as HTMLSelectElement).value;
-    this.set(value);
+  closeDropdown() {
+    this.showDropDown = false;
   }
 }

@@ -16,7 +16,7 @@
     <div
       class="text-[20px] text-primary-900 font-semibold flex-1 flex justify-center"
     >
-      Nouveau devis
+      {{ this.mode === "edit" ? "Devis #" + editedDevis.id : "Nouveau devis" }}
     </div>
   </div>
   <form
@@ -31,6 +31,7 @@
         [options]="clients"
         name="client"
         formControlName="client"
+        [value]="nouveauDevisForm.get('client')!.value"
       ></app-select-box>
     </div>
     <div class="mb-2">
@@ -40,6 +41,7 @@
         name="invoice_address"
         formControlName="invoice_address"
         [options]="invoice_addresses"
+        [value]="nouveauDevisForm.get('invoice_address')!.value"
       ></app-select-box>
     </div>
     <div class="mb-2">
@@ -49,14 +51,16 @@
         name="delivery_address"
         formControlName="delivery_address"
         [options]="delivery_addresses"
+        [value]="nouveauDevisForm.get('delivery_address')!.value"
       ></app-select-box>
     </div>
     <div class="mb-2">
       <app-date-picker
         label="Date d'expiration"
-        placeholder="Date d'expiration du devis"
+        placeholder="Format: DD-MM-YYYY"
         name="expiration_date"
         formControlName="expiration_date"
+        [value]="nouveauDevisForm.get('expiration_date')!.value"
       ></app-date-picker>
     </div>
 
@@ -64,9 +68,10 @@
       <app-select-box
         label="Conditions de paiement"
         placeholder="Choisissez une date de delai"
-        name="payment_conditions"
-        formControlName="payment_conditions"
+        name="payment_condition"
+        formControlName="payment_condition"
         [options]="payment_conditions"
+        [value]="nouveauDevisForm.get('payment_condition')!.value"
       >
       </app-select-box>
     </div>
@@ -113,7 +118,11 @@
       </ul>
     </div>
     <div class="button mt-8">
-      <app-button text="Créer un nouveau devis"></app-button>
+      <app-button
+        text="{{
+          this.mode == 'edit' ? 'Modifier le dévis' : 'Créer un nouveau devis'
+        }}"
+      ></app-button>
     </div>
   </form>
 </div>

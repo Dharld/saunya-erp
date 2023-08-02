@@ -15,9 +15,14 @@ export class NavigationService {
     return this.router.navigateByUrl(url);
   }
 
-  navigateWithParams(segments: [string], params: Params) {
+  navigateWithParams(
+    segments: string[],
+    params: Params,
+    route?: ActivatedRoute
+  ) {
     return this.router.navigate(segments, {
       queryParams: params,
+      relativeTo: route,
     });
   }
 

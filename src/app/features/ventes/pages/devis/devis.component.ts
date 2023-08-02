@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Observable, map, toArray } from 'rxjs';
+import { ActivatedRoute, Params } from '@angular/router';
+import { Observable, map, tap, toArray } from 'rxjs';
+import { Devis } from 'src/app/core/model/devis.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
 
@@ -28,5 +29,10 @@ export class DevisComponent implements OnInit {
 
   createNewDevis() {
     this.navigation.navigateTo(['new'], this.route);
+  }
+
+  editDevis(devis: Devis) {
+    this.ventesService.nextEditedDevis(devis);
+    this.navigation.navigateWithParams(['new'], { mode: 'edit' }, this.route);
   }
 }

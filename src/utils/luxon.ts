@@ -5,4 +5,12 @@ const addMonthToDate = (numberOfMonth: number, date: Date) => {
   return dt.toJSDate();
 };
 
-export { addMonthToDate };
+const fromFormatToJSDate = (dateStr: string, format: string) => {
+  return DateTime.fromFormat(dateStr, format).toJSDate();
+};
+
+const fromJSDateToString = (date: Date, format: string) => {
+  return DateTime.fromJSDate(date).toFormat(format);
+};
+
+export { addMonthToDate, fromFormatToJSDate, fromJSDateToString };

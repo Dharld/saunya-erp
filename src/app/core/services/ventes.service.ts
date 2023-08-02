@@ -4,19 +4,15 @@ import {
   BehaviorSubject,
   Observable,
   delay,
-  empty,
+  filter,
+  find,
   map,
-  mergeMap,
   of,
   switchMap,
   tap,
-  EMPTY,
-  filter,
-  find,
-  first,
-  Subject,
 } from 'rxjs';
 import { OrderLine } from '../model/order-line.model';
+import { fromJSDateToString } from 'src/utils/luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +23,10 @@ export class VentesService {
     .map(function (_, index) {
       const newDevis = new Devis('Saunya Cosmetics');
       newDevis.id = 'DEVIS' + index;
+      newDevis.invoice_address = 'Yaoundé, CAMEROUN';
+      newDevis.delivery_address = 'Doual, CAMEROUN';
+      newDevis.payment_condition = 'Paiement immédiat';
+      newDevis.expiration_date = fromJSDateToString(new Date(), 'dd-MM-yyyy');
       newDevis.order_lines = [
         {
           product: 'Test',
@@ -39,12 +39,21 @@ export class VentesService {
       return newDevis;
     });
   private devis = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
-  private editedDevis = new BehaviorSubject<Devis>(new Devis(''));
 
-  constructor() {}
+  private editedDevis!: BehaviorSubject<Devis>;
+
+  constructor() {
+    const DRAFT_DEVIS = new Devis('');
+    DRAFT_DEVIS.id = 'brouillon';
+    this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
+  }
 
   nextEditedDevis(devis: Devis) {
     this.editedDevis.next(devis);
+  }
+
+  clearEditedDevis() {
+    this.editedDevis.next(new Devis(''));
   }
 
   addDevis(devis: Devis) {
@@ -58,11 +67,32 @@ export class VentesService {
     );
   }
 
+  updateDevis(devis: Devis) {
+    console.log(devis);
+    let devisArr = this.devis.getValue();
+    return of({}).pipe(
+      map(() =>
+        devisArr
+          .filter((d) => {
+            return d.id === devis.id ? undefined : d;
+          })
+          .concat([devis])
+      ),
+      tap((devisArr) => {
+        console.log(devisArr);
+        this.devis.next(devisArr);
+      })
+    );
+  }
+
   getNumberOfDevis() {
     return this.devis.getValue().length;
   }
 
   getDevis(devisId: string) {
+    if (devisId === 'brouillon') {
+      return of(this.editedDevis.getValue());
+    }
     return this.devis.pipe(
       map((devisArr) => devisArr.find((devis) => devis.id === devisId))
     );
@@ -74,25 +104,13 @@ export class VentesService {
   addOrderLine(devis: Devis, orderLine: OrderLine) {
     const getDevis$ = this.getDevis(devis.id as string);
     getDevis$.subscribe((data) => {
-      if (data != undefined) {
-        data.order_lines?.push(orderLine);
-        this.editedDevis.next(data);
-      } else {
-        /* const draft: Devis = {
-          ...devis,
-          order_lines:
-            devis.order_lines === undefined
-              ? [orderLine]
-              : [...devis.order_lines, orderLine],
-        }; */
-        const draft = Devis.fromDevis(devis);
-        draft.order_lines =
-          devis.order_lines === undefined
-            ? [orderLine]
-            : [...devis.order_lines, orderLine];
-        console.log(draft);
-        this.editedDevis.next(draft);
-      }
+      const draft = Devis.fromDevis(devis);
+      draft.id = devis.id;
+      draft.order_lines =
+        devis.order_lines === undefined
+          ? [orderLine]
+          : [...devis.order_lines, orderLine];
+      this.editedDevis.next(draft);
     });
   }
 

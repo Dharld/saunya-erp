@@ -2,17 +2,15 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  HostListener,
   Input,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { DateTime } from 'luxon';
-import { Subscription, fromEvent, map, tap } from 'rxjs';
+import { Subscription, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-date-picker',
@@ -34,7 +32,7 @@ export class DatePickerComponent
   @Input() label = '';
   @Input() placeholder = '';
   @Input() name = '';
-  @Input() value: string | null = '';
+  @Input() value: string = '';
   @Input() type = 'text';
   @Input() textSupport = '';
   @Input() pending = false;
@@ -59,16 +57,18 @@ export class DatePickerComponent
   sub1!: Subscription;
   sub2!: Subscription;
 
-  constructor(private el: ElementRef) {}
+  constructor() {}
 
   ngOnInit(): void {}
 
   ngAfterViewInit() {
     this.generateDays();
+
     const clicks$ = fromEvent(
       this.datePickerBody.nativeElement as HTMLElement,
       'click'
     );
+
     this.sub1 = clicks$.subscribe((event) => {
       const target: HTMLDivElement = event.target as HTMLDivElement;
       if (!target.classList.contains('day')) return;
@@ -81,10 +81,8 @@ export class DatePickerComponent
         )
       )
         .setLocale('fr')
-        .toFormat('dd, LLL yyyy');
-      console.log(this.value);
+        .toFormat('dd-MM-yyyy');
       this.inputElement.nativeElement.value = this.value;
-      this.writeValue(this.value);
       this.onChange(this.value);
       ///
       const activeElement = document.querySelector('.day.active');
@@ -97,7 +95,6 @@ export class DatePickerComponent
     this.sub2 = fromEvent(document, 'click').subscribe((event) => {
       const target = event.target as HTMLElement;
       const outsidePicker = target.closest('.dp');
-      console.log(outsidePicker);
       if (!outsidePicker) this.showPicker = false;
     });
   }
@@ -119,8 +116,7 @@ export class DatePickerComponent
   }
 
   writeValue(value: any): void {
-    console.log('Hi');
-    if (!this.disabled) {
+    if (!this.disabled && value) {
       this.markAsTouched();
       this.onChange(value);
     }
