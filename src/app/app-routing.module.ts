@@ -10,8 +10,13 @@ import { CommandeComponent } from './features/ventes/pages/commande/commande.com
 import { FacturationComponent } from './features/ventes/pages/facturation/facturation.component';
 import { NouveauDevisComponent } from './features/ventes/pages/nouveau-devis/nouveau-devis.component';
 import { NewOrderLineComponent } from './features/ventes/pages/new-order-line/new-order-line.component';
+import { TestComponent } from './features/test/test.component';
 
 const routes: Routes = [
+  {
+    path: 'test',
+    component: TestComponent,
+  },
   {
     path: 'home',
     loadChildren: () =>

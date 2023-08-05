@@ -1,0 +1,32 @@
+<div
+  class="modal fixed top-0 left-0 w-full h-full z-50 grid place-items-center {{
+    show_modal
+      ? 'opacity-100 pointer-events-auto'
+      : 'opacity-0 pointer-events-none'
+  }}"
+>
+  <div class="w-[90%] max-w-xs bg-white rounded-sm z-50 relative">
+    <div
+      class="deleteButton position absolute -top-14 right-0 w-[48px] h-[48px] rounded-full bg-white grid place-items-center cursor-pointer fill-primary-400 hover:fill-white hover:bg-primary-400 transition shadow-sm"
+      (click)="closeModal()"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="inherit"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+          fill="inherit"
+        />
+      </svg>
+    </div>
+    <ng-content select="[title]"></ng-content>
+    <ng-content select="[body]"></ng-content>
+  </div>
+  <div
+    class="absolute w-full h-full bg-gradient-to-b from-transparent to-[rgba(0,0,0,.5)]"
+  ></div>
+</div>

@@ -8,6 +8,7 @@ import { SelectBoxComponent } from './select-box/select-box.component';
 import { SearchbarComponent } from './searchbar/searchbar.component';
 import { IonicModule } from '@ionic/angular';
 import { DatePickerComponent } from './date-picker/date-picker.component';
+import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { DatePickerComponent } from './date-picker/date-picker.component';
     MobileMenuComponent,
     SearchbarComponent,
     DatePickerComponent,
+    ModalComponent,
   ],
   imports: [CommonModule, FormsModule, IonicModule],
   exports: [
@@ -26,6 +28,7 @@ import { DatePickerComponent } from './date-picker/date-picker.component';
     MobileMenuComponent,
     SearchbarComponent,
     DatePickerComponent,
+    ModalComponent,
   ],
 })
 export class SharedModule {}

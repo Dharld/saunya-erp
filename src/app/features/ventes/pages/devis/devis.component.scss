@@ -6,3 +6,13 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+div.to-delete {
+  height: fit-content;
+  transition: all 150ms ease;
+  transform: scaleY(1);
+}
+
+div.deleted {
+  transform: scaleY(0);
+}

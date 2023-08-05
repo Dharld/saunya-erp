@@ -17,12 +17,18 @@ SaunyaERP:
         ✔ Then when we add an orderline, it should be added to the devis brouillon @done(23-08-02 12:49)
         ✔ Finally, when we send this devis brouillon, it's added to the system and reinitialize to an empty devis @done(23-08-02 12:49)
 
-    ☐ Finish with the logic for editing a devis @started(23-08-02 13:17)
-        ✘ If we click on a existing devis, we are redirected to the page of NouveaDevis in an edit @cancelled(23-08-02 14:17)
-        - The form should be prefilled with the previous informations of the devis, thus we are gonna use  the edited devis observable to next it when we are gonna move
-        - We are gonna do the modifications
-        - And finally, we'll send the data to the 'updateDevis' method of the ventesService
-    ☐ Create a new selected component
+    ✔ Finish with the logic for editing a devis @started(23-08-02 13:17) @done(23-08-02 18:54) @lasted(5h37m45s)
+        ✔ If we click on a existing devis, we are redirected to the page of NouveaDevis in an edit @done(23-08-02 18:55)
+        ✔ The form should be prefilled with the previous informations of the devis, thus we are gonna use  the edited devis observable to next it when we are gonna move @done(23-08-02 18:55)
+        ✔ We are gonna do the modifications @done(23-08-02 18:55)
+        ✔ And finally, we'll send the data to the 'updateDevis' method of the ventesService @done(23-08-02 18:55)
+    ✔ Create a new selected component @done(23-08-02 18:55)
+    ✔ Implement the gesture to delete a devis @started(23-08-04 09:29) @done(23-08-05 11:12) @lasted(1d1h43m23s)
+        ✔ give a background red to the #container plus do the design @done(23-08-04 09:29)
+        ✔ then overlap an element which contains the trash an the main element @done(23-08-04 09:29)
+        ✔ then implement the gesture @done(23-08-05 11:12)
+        ✔ implement the animation which consists in sliding the element all allong the window width and finally decrease the size @done(23-08-05 11:12)
+        ✔ Finally call the 'deleteService' method @done(23-08-05 11:12)
     ☐ Make a functional searchbar
     ☐ Create the chip component
     ☐ Make the chip component functional

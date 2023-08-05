@@ -1,37 +1,69 @@
 <div class="wrapper py-6 px-4">
   <h4>Devis</h4>
-  <app-searchbar></app-searchbar>
-  <ul class="list mt-3 h-[77vh] overflow-auto relative">
-    <li
-      class="bg-neutral-80 py-3 px-3 rounded-md flex gap-2 mb-2 border border-neutral-80 select-none"
-      *ngFor="let d of devis$ | async"
-      (click)="editDevis(d)"
+  <app-modal>
+    <div
+      class="h-[70px] bg-primary-400 text-white px-4 flex items-center font-semibold text-h4"
+      title
     >
-      <i
-        class="bg-neutral-90 grid place-items-center h-[55px] w-[55px] rounded-sm"
+      Modal de confirmation
+    </div>
+    <div class="wrapper p-4" body>
+      <h4 class="text-primary-900 font-semibold">
+        Voulez vous vraiment supprimer ce dévis ?
+      </h4>
+      <div class="text-body-large text-neutral-400 my-4">
+        La suppression d'un dévis est définitive et ne peut être annuler.
+      </div>
+      <div class="buttons flex justify-between gap-1 mt-8">
+        <app-button text="Supprimer" class="flex-1"></app-button>
+        <app-button
+          text="Annuler"
+          class="flex-1"
+          styles="outlineButton"
+        ></app-button>
+      </div>
+    </div>
+  </app-modal>
+  <app-searchbar></app-searchbar>
+  <ul class="list mt-3 h-[77vh] relative transition">
+    <div
+      class="bg-primary-300 rounded-md mb-3 grid transition"
+      *ngFor="let d of devis$ | async"
+      #container
+    >
+      <li
+        class="bg-neutral-80 py-3 px-3 flex gap-2 border border-neutral-100 select-none h-full rounded-md row-span-full col-span-full relative z-10 transition"
       >
-        <img src="assets/icon/invoice_icon.png" alt="" />
-      </i>
-
-      <div class="flex flex-1 flex-col">
-        <div class="text-body text-neutral-500">{{ d.client_name }}</div>
-        <div class="text-body-xs text-neutral-200 mt-[2px]">
-          {{ d.created_at }}
+        <i class="bg-neutral-90 grid place-items-center w-[55px]">
+          <img src="assets/icon/invoice_icon.png" alt="" class="image" />
+        </i>
+        <div class="flex flex-1 flex-col">
+          <div class="text-body text-neutral-500">{{ d.client_name }}</div>
+          <div class="text-body-xs text-neutral-200 mt-[2px]">
+            {{ d.created_at }}
+          </div>
+          <div class="text-[16px] font-semibold text-primary-900 mt-auto">
+            10.000 XAF
+          </div>
         </div>
-        <div class="text-[16px] font-semibold text-primary-900 mt-auto">
-          10.000 XAF
+        <div class="flex flex-col justify-end">
+          <div
+            class="text-body px-4 py-3 bg-neutral-90 rounded-md text-primary-900"
+          >
+            {{ d.state }}
+          </div>
         </div>
+      </li>
+      <div #trashIcon class="row-span-full col-span-full relative">
+        <img
+          class="absolute right-4 top-0 bottom-0 m-auto h-fit"
+          src="assets/icon/delete_icon.png"
+          alt=""
+        />
       </div>
-      <div class="flex flex-col justify-end">
-        <div
-          class="text-body px-4 py-3 bg-neutral-90 rounded-md text-primary-900"
-        >
-          {{ d.state }}
-        </div>
-      </div>
-    </li>
+    </div>
   </ul>
-  <div class="fixed bottom-4 right-4">
+  <div class="fixed bottom-4 right-4 z-50">
     <app-button [fab]="true" (click)="createNewDevis()"></app-button>
   </div>
 </div>

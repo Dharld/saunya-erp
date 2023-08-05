@@ -13,9 +13,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ToastrModule } from 'ngx-toastr';
+import { TestComponent } from './features/test/test.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, TestComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
