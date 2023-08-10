@@ -13,12 +13,13 @@ import {
   DomController,
   GestureController,
 } from '@ionic/angular';
-import { map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
-import { OdooService } from 'src/app/core/services/odoo.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
+import { States } from 'src/utils/states';
 
 @Component({
   selector: 'app-devis',
@@ -27,15 +28,16 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
 })
 export class DevisComponent implements OnInit, AfterViewInit {
   @ViewChild(ModalComponent) modal!: ModalComponent;
+  devisToDelete: Devis | null = null;
+
   @ViewChildren('container', { read: ElementRef })
   containers!: QueryList<ElementRef>;
-  devis$ = this.ventesService.devisAsObservable().pipe(
-    map((arr) =>
-      arr.sort((d1, d2) => {
-        return d1.client_name.localeCompare(d2.client_name);
-      })
-    )
-  );
+  devis!: any[];
+  devis$!: Observable<any[]>;
+  loading = true;
+  states = States;
+  show_modal = false;
+  loadingDelete = false;
 
   constructor(
     private navigation: NavigationService,
@@ -43,11 +45,18 @@ export class DevisComponent implements OnInit, AfterViewInit {
     private ventesService: VentesService,
     private gestureCtrl: GestureController,
     private animationCtrl: AnimationController,
-    private domCtrl: DomController,
-    private odooService: OdooService
+    private domCtrl: DomController
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.devis$ = this.ventesService.devisAsObservable();
+
+    this.ventesService.getAllDevis().subscribe((data) => {
+      if (data.length != 0) {
+        this.loading = false;
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     const itemsArr = this.containers.toArray();
@@ -115,5 +124,23 @@ export class DevisComponent implements OnInit, AfterViewInit {
   editDevis(devis: Devis) {
     this.ventesService.nextEditedDevis(devis);
     this.navigation.navigateWithParams(['new'], { mode: 'edit' }, this.route);
+  }
+
+  openModal(event: Event, devis: Devis) {
+    event.stopPropagation();
+    this.show_modal = true;
+    this.devisToDelete = devis;
+  }
+
+  deleteDevis() {
+    this.loadingDelete = true;
+    this.ventesService.deleteDevis(this.devisToDelete!).subscribe((result) => {
+      if (result) {
+        this.devis.filter((d) => d.id === this.devisToDelete!.id);
+        this.loadingDelete = false;
+        this.devisToDelete = null;
+        this.show_modal = false;
+      }
+    });
   }
 }

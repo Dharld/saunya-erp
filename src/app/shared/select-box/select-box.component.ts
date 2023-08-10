@@ -52,9 +52,9 @@ export class SelectBoxComponent implements OnInit, ControlValueAccessor {
 
   writeValue(value: any): void {
     if (!this.disabled) {
-      if (this.in) {
+      /* if (this.in) {
         console.log(this.in);
-      }
+      } */
       this.value = value;
       this.onChange(this.value);
       this.selectOption(value);

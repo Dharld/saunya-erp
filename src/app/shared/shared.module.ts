@@ -9,6 +9,7 @@ import { SearchbarComponent } from './searchbar/searchbar.component';
 import { IonicModule } from '@ionic/angular';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalComponent } from './modal/modal.component';
+import { SpinnerComponent } from './spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { ModalComponent } from './modal/modal.component';
     SearchbarComponent,
     DatePickerComponent,
     ModalComponent,
+    SpinnerComponent,
   ],
   imports: [CommonModule, FormsModule, IonicModule],
   exports: [
@@ -29,6 +31,7 @@ import { ModalComponent } from './modal/modal.component';
     SearchbarComponent,
     DatePickerComponent,
     ModalComponent,
+    SpinnerComponent,
   ],
 })
 export class SharedModule {}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
@@ -15,25 +15,21 @@ import { VentesService } from 'src/app/core/services/ventes.service';
 })
 export class NouveauDevisComponent implements OnInit {
   mode = 'create';
-
-  nouveauDevisForm!: FormGroup<any>;
+  createLoading = false;
+  nouveauDevisForm!: FormGroup<{
+    client: FormControl;
+    expiration_date: FormControl;
+    payment_condition: FormControl;
+  }>;
   devis$ = this.venteServices.devisAsObservable();
   editedDevis!: Devis;
 
+  products!: any[];
+
   /** */
-  clients = ['Client 1', 'Client 2', 'Client 3', 'Client 4', 'Client 5'];
-  invoice_addresses = ['invoiceAddress1', 'invoiceAddres2', 'invoiceAddress3'];
-  delivery_addresses = [
-    'deliveryAddress1',
-    'deliveryAddres2',
-    'deliveryAddress3',
-  ];
-  payment_conditions = [
-    'Paiement immédiat',
-    '15 jours',
-    '21 jours',
-    'Fin du mois',
-  ];
+  clients: any[] = [];
+  terms: any[] = [];
+  payment_conditions: string[] = [];
   orderLines: OrderLine[] = [];
 
   constructor(
@@ -47,22 +43,26 @@ export class NouveauDevisComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
     });
+    this.venteServices.getAllCustomers().subscribe((customers) => {
+      this.clients = customers;
+    });
+    this.venteServices.getPaymentTerms().subscribe((terms) => {
+      this.terms = terms;
+      this.payment_conditions = (terms as any[]).map((c) => c.name);
+    });
   }
 
   ngOnInit() {
     this.ventesService.editedDevisAsObservable().subscribe((data) => {
       this.editedDevis = data;
-    });
-    this.nouveauDevisForm = this.fb.group({
-      client: this.mode === 'edit' ? [this.editedDevis.client_name] : [''],
-      invoice_address:
-        this.mode === 'edit' ? [this.editedDevis.invoice_address] : [''],
-      delivery_address:
-        this.mode === 'edit' ? [this.editedDevis.delivery_address] : [''],
-      expiration_date:
-        this.mode === 'edit' ? [this.editedDevis.expiration_date] : [''],
-      payment_condition:
-        this.mode === 'edit' ? [this.editedDevis.payment_condition] : [''],
+      console.log(this.editedDevis);
+      this.nouveauDevisForm = this.fb.group({
+        client: this.mode === 'edit' ? [this.editedDevis.client_name] : [''],
+        expiration_date:
+          this.mode === 'edit' ? [this.editedDevis.expiration_date] : [''],
+        payment_condition:
+          this.mode === 'edit' ? [this.editedDevis.payment_condition] : [''],
+      });
     });
   }
 
@@ -73,16 +73,12 @@ export class NouveauDevisComponent implements OnInit {
   addCommandLine() {
     const {
       client: client_name,
-      invoice_address,
-      delivery_address,
       expiration_date,
       payment_condition,
     } = this.nouveauDevisForm.value;
     this.venteServices.nextEditedDevis({
       id: this.mode === 'edit' ? this.editedDevis.id : 'brouillon',
       client_name,
-      invoice_address,
-      delivery_address,
       expiration_date,
       payment_condition,
       order_lines: this.editedDevis.order_lines
@@ -95,16 +91,16 @@ export class NouveauDevisComponent implements OnInit {
   createDevis() {
     const {
       client: client_name,
-      invoice_address,
-      delivery_address,
       expiration_date,
       payment_condition,
     } = this.nouveauDevisForm.value;
 
     let devis: any = {
+      client_id: this.clients.find((client) => client.name === client_name).id,
+      payment_term_id: this.terms.find(
+        (term) => term.name === payment_condition
+      ).id,
       client_name,
-      invoice_address,
-      delivery_address,
       expiration_date,
       payment_condition,
       order_lines: this.editedDevis.order_lines
@@ -125,7 +121,7 @@ export class NouveauDevisComponent implements OnInit {
       devis.state = this.editedDevis.state;
       devis.created_at = this.editedDevis.created_at;
       const updateDevis$ = this.venteServices.updateDevis(devis);
-      updateDevis$.subscribe((data) => {
+      updateDevis$.subscribe(() => {
         this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
         this.venteServices.clearEditedDevis();
         this.navigation.goBack();
@@ -135,12 +131,18 @@ export class NouveauDevisComponent implements OnInit {
 
     const addDevis$ = this.venteServices.addDevis(devis);
 
+    this.createLoading = true;
     addDevis$.subscribe(() => {
+      this.createLoading = false;
       this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
       // Clear the edited devis
       this.venteServices.clearEditedDevis();
       // Go back to previous screen
       this.navigation.goBack();
     });
+  }
+
+  get clientNames() {
+    return this.clients.map((client) => client.name);
   }
 }

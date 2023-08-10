@@ -1,7 +1,8 @@
 {
-  "/api": {
-    "target": "https://my.saunya.com",
-    "secure": false,
-    "changeOrigin": true
+  "/web": {
+    "target": "https://demo.net-2s.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

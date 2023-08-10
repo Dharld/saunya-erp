@@ -1,54 +1,51 @@
 import { Injectable } from '@angular/core';
 import { Devis } from '../model/devis.model';
-import {
-  BehaviorSubject,
-  Observable,
-  delay,
-  filter,
-  find,
-  map,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { BehaviorSubject, Observable, from, map, of, tap } from 'rxjs';
 import { OrderLine } from '../model/order-line.model';
-import { fromJSDateToString } from 'src/utils/luxon';
+import { OdooService } from './odoo.service';
+import { Customer } from '../model/customer.model';
+import {
+  fromFormatToJSDate,
+  fromJSDateToString,
+  fromOdooToFormat,
+} from 'src/utils/luxon';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VentesService {
-  private INITIAL_DEVIS: Devis[] = new Array(9)
-    .fill({})
-    .map(function (_, index) {
-      const newDevis = new Devis('Saunya Cosmetics');
-      newDevis.id = 'DEVIS' + index;
-      newDevis.invoice_address = 'Yaoundé, CAMEROUN';
-      newDevis.delivery_address = 'Doual, CAMEROUN';
-      newDevis.payment_condition = 'Paiement immédiat';
-      newDevis.expiration_date = fromJSDateToString(new Date(), 'dd-MM-yyyy');
-      newDevis.order_lines = [
-        {
-          product: 'Test',
-          quantity: 2,
-          unitPrice: 10000,
-          taxes: '',
-          description: '',
-        },
-      ];
-      return newDevis;
-    });
+  private INITIAL_DEVIS: Devis[] = new Array();
+  // .fill({})
+  // .map(function (_, index) {
+  //   const newDevis = new Devis('Saunya Cosmetics');
+  //   newDevis.id = 'DEVIS' + index;
+  //   newDevis.invoice_address = 'Yaoundé, CAMEROUN';
+  //   newDevis.delivery_address = 'Doual, CAMEROUN';
+  //   newDevis.payment_condition = 'Paiement immédiat';
+  //   newDevis.expiration_date = fromJSDateToString(new Date(), 'dd-MM-yyyy');
+  //   newDevis.order_lines = [
+  //     {
+  //       product: 'Test',
+  //       quantity: 2,
+  //       unitPrice: 10000,
+  //       taxes: '',
+  //       description: '',
+  //     },
+  //   ];
+  //   return newDevis;
+  // });
   private devis = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
 
   private editedDevis!: BehaviorSubject<Devis>;
 
-  constructor() {
+  constructor(private odooService: OdooService) {
     const DRAFT_DEVIS = new Devis('');
     DRAFT_DEVIS.id = 'brouillon';
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
   }
 
   nextEditedDevis(devis: Devis) {
+    console.log(devis);
     this.editedDevis.next(devis);
   }
 
@@ -57,14 +54,7 @@ export class VentesService {
   }
 
   addDevis(devis: Devis) {
-    const devisArr = this.devis.getValue();
-    devisArr.push(devis);
-    return of({}).pipe(
-      tap(() => {
-        this.devis.next(devisArr);
-        console.log(this.devis.getValue());
-      })
-    );
+    return from(this.odooService.createDevis(devis));
   }
 
   updateDevis(devis: Devis) {
@@ -97,8 +87,57 @@ export class VentesService {
       map((devisArr) => devisArr.find((devis) => devis.id === devisId))
     );
   }
-  getAllDevis(): Observable<Devis[]> {
-    return this.devis.pipe(delay(500));
+
+  getAllDevis(): Observable<any[]> {
+    // return this.devis.pipe(delay(500));
+    return from(this.odooService.getDevis()).pipe(
+      map((devis) => {
+        return devis.slice().map(function (d) {
+          return {
+            id: d.id,
+            client_name: d.partner_id[1],
+            displayName: d.name,
+            total: d.amount_total,
+            state: d.state,
+            created_at: d.date_order,
+            payment_condition: d.payment_term_id[1],
+            expiration_date: d.validity_date,
+            order_lines: d.order_lines,
+          };
+        });
+      }),
+      tap((devis) => {
+        this.devis.next(devis);
+      })
+    );
+  }
+
+  getAllCustomers(): Observable<Customer[]> {
+    const getCustomers$ = from(this.odooService.getCustomers());
+    return getCustomers$;
+  }
+
+  getPaymentTerms() {
+    return from(this.odooService.getPaymentTerms());
+  }
+
+  getProducts() {
+    return from(this.odooService.getProducts());
+  }
+
+  getTaxes() {
+    return from(this.odooService.getTaxes());
+  }
+
+  deleteDevis(devis: Devis) {
+    return from(this.odooService.deleteDevis(+devis.id!)).pipe(
+      tap((success) => {
+        if (success) {
+          let devisArr = this.devis.getValue();
+          console.log(devisArr);
+        }
+      })
+    );
   }
 
   addOrderLine(devis: Devis, orderLine: OrderLine) {

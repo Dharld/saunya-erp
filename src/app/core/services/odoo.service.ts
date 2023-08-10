@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
-/* import { Odoo } from 'odoo-xmlrpc';
- */
+import Odoo from 'odoo-xmlrpc';
+import { Devis } from '../model/devis.model';
+import { Customer } from '../model/customer.model';
+import { fromFormatToOdoo } from 'src/utils/luxon';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -8,20 +11,212 @@ export class OdooService {
   odoo: any;
 
   constructor() {
-    /* this.odoo = new Odoo({
-      url: 'https://demo.net-2s.com/web?db=demo.net-2s.com_mattea',
-      db: 'demo.net-2s.com_mattea',
-      username: 'yanndjoumessi@gmail.com',
-      password: 'admin',
-    }); */
+    this.odoo = new Odoo({
+      url: 'https://comptabilite.net-2s.com',
+      db: 'comptabilite.net-2s.com',
+      username: 'info@net-2s.com',
+      password: '200?skfb',
+    });
   }
 
-  login() {
-    this.odoo.connect(function (err: any) {
-      if (err) {
-        return console.log(err);
-      }
-      console.log('Connected to Odoo server.');
+  login() {}
+
+  getOrderline(order_line_id: number) {
+    const odoo = this.odoo;
+    return new Promise((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        let inParams: any[] = [];
+        inParams.push([order_line_id]);
+        inParams.push(['name', 'price_unit', 'product_uom_qty', 'order_id']);
+        let params = [];
+        params.push(inParams);
+        odoo.execute_kw(
+          'sale.order.line',
+          'read',
+          params,
+          function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            res(value);
+          }
+        );
+      });
+    });
+  }
+
+  getItems<T>(model: string, fields: string[]): Promise<T[]> {
+    let odoo = this.odoo;
+
+    return new Promise<T[]>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        let inParams: any[] = [];
+        inParams.push([]);
+        inParams.push(fields);
+        let params = [];
+        params.push(inParams);
+
+        odoo.execute_kw(
+          model,
+          'search_read',
+          params,
+          function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            res(value);
+          }
+        );
+      });
+    });
+  }
+
+  getCustomers(): Promise<Customer[]> {
+    return this.getItems<Customer>('res.partner', ['name', 'email']);
+  }
+
+  getPaymentTerms() {
+    return this.getItems<any>('account.payment.term', ['name']);
+  }
+
+  getDevis() {
+    let odoo = this.odoo;
+    const that = this;
+    let devis: Devis[];
+
+    return new Promise<any[]>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        let inParams: any[] = [];
+        inParams.push([]);
+        inParams.push([
+          'partner_id',
+          'name',
+          'amount_total',
+          'date_order',
+          'state',
+          'payment_term_id',
+          'order_line',
+          'validity_date',
+        ]);
+        let params = [];
+        params.push(inParams);
+
+        odoo.execute_kw(
+          'sale.order',
+          'search_read',
+          params,
+          async function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            devis = value;
+
+            for (let i = 0; i < devis.length; i++) {
+              const d: any = devis[i];
+              const sc = d.order_line[0];
+              if (sc) {
+                const orderline: any = await that.getOrderline(sc);
+                d.order_lines = [];
+                d.order_lines = orderline;
+              }
+            }
+
+            res(devis);
+          }
+        );
+      });
+    });
+  }
+
+  getProducts() {
+    return this.getItems<any>('product.product', [
+      'name',
+      'lst_price',
+      'taxes_id',
+    ]);
+  }
+
+  getTaxes() {
+    return this.getItems<any>('account.tax', ['name']);
+  }
+
+  createDevis(devis: Devis) {
+    let odoo = this.odoo;
+    return new Promise<any>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        let inParams = [];
+        const devisOdoo = {
+          partner_id: devis.client_id,
+          validity_date: fromFormatToOdoo(devis.expiration_date!),
+          payment_term_id: devis.payment_term_id,
+          order_line: devis.order_lines?.map((ol) => {
+            return [
+              0,
+              0,
+              {
+                product_id: ol.product_id,
+                product_uom_qty: ol.quantity,
+              },
+            ];
+          }),
+        };
+        inParams.push(devisOdoo);
+        let params = [];
+        params.push(inParams);
+        odoo.execute_kw(
+          'sale.order',
+          'create',
+          params,
+          function (err: any, value: any) {
+            if (err) {
+              throw err;
+            }
+            res(value);
+          }
+        );
+      });
+    });
+  }
+
+  deleteDevis(devisId: number) {
+    const odoo = this.odoo;
+    return new Promise<any>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        var inParams = [];
+        inParams.push([devisId]); //id to delete
+        var params = [];
+        params.push(inParams);
+        odoo.execute_kw(
+          'sale.order',
+          'unlink',
+          params,
+          function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            res(value);
+          }
+        );
+      });
     });
   }
 }

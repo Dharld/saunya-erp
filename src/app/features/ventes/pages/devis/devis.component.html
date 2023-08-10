@@ -1,6 +1,6 @@
-<div class="wrapper py-6 px-4">
+<div class="wrapper py-6 px-4 h-full">
   <h4>Devis</h4>
-  <app-modal>
+  <app-modal [show_modal]="show_modal">
     <div
       class="h-[70px] bg-primary-400 text-white px-4 flex items-center font-semibold text-h4"
       title
@@ -15,21 +15,28 @@
         La suppression d'un dévis est définitive et ne peut être annuler.
       </div>
       <div class="buttons flex justify-between gap-1 mt-8">
-        <app-button text="Supprimer" class="flex-1"></app-button>
+        <app-button
+          text="Supprimer"
+          class="flex-1"
+          (click)="deleteDevis()"
+          [loading]="loadingDelete"
+        ></app-button>
         <app-button
           text="Annuler"
           class="flex-1"
           styles="outlineButton"
+          (click)="show_modal = false"
         ></app-button>
       </div>
     </div>
   </app-modal>
   <app-searchbar></app-searchbar>
-  <ul class="list mt-3 h-[77vh] relative transition">
+  <ul class="list mt-3 h-[77vh] relative transition" *ngIf="!loading">
     <div
       class="bg-primary-300 rounded-md mb-3 grid transition"
       *ngFor="let d of devis$ | async"
       #container
+      (click)="editDevis(d)"
     >
       <li
         class="bg-neutral-80 py-3 px-3 flex gap-2 border border-neutral-100 select-none h-full rounded-md row-span-full col-span-full relative z-10 transition"
@@ -38,19 +45,34 @@
           <img src="assets/icon/invoice_icon.png" alt="" class="image" />
         </i>
         <div class="flex flex-1 flex-col">
-          <div class="text-body text-neutral-500">{{ d.client_name }}</div>
+          <div class="text-body text-neutral-500">
+            {{ d.displayName }} - {{ d.client_name }}
+          </div>
           <div class="text-body-xs text-neutral-200 mt-[2px]">
-            {{ d.created_at }}
+            {{ d.created_at | date }}
           </div>
           <div class="text-[16px] font-semibold text-primary-900 mt-auto">
-            10.000 XAF
+            {{ d.total }} Euros
           </div>
         </div>
-        <div class="flex flex-col justify-end">
-          <div
-            class="text-body px-4 py-3 bg-neutral-90 rounded-md text-primary-900"
+        <div class="flex flex-col justify-between items-end">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            class="fill-neutral-100 hover:fill-neutral-200 w-[12px] h-[12px]"
+            xmlns="http://www.w3.org/2000/svg"
+            (click)="openModal($event, d)"
           >
-            {{ d.state }}
+            <path
+              d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+              fill="inherit"
+            />
+          </svg>
+          <div
+            class="text-body-xs px-4 py-2 bg-neutral-90 rounded-full text-primary-900"
+          >
+            {{ states[d.state] }}
           </div>
         </div>
       </li>
@@ -63,6 +85,8 @@
       </div>
     </div>
   </ul>
+  <app-spinner *ngIf="loading"></app-spinner>
+
   <div class="fixed bottom-4 right-4 z-50">
     <app-button [fab]="true" (click)="createNewDevis()"></app-button>
   </div>
