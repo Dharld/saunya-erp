@@ -1,0 +1,3 @@
+[submodule "ng-odoo-connect"]
+	path = ng-odoo-connect
+	url = https://github.com/codize-app/ng-odoo-connect.git

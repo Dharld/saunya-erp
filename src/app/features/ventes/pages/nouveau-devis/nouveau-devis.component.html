@@ -30,7 +30,8 @@
         placeholder="Veuillez choisir un client"
         [options]="clients"
         name="client"
-        formControlName="client"
+        [formControl]="nouveauDevisForm.get('client')"
+        [options]="clientNames"
         [value]="nouveauDevisForm.get('client')!.value"
       ></app-select-box>
     </div>
