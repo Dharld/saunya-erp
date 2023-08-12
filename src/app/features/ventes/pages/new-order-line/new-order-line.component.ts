@@ -75,16 +75,22 @@ export class NewOrderLineComponent implements OnInit {
   }
 
   createOrderLine() {
-    const { product, quantity, unitPrice, taxes, discount, description } =
-      this.orderForm.value;
+    const {
+      product: name,
+      quantity: product_uom_qty,
+      unitPrice: price_unit,
+      taxes,
+      discount,
+      description,
+    } = this.orderForm.value;
 
     this.ventesService.addOrderLine(this.editedDevis, {
       product_id: this.products.find(
-        (actualProduct) => actualProduct.name === product
+        (actualProduct) => actualProduct.name === name
       ).id,
-      product,
-      quantity,
-      unitPrice,
+      name,
+      product_uom_qty,
+      price_unit,
       taxes,
       discount,
       description,

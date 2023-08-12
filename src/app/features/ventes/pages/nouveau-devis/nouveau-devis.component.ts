@@ -57,16 +57,21 @@ export class NouveauDevisComponent implements OnInit {
       this.editedDevis = data;
       console.log(this.editedDevis);
       this.nouveauDevisForm = this.fb.group({
-        client: this.mode === 'edit' ? [this.editedDevis.client_name] : [''],
-        expiration_date:
-          this.mode === 'edit' ? [this.editedDevis.expiration_date] : [''],
-        payment_condition:
-          this.mode === 'edit' ? [this.editedDevis.payment_condition] : [''],
+        client: /* this.mode === 'edit' ? */ [
+          this.editedDevis.client_name,
+        ] /* : [''] */,
+        expiration_date: /*  this.mode === 'edit' ? */ [
+          this.editedDevis.expiration_date,
+        ] /* : [''] */,
+        payment_condition: /* this.mode === 'edit' ? */ [
+          this.editedDevis.payment_condition,
+        ] /* : [''] */,
       });
     });
   }
 
   goBack() {
+    this.venteServices.clearEditedDevis();
     this.navigation.goBack();
   }
 

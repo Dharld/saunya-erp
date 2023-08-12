@@ -134,7 +134,13 @@ export class VentesService {
       tap((success) => {
         if (success) {
           let devisArr = this.devis.getValue();
-          console.log(devisArr);
+          devisArr = devisArr.filter((d) => {
+            if (d.id === devis.id) {
+              return undefined;
+            }
+            return d;
+          });
+          this.devis.next(devisArr);
         }
       })
     );

@@ -1,9 +1,9 @@
 export interface OrderLine {
   id?: string;
-  product: string;
+  name: string;
   product_id: number;
-  quantity: number;
-  unitPrice: number;
+  product_uom_qty: number;
+  price_unit: number;
   taxes: string;
   discount?: number;
   description: string;

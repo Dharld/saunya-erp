@@ -12,10 +12,12 @@ import {
   AnimationController,
   DomController,
   GestureController,
+  ToastController,
 } from '@ionic/angular';
 import { Observable, map, tap } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
+import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
@@ -45,7 +47,8 @@ export class DevisComponent implements OnInit, AfterViewInit {
     private ventesService: VentesService,
     private gestureCtrl: GestureController,
     private animationCtrl: AnimationController,
-    private domCtrl: DomController
+    private domCtrl: DomController,
+    private toast: ToasterService
   ) {}
 
   ngOnInit() {
@@ -136,8 +139,13 @@ export class DevisComponent implements OnInit, AfterViewInit {
     this.loadingDelete = true;
     this.ventesService.deleteDevis(this.devisToDelete!).subscribe((result) => {
       if (result) {
-        this.devis.filter((d) => d.id === this.devisToDelete!.id);
         this.loadingDelete = false;
+        this.toast.showSuccess(
+          `Le devis ${this.devisToDelete!.displayName} - ${
+            this.devisToDelete!.client_name
+          } a été supprimé avec succès`,
+          'Succès'
+        );
         this.devisToDelete = null;
         this.show_modal = false;
       }

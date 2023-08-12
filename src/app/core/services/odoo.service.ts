@@ -17,6 +17,12 @@ export class OdooService {
       username: 'info@net-2s.com',
       password: '200?skfb',
     });
+    // new Odoo({
+    //   url: 'https://demo2.net-2s.com',
+    //   db: 'demo2.net-2s.com',
+    //   username: 'franck@saunya.com',
+    //   password: 'franck',
+    // });
   }
 
   login() {}
@@ -122,7 +128,7 @@ export class OdooService {
             }
             devis = value;
 
-            for (let i = 0; i < devis.length; i++) {
+            /* for (let i = 0; i < devis.length; i++) {
               const d: any = devis[i];
               const sc = d.order_line[0];
               if (sc) {
@@ -130,7 +136,7 @@ export class OdooService {
                 d.order_lines = [];
                 d.order_lines = orderline;
               }
-            }
+            } */
 
             res(devis);
           }
@@ -170,7 +176,7 @@ export class OdooService {
               0,
               {
                 product_id: ol.product_id,
-                product_uom_qty: ol.quantity,
+                product_uom_qty: +ol.product_uom_qty,
               },
             ];
           }),
