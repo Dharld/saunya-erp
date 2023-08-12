@@ -36,13 +36,16 @@
   </app-modal>
   <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
   <div class="chips my-4">
-    <ion-chip
-      *ngFor="let c of clients"
-      (click)="setActiveClient(c)"
-      [ngClass]="{ active: c === activeClient }"
-    >
-      <ion-label>{{ c.name }}</ion-label>
-    </ion-chip>
+    <swiper-container slides-per-view="auto" grab-cursor="true">
+      <swiper-slide *ngFor="let c of clients">
+        <ion-chip
+          (click)="setActiveClient(c)"
+          [ngClass]="{ active: c === activeClient }"
+        >
+          <ion-label>{{ c.name }}</ion-label>
+        </ion-chip>
+      </swiper-slide>
+    </swiper-container>
   </div>
   <ul class="list h-[77vh] relative transition" *ngIf="!loading">
     <div

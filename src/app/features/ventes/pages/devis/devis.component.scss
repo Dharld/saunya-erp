@@ -16,3 +16,12 @@ div.to-delete {
 div.deleted {
   transform: scaleY(0);
 }
+
+swiper-container {
+  width: 100%;
+
+  swiper-slide {
+    user-select: none;
+    width: fit-content !important;
+  }
+}

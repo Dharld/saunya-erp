@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/compiler';
 import {
   AfterViewInit,
   Component,

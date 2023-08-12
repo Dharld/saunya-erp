@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VentesComponent } from './ventes.component';
 import { IonicModule } from '@ionic/angular';
@@ -25,5 +25,6 @@ import { FilterPipe } from 'src/app/core/pipes/filter.pipe';
     CoreModule,
   ],
   exports: [VentesComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class VentesModule {}
