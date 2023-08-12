@@ -198,5 +198,9 @@ ion-title {
 }
 
 ion-chip {
-  @apply bg-primary-500 text-white font-sans;
+  @apply bg-neutral-90 text-neutral-400 font-sans;
+
+  &.active {
+    @apply bg-primary-300 text-white;
+  }
 }

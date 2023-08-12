@@ -36,8 +36,12 @@
   </app-modal>
   <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
   <div class="chips my-4">
-    <ion-chip>
-      <ion-label>Client</ion-label>
+    <ion-chip
+      *ngFor="let c of clients"
+      (click)="setActiveClient(c)"
+      [ngClass]="{ active: c === activeClient }"
+    >
+      <ion-label>{{ c.name }}</ion-label>
     </ion-chip>
   </div>
   <ul class="list h-[77vh] relative transition" *ngIf="!loading">

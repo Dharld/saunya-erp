@@ -125,7 +125,7 @@ export class OdooService {
     return this.getItems<any>('account.payment.term', ['name']);
   }
 
-  getDevis(name = '') {
+  getDevis(name = '', partner_id: number = -1) {
     let odoo = this.odoo;
     const that = this;
     let devis: Devis[];
@@ -137,7 +137,12 @@ export class OdooService {
         }
         console.log('Connected to Odoo server.');
         let inParams: any[] = [];
-        let domain = [['name', 'ilike', name]];
+        let domain: [string, string, number | string][] = [
+          ['name', 'ilike', name],
+        ];
+        if (partner_id > 0) {
+          domain.push(['partner_id', '=', partner_id]);
+        }
         inParams.push(domain);
         inParams.push([
           'partner_id',

@@ -4,11 +4,6 @@ import { BehaviorSubject, Observable, from, map, of, tap } from 'rxjs';
 import { OrderLine } from '../model/order-line.model';
 import { OdooService } from './odoo.service';
 import { Customer } from '../model/customer.model';
-import {
-  fromFormatToJSDate,
-  fromJSDateToString,
-  fromOdooToFormat,
-} from 'src/utils/luxon';
 
 @Injectable({
   providedIn: 'root',
@@ -89,10 +84,10 @@ export class VentesService {
     );
   }
 
-  getAllDevis(searchTerm = ''): Observable<any[]> {
+  getAllDevis(searchTerm = '', partner_id = -1): Observable<any[]> {
     // return this.devis.pipe(delay(500));
     this.loading.next(true);
-    return from(this.odooService.getDevis(searchTerm)).pipe(
+    return from(this.odooService.getDevis(searchTerm, partner_id)).pipe(
       map((devis) => {
         return devis.slice().map(function (d) {
           return {

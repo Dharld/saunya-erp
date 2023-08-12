@@ -34,5 +34,9 @@ SaunyaERP:
         ✔ Create an angular pipe that is gonna take an array of value in parameter and a search term. @done(23-08-12 10:24)
         ✘ The transform method is gonna perform an http request with the getDevis method passing the search text to parameter @cancelled(23-08-12 11:38)
         ✘ And is going to return the matching objects @cancelled(23-08-12 11:38)
-    ☐ Create the chip component
-    ☐ Make the chip component functional
+    ✔ Create the chip component @done(23-08-12 12:27)
+    ☐ Make the chip component functional @started(23-08-12 12:27)
+        - add a domain parameter that can select the devis matching the partner.id
+        - add an active devis to the devis component
+        - when we click on one devis, add the active class to it. Ensuring that the previous active had been removed
+    ☐ Add an empty state to the devis part

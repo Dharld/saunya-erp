@@ -19,10 +19,12 @@ import {
   Observable,
   debounceTime,
   distinctUntilChanged,
+  filter,
   map,
   switchMap,
   tap,
 } from 'rxjs';
+import { Customer } from 'src/app/core/model/customer.model';
 import { Devis } from 'src/app/core/model/devis.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
@@ -48,7 +50,10 @@ export class DevisComponent implements OnInit, AfterViewInit {
   states = States;
   show_modal = false;
   loadingDelete = false;
+  clients: Customer[] = [];
   searchText: BehaviorSubject<string> = new BehaviorSubject('');
+  activeClient: Customer | any = null;
+  clientChange: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(
     private navigation: NavigationService,
@@ -67,12 +72,28 @@ export class DevisComponent implements OnInit, AfterViewInit {
       this.loading = value;
     });
 
+    this.ventesService.getAllCustomers().subscribe((customers) => {
+      this.clients = customers;
+      console.log(this.clients);
+    });
+
     const search$ = this.searchText.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((text) => this.ventesService.getAllDevis(text ? text : ''))
     );
     search$.subscribe();
+
+    const clientChange$ = this.clientChange.pipe(
+      filter((change) => change === true),
+      switchMap(() =>
+        this.ventesService.getAllDevis(
+          this.searchText.getValue(),
+          this.activeClient.id
+        )
+      )
+    );
+    clientChange$.subscribe();
   }
 
   ngAfterViewInit(): void {
@@ -168,5 +189,10 @@ export class DevisComponent implements OnInit, AfterViewInit {
 
   setSearchText(text: string) {
     this.searchText.next(text);
+  }
+
+  setActiveClient(c: Customer) {
+    this.activeClient = c;
+    this.clientChange.next(true);
   }
 }
