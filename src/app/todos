@@ -29,7 +29,10 @@ SaunyaERP:
         ✔ then implement the gesture @done(23-08-05 11:12)
         ✔ implement the animation which consists in sliding the element all allong the window width and finally decrease the size @done(23-08-05 11:12)
         ✔ Finally call the 'deleteService' method @done(23-08-05 11:12)
-    ☐ Make a functional searchbar @started(23-08-12 09:19)
-        - Use ionic default search bar
+    ✔ Make a functional searchbar @started(23-08-12 09:19) @done(23-08-12 11:38) @lasted(2h19m39s)
+        ✔ Use ionic default search bar @done(23-08-12 10:24)
+        ✔ Create an angular pipe that is gonna take an array of value in parameter and a search term. @done(23-08-12 10:24)
+        ✘ The transform method is gonna perform an http request with the getDevis method passing the search text to parameter @cancelled(23-08-12 11:38)
+        ✘ And is going to return the matching objects @cancelled(23-08-12 11:38)
     ☐ Create the chip component
     ☐ Make the chip component functional

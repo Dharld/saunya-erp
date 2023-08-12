@@ -1,7 +1,9 @@
 <div class="">
   <ion-searchbar
+    #searchbar
     placeholder="Recherchez vos devis par nom"
     show-clear-button="focus"
     [debounce]="100"
+    (ionInput)="handleInput(searchbar.value!)"
   ></ion-searchbar>
 </div>

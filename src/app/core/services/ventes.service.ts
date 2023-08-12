@@ -14,6 +14,7 @@ import {
   providedIn: 'root',
 })
 export class VentesService {
+  loading = new BehaviorSubject(false);
   private INITIAL_DEVIS: Devis[] = new Array();
   // .fill({})
   // .map(function (_, index) {
@@ -88,9 +89,10 @@ export class VentesService {
     );
   }
 
-  getAllDevis(): Observable<any[]> {
+  getAllDevis(searchTerm = ''): Observable<any[]> {
     // return this.devis.pipe(delay(500));
-    return from(this.odooService.getDevis()).pipe(
+    this.loading.next(true);
+    return from(this.odooService.getDevis(searchTerm)).pipe(
       map((devis) => {
         return devis.slice().map(function (d) {
           return {
@@ -108,6 +110,7 @@ export class VentesService {
       }),
       tap((devis) => {
         this.devis.next(devis);
+        this.loading.next(false);
       })
     );
   }

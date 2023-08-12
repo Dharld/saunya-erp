@@ -83,6 +83,39 @@ export class OdooService {
       });
     });
   }
+  getItemsWidthDomain<T>(
+    model: string,
+    domain: string[],
+    fields: string[]
+  ): Promise<T[]> {
+    let odoo = this.odoo;
+
+    return new Promise<T[]>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        let inParams: any[] = [];
+        inParams.push(domain);
+        inParams.push(fields);
+        let params = [];
+        params.push(inParams);
+
+        odoo.execute_kw(
+          model,
+          'search_read',
+          params,
+          function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            res(value);
+          }
+        );
+      });
+    });
+  }
 
   getCustomers(): Promise<Customer[]> {
     return this.getItems<Customer>('res.partner', ['name', 'email']);
@@ -92,7 +125,7 @@ export class OdooService {
     return this.getItems<any>('account.payment.term', ['name']);
   }
 
-  getDevis() {
+  getDevis(name = '') {
     let odoo = this.odoo;
     const that = this;
     let devis: Devis[];
@@ -104,7 +137,8 @@ export class OdooService {
         }
         console.log('Connected to Odoo server.');
         let inParams: any[] = [];
-        inParams.push([]);
+        let domain = [['name', 'ilike', name]];
+        inParams.push(domain);
         inParams.push([
           'partner_id',
           'name',

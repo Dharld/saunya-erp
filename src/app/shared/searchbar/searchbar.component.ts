@@ -6,9 +6,13 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./searchbar.component.scss'],
 })
 export class SearchbarComponent implements OnInit {
-  @Output() searchText = new EventEmitter();
+  @Output() searchText: EventEmitter<string> = new EventEmitter();
 
   constructor() {}
 
   ngOnInit() {}
+
+  handleInput(search: string) {
+    this.searchText.next(search);
+  }
 }

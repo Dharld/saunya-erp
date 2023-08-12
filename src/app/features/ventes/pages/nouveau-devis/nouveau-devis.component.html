@@ -104,15 +104,18 @@
             </div>
             <div class="text-body text-neutral-500">
               Prix unitaire:
-              {{ ol.price_unit | number : "1.0-3" }} Euros
+              {{ ol.price_unit | number : "1.0-3" | currency : "EUR" }}
             </div>
           </div>
           <div class="h-[.5px] bg-neutral-100 my-3"></div>
           <div class="flex justify-end">
             <div class="text-body text-primary-900">
               Total:
-              {{ ol.price_unit * ol.product_uom_qty | number : "1.0-3" }}
-              Euros
+              {{
+                ol.price_unit * ol.product_uom_qty
+                  | number : "1.0-3"
+                  | currency : "EUR"
+              }}
             </div>
           </div>
         </li>

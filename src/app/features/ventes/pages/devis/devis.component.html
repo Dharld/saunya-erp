@@ -34,7 +34,7 @@
       </div>
     </div>
   </app-modal>
-  <app-searchbar></app-searchbar>
+  <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
   <ul class="list mt-3 h-[77vh] relative transition" *ngIf="!loading">
     <div
       class="bg-primary-300 rounded-md mb-3 grid transition"

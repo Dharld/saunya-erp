@@ -14,7 +14,15 @@ import {
   GestureController,
   ToastController,
 } from '@ionic/angular';
-import { Observable, map, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
@@ -36,10 +44,11 @@ export class DevisComponent implements OnInit, AfterViewInit {
   containers!: QueryList<ElementRef>;
   devis!: any[];
   devis$!: Observable<any[]>;
-  loading = true;
+  loading = false;
   states = States;
   show_modal = false;
   loadingDelete = false;
+  searchText: BehaviorSubject<string> = new BehaviorSubject('');
 
   constructor(
     private navigation: NavigationService,
@@ -54,11 +63,16 @@ export class DevisComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.devis$ = this.ventesService.devisAsObservable();
 
-    this.ventesService.getAllDevis().subscribe((data) => {
-      if (data.length != 0) {
-        this.loading = false;
-      }
+    this.ventesService.loading.subscribe((value) => {
+      this.loading = value;
     });
+
+    const search$ = this.searchText.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((text) => this.ventesService.getAllDevis(text ? text : ''))
+    );
+    search$.subscribe();
   }
 
   ngAfterViewInit(): void {
@@ -150,5 +164,9 @@ export class DevisComponent implements OnInit, AfterViewInit {
         this.show_modal = false;
       }
     });
+  }
+
+  setSearchText(text: string) {
+    this.searchText.next(text);
   }
 }

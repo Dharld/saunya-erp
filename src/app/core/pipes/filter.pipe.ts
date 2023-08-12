@@ -1,21 +1,27 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { VentesService } from '../services/ventes.service';
+import {
+  BehaviorSubject,
+  Observable,
+  debounce,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  tap,
+} from 'rxjs';
 @Pipe({
   name: 'filter',
 })
 export class FilterPipe implements PipeTransform {
+  devis!: any[];
+  searchText: BehaviorSubject<string> = new BehaviorSubject('');
+
   constructor(private venteService: VentesService) {}
 
-  transform(items: any[], searchText: string): any[] {
+  transform(items: any[] | null, searchText: string): any[] {
     if (!items) return [];
     if (!searchText) return items;
-    searchText = searchText.toLowerCase();
-    return items.filter((it) => {
-      return (
-        it.president.toLowerCase().includes(searchText) ||
-        it.party.toLowerCase().includes(searchText) ||
-        it.took_office.toLowerCase().includes(searchText)
-      );
-    });
+    this.searchText.next(searchText.toLowerCase());
+    return this.devis;
   }
 }
