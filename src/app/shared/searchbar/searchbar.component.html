@@ -1,9 +1,13 @@
-<div class="">
+<div class="font-sans">
   <ion-searchbar
     #searchbar
     placeholder="Recherchez vos devis par nom"
     show-clear-button="focus"
     [debounce]="100"
+    (ionFocus)="addFocus()"
+    (ionBlur)="removeFocus()"
     (ionInput)="handleInput(searchbar.value!)"
+    class="custom"
+    [ngClass]="{ focus: focus }"
   ></ion-searchbar>
 </div>

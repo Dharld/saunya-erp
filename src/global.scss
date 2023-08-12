@@ -158,3 +158,45 @@ ion-tab-button {
     @apply bg-primary-400 text-white rounded-full;
   }
 }
+
+ion-searchbar.custom {
+  --background: transparent;
+  --box-shadow: none;
+  padding-block: 4px;
+
+  &.focus {
+    @apply outline outline-2 outline-primary-300;
+    --icon-color: var(--primary-300);
+    --cancel-button-color: var(--primary-300);
+    --clear-button-color: var(--primary-300);
+  }
+  .searchbar-input-container.sc-ion-searchbar-md {
+    background: transparent !important;
+
+    input {
+      outline: none;
+      border: none;
+      @apply outline-none ring-0 font-sans;
+
+      &:placeholder {
+        @apply font-sans;
+      }
+    }
+  }
+
+  @apply bg-neutral-90 rounded-sm shadow-sm transition;
+}
+
+ion-toolbar {
+  --background: var(--primary-500);
+}
+
+ion-title {
+  --color: #fff;
+  user-select: none;
+  @apply font-sans;
+}
+
+ion-chip {
+  @apply bg-primary-500 text-white font-sans;
+}

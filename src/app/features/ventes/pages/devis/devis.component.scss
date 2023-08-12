@@ -16,12 +16,3 @@ div.to-delete {
 div.deleted {
   transform: scaleY(0);
 }
-
-ion-toolbar {
-  --background: var(--primary-500);
-}
-
-ion-title {
-  --color: #fff;
-  user-select: none;
-}

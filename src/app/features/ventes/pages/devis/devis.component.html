@@ -35,7 +35,12 @@
     </div>
   </app-modal>
   <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
-  <ul class="list mt-3 h-[77vh] relative transition" *ngIf="!loading">
+  <div class="chips my-4">
+    <ion-chip>
+      <ion-label>Client</ion-label>
+    </ion-chip>
+  </div>
+  <ul class="list h-[77vh] relative transition" *ngIf="!loading">
     <div
       class="bg-primary-300 rounded-md mb-3 grid transition"
       *ngFor="let d of devis$ | async"
