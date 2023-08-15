@@ -3,8 +3,11 @@ import {
   ElementRef,
   Input,
   OnInit,
+  Output,
   Renderer2,
   ViewChild,
+  AfterViewInit,
+  EventEmitter,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -20,7 +23,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     },
   ],
 })
-export class SelectBoxComponent implements OnInit, ControlValueAccessor {
+export class SelectBoxComponent
+  implements OnInit, AfterViewInit, ControlValueAccessor
+{
   showDropDown = false;
 
   readOnly = true;
@@ -28,8 +33,8 @@ export class SelectBoxComponent implements OnInit, ControlValueAccessor {
   @Input() name = '';
   @Input() label = '';
 
-  @Input() value!: string;
-  @Input() options: string[] = [];
+  @Input() value!: any;
+  @Input() options: any[] = [];
 
   @Input() disabled = false;
   @Input() placeholder = '';
@@ -40,24 +45,24 @@ export class SelectBoxComponent implements OnInit, ControlValueAccessor {
 
   onTouched = () => {};
 
-  constructor() {}
+  constructor(private renderer2: Renderer2) {}
 
   ngOnInit() {}
 
-  selectOption(option: string) {
-    this.value = option;
-    this.onChange(this.value);
-    this.closeDropdown();
+  ngAfterViewInit() {}
+
+  select(option: any) {
+    if (option) {
+      this.onChange(option);
+      this.value = option.text;
+      this.closeDropdown();
+      this.writeValue(this.value);
+    }
   }
 
   writeValue(value: any): void {
-    if (!this.disabled) {
-      /* if (this.in) {
-        console.log(this.in);
-      } */
-      this.value = value;
-      this.onChange(this.value);
-      this.selectOption(value);
+    if (!this.disabled && this.in) {
+      this.renderer2.setAttribute(this.in.nativeElement, 'value', this.value);
     }
   }
 

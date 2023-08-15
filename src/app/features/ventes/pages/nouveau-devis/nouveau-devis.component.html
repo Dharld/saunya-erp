@@ -1,24 +1,33 @@
+<ion-header>
+  <ion-toolbar class="text-white">
+    <ion-title
+      class="text-[20px] text-white font-semibold flex-1 flex justify-center"
+    >
+      <div class="flex items-center">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          (click)="goBack()"
+        >
+          <path
+            d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
+            fill="#fff"
+          />
+        </svg>
+        <div class="ml-1">
+          {{
+            this.mode === "edit" ? "Devis #" + editedDevis.id : "Nouveau devis"
+          }}
+        </div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
 <div class="p-4">
-  <div class="flex items-center">
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      (click)="goBack()"
-    >
-      <path
-        d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
-        fill="#122740"
-      />
-    </svg>
-    <div
-      class="text-[20px] text-primary-900 font-semibold flex-1 flex justify-center"
-    >
-      {{ this.mode === "edit" ? "Devis #" + editedDevis.id : "Nouveau devis" }}
-    </div>
-  </div>
+  <div class="flex items-center"></div>
   <form
     class="mt-1 h-[82vh] overflow-y-auto no-scroll px-2 select-none"
     [formGroup]="nouveauDevisForm"
@@ -30,7 +39,7 @@
         placeholder="Veuillez choisir un client"
         name="client"
         [formControl]="nouveauDevisForm.controls['client']"
-        [options]="clientNames"
+        [options]="clients"
         [value]="nouveauDevisForm.get('client')!.value"
       ></app-select-box>
     </div>

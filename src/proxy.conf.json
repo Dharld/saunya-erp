@@ -1,6 +1,6 @@
 {
-  "/web": {
-    "target": "https://demo.net-2s.com",
+  "/api": {
+    "target": "https://comptabilite.net-2s.com",
     "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"

@@ -3,7 +3,7 @@
     <ion-title>Devis</ion-title>
   </ion-toolbar>
 </ion-header>
-<div class="wrapper py-4 px-4 h-full">
+<div class="wrapper py-4 px-4 h-[calc(100%-56px)] flex flex-col">
   <app-modal [show_modal]="show_modal">
     <div
       class="h-[70px] bg-primary-400 text-white px-4 flex items-center font-semibold text-h4"
@@ -47,7 +47,19 @@
       </swiper-slide>
     </swiper-container>
   </div>
-  <ul class="list h-[77vh] relative transition" *ngIf="!loading">
+  <ul class="list flex-1 relative transition overflow-auto" *ngIf="!loading">
+    <div class="h-full" *ngIf="(devis$ | async)!.length == 0">
+      <div class="wrapper flex flex-col items-center">
+        <div class="text-neutral-200 mb-4 text-body">
+          Désolé, Aucun n'élément ne correspond à vos critères
+        </div>
+        <img
+          src="assets/illustration/empty-state.png"
+          alt=""
+          class="object-cover"
+        />
+      </div>
+    </div>
     <div
       class="bg-primary-300 rounded-md mb-3 grid transition"
       *ngFor="let d of devis$ | async"
@@ -101,6 +113,7 @@
       </div>
     </div>
   </ul>
+
   <app-spinner *ngIf="loading"></app-spinner>
 
   <div class="fixed bottom-4 right-4 z-50">

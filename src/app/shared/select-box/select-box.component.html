@@ -17,7 +17,6 @@
       #in
       readonly
       type="text"
-      [value]="value"
       [placeholder]="placeholder"
       (focus)="showDropDown = true"
       (blur)="onTouched()"
@@ -50,9 +49,9 @@
     <li
       class="px-2 py-3 text-body hover:bg-primary-200 hover:text-white cursor-pointer transition"
       *ngFor="let op of options"
-      (click)="selectOption(op)"
+      (click)="select(op)"
     >
-      {{ op }}
+      {{ op.text }}
     </li>
   </ul>
 </div>

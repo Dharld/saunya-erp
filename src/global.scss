@@ -186,11 +186,15 @@ ion-searchbar.custom {
     }
   }
 
-  @apply bg-neutral-90 rounded-sm shadow-sm transition;
+  @apply bg-neutral-90 rounded-full shadow-sm transition;
 }
 
 ion-toolbar {
   --background: var(--primary-500);
+
+  .toolbar-title {
+    @apply flex;
+  }
 }
 
 ion-title {

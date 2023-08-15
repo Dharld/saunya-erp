@@ -3,6 +3,7 @@ import Odoo from 'odoo-xmlrpc';
 import { Devis } from '../model/devis.model';
 import { Customer } from '../model/customer.model';
 import { fromFormatToOdoo } from 'src/utils/luxon';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -10,7 +11,7 @@ import { fromFormatToOdoo } from 'src/utils/luxon';
 export class OdooService {
   odoo: any;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     this.odoo = new Odoo({
       url: 'https://comptabilite.net-2s.com',
       db: 'comptabilite.net-2s.com',
@@ -23,6 +24,19 @@ export class OdooService {
     //   username: 'franck@saunya.com',
     //   password: 'franck',
     // });
+
+    // const formData = new FormData();
+    // formData.append('uid', '2');
+    // formData.append('customer_id', '3');
+    // formData.append('payment_term_id', '1');
+    // formData.append('order_line', '[{ "product_id": 2, "qty": 5 }]');
+
+    // this.http
+    //   .post(
+    //     /* 'https://comptabilite.net-2s.com/ */ 'api/create/quotation',
+    //     formData
+    //   )
+    //   .subscribe((data) => console.log(data));
   }
 
   login() {}
@@ -189,7 +203,10 @@ export class OdooService {
       'name',
       'lst_price',
       'taxes_id',
-    ]);
+    ]).then((res) => {
+      console.log(res);
+      return res;
+    });
   }
 
   getTaxes() {
@@ -236,6 +253,7 @@ export class OdooService {
         );
       });
     });
+    // this.http.post("/api/create/quotation", )
   }
 
   deleteDevis(devisId: number) {

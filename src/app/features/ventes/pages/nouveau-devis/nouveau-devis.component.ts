@@ -44,11 +44,19 @@ export class NouveauDevisComponent implements OnInit {
       this.mode = params['mode'];
     });
     this.venteServices.getAllCustomers().subscribe((customers) => {
-      this.clients = customers;
+      this.clients = customers.map((c: any) => {
+        c.text = c.name;
+        return c;
+      });
+      console.log(this.clients);
     });
     this.venteServices.getPaymentTerms().subscribe((terms) => {
       this.terms = terms;
-      this.payment_conditions = (terms as any[]).map((c) => c.name);
+
+      this.payment_conditions = (terms as any[]).map((t) => {
+        t.text = t.name;
+        return t;
+      });
     });
   }
 
@@ -57,15 +65,9 @@ export class NouveauDevisComponent implements OnInit {
       this.editedDevis = data;
       console.log(this.editedDevis);
       this.nouveauDevisForm = this.fb.group({
-        client: /* this.mode === 'edit' ? */ [
-          this.editedDevis.client_name,
-        ] /* : [''] */,
-        expiration_date: /*  this.mode === 'edit' ? */ [
-          this.editedDevis.expiration_date,
-        ] /* : [''] */,
-        payment_condition: /* this.mode === 'edit' ? */ [
-          this.editedDevis.payment_condition,
-        ] /* : [''] */,
+        client: [this.editedDevis.client_name],
+        expiration_date: [this.editedDevis.expiration_date],
+        payment_condition: [this.editedDevis.payment_condition],
       });
     });
   }
@@ -94,18 +96,12 @@ export class NouveauDevisComponent implements OnInit {
   }
 
   createDevis() {
-    const {
-      client: client_name,
-      expiration_date,
-      payment_condition,
-    } = this.nouveauDevisForm.value;
+    const { client, expiration_date, payment_condition } =
+      this.nouveauDevisForm.value;
 
     let devis: any = {
-      client_id: this.clients.find((client) => client.name === client_name).id,
-      payment_term_id: this.terms.find(
-        (term) => term.name === payment_condition
-      ).id,
-      client_name,
+      client_id: client.id,
+      payment_term_id: payment_condition.id,
       expiration_date,
       payment_condition,
       order_lines: this.editedDevis.order_lines
@@ -113,41 +109,31 @@ export class NouveauDevisComponent implements OnInit {
         : [],
     };
 
-    /* devis.invoice_address = invoice_address;
-    devis.delivery_address = delivery_address;
-    devis.expiration_date = expiration_date;
-    devis.payment_condition = payment_condition;
-    devis.order_lines = this.editedDevis.order_lines
-      ? this.editedDevis.order_lines
-      : []; */
+    console.log(devis);
 
-    if (this.mode === 'edit') {
-      devis.id = this.editedDevis.id;
-      devis.state = this.editedDevis.state;
-      devis.created_at = this.editedDevis.created_at;
-      const updateDevis$ = this.venteServices.updateDevis(devis);
-      updateDevis$.subscribe(() => {
-        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
-        this.venteServices.clearEditedDevis();
-        this.navigation.goBack();
-      });
-      return;
-    }
+    // if (this.mode === 'edit') {
+    //   devis.id = this.editedDevis.id;
+    //   devis.state = this.editedDevis.state;
+    //   devis.created_at = this.editedDevis.created_at;
+    //   const updateDevis$ = this.venteServices.updateDevis(devis);
+    //   updateDevis$.subscribe(() => {
+    //     this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+    //     this.venteServices.clearEditedDevis();
+    //     this.navigation.goBack();
+    //   });
+    //   return;
+    // }
 
-    const addDevis$ = this.venteServices.addDevis(devis);
+    // const addDevis$ = this.venteServices.addDevis(devis);
 
-    this.createLoading = true;
-    addDevis$.subscribe(() => {
-      this.createLoading = false;
-      this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
-      // Clear the edited devis
-      this.venteServices.clearEditedDevis();
-      // Go back to previous screen
-      this.navigation.goBack();
-    });
-  }
-
-  get clientNames() {
-    return this.clients.map((client) => client.name);
+    // this.createLoading = true;
+    // addDevis$.subscribe(() => {
+    //   this.createLoading = false;
+    //   this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+    //   // Clear the edited devis
+    //   this.venteServices.clearEditedDevis();
+    //   // Go back to previous screen
+    //   this.navigation.goBack();
+    // });
   }
 }
