@@ -1,21 +1,23 @@
 import { fromJSDateToString } from 'src/utils/luxon';
 import { OrderLine } from './order-line.model';
 
+type NameAndId = {
+  id: number;
+  name: string;
+};
 export class Devis {
   id?: string;
   state: string;
   created_at?: string;
+  client?: NameAndId;
   expiration_date?: string;
-  payment_condition?: string;
+  payment_condition?: NameAndId;
   order_line?: any;
   order_lines?: any[];
   total?: number;
   displayName?: string;
-  client_id?: number;
-  payment_term_id?: number;
 
-  constructor(public client_name: string, state: string = 'Devis') {
-    this.client_name = client_name;
+  constructor(state: string = 'Devis') {
     this.state = state;
     this.created_at = fromJSDateToString(new Date(), 'dd-LL-yy');
   }
@@ -28,7 +30,7 @@ export class Devis {
   // }
 
   static fromDevis(devis: Devis): Devis {
-    const dev = new Devis(devis.client_name);
+    const dev = new Devis();
     return dev;
   }
 }

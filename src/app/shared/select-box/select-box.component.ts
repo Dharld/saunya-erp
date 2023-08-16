@@ -33,7 +33,10 @@ export class SelectBoxComponent
   @Input() name = '';
   @Input() label = '';
 
-  @Input() value!: any;
+  value: any = {
+    text: '',
+  };
+
   @Input() options: any[] = [];
 
   @Input() disabled = false;
@@ -54,16 +57,18 @@ export class SelectBoxComponent
   select(option: any) {
     if (option) {
       this.onChange(option);
-      this.value = option.text;
+      this.value = option;
       this.closeDropdown();
-      this.writeValue(this.value);
     }
   }
 
   writeValue(value: any): void {
-    if (!this.disabled && this.in) {
-      this.renderer2.setAttribute(this.in.nativeElement, 'value', this.value);
-    }
+    this.value = value;
+    /* if (!this.disabled && this.in && value) {
+      console.log(this.in.nativeElement);
+      console.log(value);
+      this.renderer2.setAttribute(this.in.nativeElement, 'value', value.text);
+    } */
   }
 
   registerOnChange(fn: (value: string) => void): void {

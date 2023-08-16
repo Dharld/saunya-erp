@@ -17,21 +17,25 @@
             fill="#fff"
           />
         </svg>
-        <div class="ml-1">
+        <div class="ml-1" *ngIf="mode === 'edit'">
           {{
-            this.mode === "edit" ? "Devis #" + editedDevis.id : "Nouveau devis"
+            editedDevis.displayName
+              ? "Devis #" + editedDevis.displayName
+              : "Devis brouillon"
           }}
         </div>
+        <div class="ml-1" *ngIf="mode !== 'edit'">Nouveau devis</div>
       </div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
-<div class="p-4">
-  <div class="flex items-center"></div>
+<div class="p-4 flex-1">
   <form
-    class="mt-1 h-[82vh] overflow-y-auto no-scroll px-2 select-none"
+    class="mt-1 overflow-y-auto no-scroll px-2 select-none"
+    [ngClass]="{ 'h-[82vh]': !loading }"
     [formGroup]="nouveauDevisForm"
     (submit)="createDevis()"
+    *ngIf="nouveauDevisForm && !loading"
   >
     <div class="mb-2">
       <app-select-box
@@ -113,18 +117,14 @@
             </div>
             <div class="text-body text-neutral-500">
               Prix unitaire:
-              {{ ol.price_unit | number : "1.0-3" | currency : "EUR" }}
+              {{ ol.price_unit | currency : "EUR" }}
             </div>
           </div>
           <div class="h-[.5px] bg-neutral-100 my-3"></div>
           <div class="flex justify-end">
             <div class="text-body text-primary-900">
               Total:
-              {{
-                ol.price_unit * ol.product_uom_qty
-                  | number : "1.0-3"
-                  | currency : "EUR"
-              }}
+              {{ ol.price_unit * ol.product_uom_qty | currency : "EUR" }}
             </div>
           </div>
         </li>
@@ -139,4 +139,5 @@
       ></app-button>
     </div>
   </form>
+  <app-spinner *ngIf="loading"></app-spinner>
 </div>

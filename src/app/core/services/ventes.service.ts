@@ -40,8 +40,7 @@ export class VentesService {
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
   }
 
-  nextEditedDevis(devis: Devis) {
-    console.log(devis);
+  nextEditedDevis(devis: any) {
     this.editedDevis.next(devis);
   }
 
@@ -54,8 +53,8 @@ export class VentesService {
   }
 
   updateDevis(devis: Devis) {
-    console.log(devis);
-    let devisArr = this.devis.getValue();
+    return from(this.odooService.updateDevis(devis));
+    /* let devisArr = this.devis.getValue();
     return of({}).pipe(
       map(() =>
         devisArr
@@ -68,7 +67,7 @@ export class VentesService {
         console.log(devisArr);
         this.devis.next(devisArr);
       })
-    );
+    ); */
   }
 
   getNumberOfDevis() {
@@ -92,14 +91,20 @@ export class VentesService {
         return devis.slice().map(function (d) {
           return {
             id: d.id,
-            client_name: d.partner_id[1],
+            client: {
+              id: d.partner_id[0],
+              name: d.partner_id[1],
+            },
             displayName: d.name,
             total: d.amount_total,
             state: d.state,
             created_at: d.date_order,
-            payment_condition: d.payment_term_id[1],
+            payment_condition: {
+              id: d.payment_term_id[0],
+              name: d.payment_term_id[1],
+            },
+            order_line: d.order_line,
             expiration_date: d.validity_date,
-            order_lines: d.order_lines,
           };
         });
       }),
@@ -108,6 +113,10 @@ export class VentesService {
         this.loading.next(false);
       })
     );
+  }
+
+  getOrderderline(orderline_id: number) {
+    return from(this.odooService.getOrderline(orderline_id));
   }
 
   getAllCustomers(): Observable<Customer[]> {
@@ -147,7 +156,7 @@ export class VentesService {
   addOrderLine(devis: Devis, orderLine: OrderLine) {
     const getDevis$ = this.getDevis(devis.id as string);
     getDevis$.subscribe((data) => {
-      const draft = Devis.fromDevis(devis);
+      const draft = this.editedDevis.getValue();
       draft.id = devis.id;
       draft.order_lines =
         devis.order_lines === undefined

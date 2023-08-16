@@ -39,4 +39,14 @@ SaunyaERP:
         ✔ add a domain parameter that can select the devis matching the partner.id @done(23-08-12 12:47)
         ✔ add an active devis to the devis component @done(23-08-12 12:47)
         ✔ when we click on one devis, add the active class to it. Ensuring that the previous active had been removed @done(23-08-12 12:47)
-    ☐ Add an empty state to the devis part @started(23-08-12 13:39)
+    ✔ Add an empty state to the devis part @started(23-08-12 13:39) @done(23-08-15 09:21) @lasted(2d19h42m47s)
+    ✔ Modify the select component so that it allow to chose an entity @started(23-08-15 09:46) @done(23-08-15 10:52) @lasted(1h6m14s)
+        ✔ It should take a list of element and not of string @done(23-08-15 10:52)
+        ✔ Then modify the route to create a quotation to use the api route @started(23-08-15 10:52) @done(23-08-15 11:49) @lasted(57m38s)
+    ✔ Manage the addition of elements to the commandline @done(23-08-16 10:26)
+    ☐ Finish the workflow to modify an element @started(23-08-16 10:29)
+        ✔ The first part without the command line @done(23-08-16 10:29)
+        ☐ The second time with it @started(23-08-16 10:29)
+    ☐ Arrange the workflow so that when we go back, we have the updated list of devis
+    ☐ Then start designing the commande part
+    ☐ Finish with the facturation

@@ -75,7 +75,6 @@ export class DevisComponent implements OnInit, AfterViewInit {
 
     this.ventesService.getAllCustomers().subscribe((customers) => {
       this.clients = customers;
-      console.log(this.clients);
     });
 
     const search$ = this.searchText.pipe(
@@ -178,7 +177,7 @@ export class DevisComponent implements OnInit, AfterViewInit {
         this.loadingDelete = false;
         this.toast.showSuccess(
           `Le devis ${this.devisToDelete!.displayName} - ${
-            this.devisToDelete!.client_name
+            this.devisToDelete!.client?.name
           } a été supprimé avec succès`,
           'Succès'
         );

@@ -19,7 +19,7 @@ export class NewOrderLineComponent implements OnInit {
   taxes!: any[];
   orderForm!: FormGroup;
   devisId!: string;
-  editedDevis!: Devis;
+  editedDevis!: any;
   products!: any[];
   products_name!: any[];
   products_price!: any[];
@@ -48,23 +48,24 @@ export class NewOrderLineComponent implements OnInit {
       this.editedDevis = data;
     });
     this.ventesService.getProducts().subscribe((products) => {
-      this.products = products;
-      this.products_name = this.products.map((p) => p.name);
-      this.products_price = this.products.map((p) => p.lst_price);
+      this.products = products.map((p) => {
+        p.text = p.name;
+        return p;
+      });
       this.ventesService.getTaxes().subscribe((taxes) => {
-        this.taxes = taxes.map((t) => t.name);
+        this.taxes = taxes.map((t) => {
+          t.text = t.name;
+          return t;
+        });
         this.loading = false;
       });
     });
     const productControl = this.orderForm.get('product');
-    productControl?.valueChanges.subscribe((p_name) => {
-      const product_associated = this.products.find((p) => p.name === p_name);
-      const associatedPrice = product_associated.lst_price;
-      const associatedDesc = product_associated.name;
-      this.orderForm.get('unitPrice')?.setValue(associatedPrice);
-      this.orderForm.get('description')?.setValue(associatedDesc);
-      this.unitPrice.in.nativeElement.value = associatedPrice;
-      this.description.in.nativeElement.value = associatedDesc;
+    productControl?.valueChanges.subscribe((p) => {
+      this.orderForm.get('unitPrice')?.setValue(p.lst_price);
+      this.orderForm.get('description')?.setValue(p.name);
+      this.unitPrice.in.nativeElement.value = p.lst_price;
+      this.description.in.nativeElement.value = p.name;
     });
   }
 
@@ -76,7 +77,7 @@ export class NewOrderLineComponent implements OnInit {
 
   createOrderLine() {
     const {
-      product: name,
+      product,
       quantity: product_uom_qty,
       unitPrice: price_unit,
       taxes,
@@ -85,10 +86,8 @@ export class NewOrderLineComponent implements OnInit {
     } = this.orderForm.value;
 
     this.ventesService.addOrderLine(this.editedDevis, {
-      product_id: this.products.find(
-        (actualProduct) => actualProduct.name === name
-      ).id,
-      name,
+      product_id: product.id,
+      name: product.name,
       product_uom_qty,
       price_unit,
       taxes,
@@ -97,7 +96,7 @@ export class NewOrderLineComponent implements OnInit {
     });
 
     this.toast.showSuccess(
-      `La ligne de commande a été ajoutée au devis du client ${this.editedDevis.client_name}`,
+      `La ligne de commande a été ajoutée au devis du client ${this.editedDevis.client.name}`,
       'Succès'
     );
 
