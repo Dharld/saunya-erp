@@ -100,10 +100,10 @@
       >
         Ajouter un produit
       </button>
-      <ul class="list" *ngIf="editedDevis.order_lines">
+      <ul class="list" *ngIf="orderLines">
         <li
           class="bg-neutral-80 py-3 px-4 rounded-md mb-2 border border-neutral-90"
-          *ngFor="let ol of editedDevis.order_lines"
+          *ngFor="let ol of orderLines"
         >
           <div class="flex flex-1 flex-col">
             <div class="text-[16px] font-semibold text-primary-900 mt-auto">

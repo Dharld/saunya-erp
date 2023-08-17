@@ -68,7 +68,10 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
         if (orderline_id) {
           this.loading = true;
           this.ventesService.getOrderderline(orderline_id).subscribe((data) => {
-            this.orderLines = data;
+            data.forEach((ol: any) => {
+              console.log(ol);
+              this.venteServices.nexOrderline(ol);
+            });
             this.loading = false;
           });
         }
@@ -95,13 +98,21 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
         ],
       });
     });
+    this.venteServices.editedDevisOrderlineAsObservable().subscribe((data) => {
+      console.log(data);
+      this.orderLines = data;
+    });
   }
 
   ngAfterViewInit(): void {}
 
   goBack() {
     this.venteServices.clearEditedDevis();
-    this.navigation.goBack();
+    this.venteServices.clearOrderline().subscribe((data) => {
+      console.log(data);
+      this.navigation.goBack();
+    });
+    // this.navigation.goBack();
   }
 
   addCommandLine() {
@@ -112,9 +123,10 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
       client,
       expiration_date,
       payment_condition,
-      order_lines: this.editedDevis.order_lines
+      displayName: this.editedDevis.displayName,
+      /*   order_lines: this.editedDevis.order_lines
         ? this.editedDevis.order_lines
-        : [],
+        : [], */
     });
     this.navigation.navigateTo(['../brouillon', 'new-order-line'], this.route);
   }
@@ -135,6 +147,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
 
     if (this.mode === 'edit') {
       const { client, payment_condition } = this.nouveauDevisForm.value;
+
       const devis: Devis = {
         id: this.editedDevis.id,
         client,
@@ -145,14 +158,15 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
       // devis.id = this.editedDevis.id;
       // devis.state = this.editedDevis.state;
       // devis.created_at = this.editedDevis.created_at;
-      this.createLoading = true;
-      const updateDevis$ = this.venteServices.updateDevis(devis);
-      updateDevis$.subscribe(() => {
-        this.createLoading = false;
-        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
-        this.venteServices.clearEditedDevis();
-        this.navigation.goBack();
-      });
+
+      // this.createLoading = true;
+      // const updateDevis$ = this.venteServices.updateDevis(devis);
+      // updateDevis$.subscribe(() => {
+      //   this.createLoading = false;
+      //   this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+      //   this.venteServices.clearEditedDevis();
+      //   this.navigation.goBack();
+      // });
       return;
     }
 

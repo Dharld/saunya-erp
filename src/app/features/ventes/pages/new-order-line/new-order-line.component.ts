@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Route } from '@angular/router';
-import { Devis } from 'src/app/core/model/devis.model';
+import { ActivatedRoute } from '@angular/router';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
@@ -34,10 +33,10 @@ export class NewOrderLineComponent implements OnInit {
     private toast: ToasterService
   ) {
     this.orderForm = this.fb.group({
-      product: [''],
+      product: [{ text: '' }],
       quantity: [1],
       unitPrice: [0],
-      taxes: [''],
+      taxes: [{ text: '' }],
       discount: [0],
       description: [''],
     });
@@ -95,10 +94,17 @@ export class NewOrderLineComponent implements OnInit {
       description,
     });
 
-    this.toast.showSuccess(
-      `La ligne de commande a été ajoutée au devis du client ${this.editedDevis.client.name}`,
-      'Succès'
-    );
+    if (this.editedDevis.client) {
+      this.toast.showSuccess(
+        `La ligne de commande a été ajoutée au devis du client ${this.editedDevis.client.name}`,
+        'Succès'
+      );
+    } else {
+      this.toast.showSuccess(
+        `La ligne de commande a été ajoutée au devis brouillon`,
+        'Succès'
+      );
+    }
 
     this.navigation.goBack();
   }

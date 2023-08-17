@@ -33,10 +33,12 @@ export class VentesService {
   private devis = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
 
   private editedDevis!: BehaviorSubject<Devis>;
+  private editedDevisOrderline!: BehaviorSubject<any>;
 
   constructor(private odooService: OdooService) {
     const DRAFT_DEVIS = new Devis('');
     DRAFT_DEVIS.id = 'brouillon';
+    this.editedDevisOrderline = new BehaviorSubject<any>([]);
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
   }
 
@@ -46,6 +48,11 @@ export class VentesService {
 
   clearEditedDevis() {
     this.editedDevis.next(new Devis(''));
+  }
+
+  clearOrderline() {
+    this.editedDevisOrderline.next([]);
+    return of(this.editedDevis.getValue());
   }
 
   addDevis(devis: Devis) {
@@ -162,7 +169,10 @@ export class VentesService {
         devis.order_lines === undefined
           ? [orderLine]
           : [...devis.order_lines, orderLine];
+      // console.log(draft);
+      // console.log(orderLine);
       this.editedDevis.next(draft);
+      this.nexOrderline(orderLine);
     });
   }
 
@@ -172,5 +182,15 @@ export class VentesService {
 
   editedDevisAsObservable() {
     return this.editedDevis.asObservable();
+  }
+
+  nexOrderline(orderline: any) {
+    const orderlines = this.editedDevisOrderline.getValue();
+    orderlines.push(orderline);
+    this.editedDevisOrderline.next(orderlines);
+  }
+
+  editedDevisOrderlineAsObservable() {
+    return this.editedDevisOrderline.asObservable();
   }
 }
