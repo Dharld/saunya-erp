@@ -59,8 +59,8 @@ export class VentesService {
     return from(this.odooService.createDevis(devis));
   }
 
-  updateDevis(devis: Devis) {
-    return from(this.odooService.updateDevis(devis));
+  updateDevis(devis: Devis, orderline: any[]) {
+    return from(this.odooService.updateDevis(devis, orderline));
     /* let devisArr = this.devis.getValue();
     return of({}).pipe(
       map(() =>
@@ -122,7 +122,7 @@ export class VentesService {
     );
   }
 
-  getOrderderline(orderline_id: number) {
+  getOrderline(orderline_id: number) {
     return from(this.odooService.getOrderline(orderline_id));
   }
 

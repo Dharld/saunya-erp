@@ -254,54 +254,9 @@ export class OdooService {
     return this.http.post('api/create/quotation', formData);
   }
 
-  updateDevis(devis: Devis) {
-    /* let odoo = this.odoo;
-    return new Promise<any>((res, rej) => {
-      odoo.connect(function (err: any) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log('Connected to Odoo server.');
-        let inParams = [];
-        const devisOdoo = {
-          partner_id: devis.client_id,
-          validity_date: fromFormatToOdoo(devis.expiration_date!),
-          payment_term_id: devis.payment_term_id,
-          order_line: devis.order_lines?.map((ol) => {
-            return [
-              0,
-              0,
-              {
-                product_id: ol.product_id,
-                product_uom_qty: +ol.product_uom_qty,
-              },
-            ];
-          }),
-        };
-        inParams.push(devisOdoo);
-        let params = [];
-        params.push(inParams);
-        odoo.execute_kw(
-          'sale.order',
-          'create',
-          params,
-          function (err: any, value: any) {
-            if (err) {
-              throw err;
-            }
-            res(value);
-          }
-        );
-      });
-    }); */
-
-    const orderline: any[] = []; /* devis.order_lines?.map(
-      ({ product_id, product_uom_qty: qty }) => ({
-        product_id,
-        qty,
-      })
-    ); */
-
+  updateDevis(devis: Devis, orderline: any[]) {
+    console.log(devis);
+    console.log(orderline);
     const formData = new FormData();
     if (devis.client && devis.payment_condition) {
       formData.append('uid', '2'); // To modify with the uid of the active user
@@ -309,6 +264,7 @@ export class OdooService {
       formData.append('quotation_id', `${devis.id}`);
       formData.append('payment_term_id', `${devis.payment_condition.id}`);
       formData.append('order_line', JSON.stringify(orderline));
+      formData.append('state', 'devis');
       return this.http.post('api/update/quotation', formData);
     }
 

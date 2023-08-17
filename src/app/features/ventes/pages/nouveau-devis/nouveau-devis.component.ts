@@ -1,7 +1,7 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { switchMap } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { OrderLine } from 'src/app/core/model/order-line.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
@@ -13,7 +13,7 @@ import { VentesService } from 'src/app/core/services/ventes.service';
   templateUrl: './nouveau-devis.component.html',
   styleUrls: ['./nouveau-devis.component.scss'],
 })
-export class NouveauDevisComponent implements OnInit, AfterViewInit {
+export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   mode = 'create';
   createLoading = false;
   loading = false;
@@ -24,6 +24,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
   }>;
   devis$ = this.venteServices.devisAsObservable();
   editedDevis!: any;
+  sub!: Subscription;
 
   products!: any[];
 
@@ -61,45 +62,48 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.ventesService.editedDevisAsObservable().subscribe((data) => {
-      this.editedDevis = data;
-      if (this.mode === 'edit' && data.order_line) {
-        const orderline_id = data.order_line[0];
-        if (orderline_id) {
-          this.loading = true;
-          this.ventesService.getOrderderline(orderline_id).subscribe((data) => {
-            data.forEach((ol: any) => {
-              console.log(ol);
-              this.venteServices.nexOrderline(ol);
+    this.sub = this.ventesService
+      .editedDevisAsObservable()
+      .subscribe((data) => {
+        this.editedDevis = data;
+        if (this.mode === 'edit' && data.order_line) {
+          const orderline_id = data.order_line[0];
+          if (orderline_id) {
+            this.loading = true;
+            this.ventesService.getOrderline(orderline_id).subscribe((data) => {
+              data.forEach((ol: any) => {
+                this.venteServices.nexOrderline(ol);
+              });
+              this.loading = false;
             });
-            this.loading = false;
-          });
+          }
         }
-      }
 
-      this.nouveauDevisForm = this.fb.group({
-        client: [
-          this.editedDevis.client
-            ? { ...this.editedDevis.client, text: this.editedDevis.client.name }
-            : { text: '' },
-        ],
-        expiration_date: [
-          this.editedDevis.expiration_date === false
-            ? ''
-            : this.editedDevis.expiration_date,
-        ],
-        payment_condition: [
-          this.editedDevis.payment_condition
-            ? {
-                ...this.editedDevis.payment_condition,
-                text: this.editedDevis.payment_condition.name,
-              }
-            : { text: '' },
-        ],
+        this.nouveauDevisForm = this.fb.group({
+          client: [
+            this.editedDevis.client
+              ? {
+                  ...this.editedDevis.client,
+                  text: this.editedDevis.client.name,
+                }
+              : { text: '' },
+          ],
+          expiration_date: [
+            this.editedDevis.expiration_date === false
+              ? ''
+              : this.editedDevis.expiration_date,
+          ],
+          payment_condition: [
+            this.editedDevis.payment_condition
+              ? {
+                  ...this.editedDevis.payment_condition,
+                  text: this.editedDevis.payment_condition.name,
+                }
+              : { text: '' },
+          ],
+        });
       });
-    });
     this.venteServices.editedDevisOrderlineAsObservable().subscribe((data) => {
-      console.log(data);
       this.orderLines = data;
     });
   }
@@ -109,7 +113,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
   goBack() {
     this.venteServices.clearEditedDevis();
     this.venteServices.clearOrderline().subscribe((data) => {
-      console.log(data);
       this.navigation.goBack();
     });
     // this.navigation.goBack();
@@ -124,9 +127,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
       expiration_date,
       payment_condition,
       displayName: this.editedDevis.displayName,
-      /*   order_lines: this.editedDevis.order_lines
-        ? this.editedDevis.order_lines
-        : [], */
     });
     this.navigation.navigateTo(['../brouillon', 'new-order-line'], this.route);
   }
@@ -159,14 +159,19 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
       // devis.state = this.editedDevis.state;
       // devis.created_at = this.editedDevis.created_at;
 
-      // this.createLoading = true;
-      // const updateDevis$ = this.venteServices.updateDevis(devis);
-      // updateDevis$.subscribe(() => {
-      //   this.createLoading = false;
-      //   this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
-      //   this.venteServices.clearEditedDevis();
-      //   this.navigation.goBack();
-      // });
+      this.createLoading = true;
+      const updateDevis$ = this.venteServices.updateDevis(
+        devis,
+        this.orderLines.map((ol) => ({
+          product_id: ol.id || ol.product_id,
+          qty: +ol.product_uom_qty,
+        }))
+      );
+      updateDevis$.subscribe(() => {
+        this.createLoading = false;
+        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+        this.goBack();
+      });
       return;
     }
 
@@ -181,5 +186,9 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit {
       // Go back to previous screen
       this.navigation.goBack();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }
