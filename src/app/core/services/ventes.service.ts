@@ -61,20 +61,6 @@ export class VentesService {
 
   updateDevis(devis: Devis, orderline: any[]) {
     return from(this.odooService.updateDevis(devis, orderline));
-    /* let devisArr = this.devis.getValue();
-    return of({}).pipe(
-      map(() =>
-        devisArr
-          .filter((d) => {
-            return d.id === devis.id ? undefined : d;
-          })
-          .concat([devis])
-      ),
-      tap((devisArr) => {
-        console.log(devisArr);
-        this.devis.next(devisArr);
-      })
-    ); */
   }
 
   getNumberOfDevis() {

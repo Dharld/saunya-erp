@@ -4,7 +4,7 @@ import { Devis } from '../model/devis.model';
 import { Customer } from '../model/customer.model';
 import { fromFormatToOdoo } from 'src/utils/luxon';
 import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -256,7 +256,7 @@ export class OdooService {
 
   updateDevis(devis: Devis, orderline: any[]) {
     console.log(devis);
-    console.log(orderline);
+    console.log(JSON.stringify(orderline));
     const formData = new FormData();
     if (devis.client && devis.payment_condition) {
       formData.append('uid', '2'); // To modify with the uid of the active user
@@ -264,8 +264,10 @@ export class OdooService {
       formData.append('quotation_id', `${devis.id}`);
       formData.append('payment_term_id', `${devis.payment_condition.id}`);
       formData.append('order_line', JSON.stringify(orderline));
-      formData.append('state', 'devis');
-      return this.http.post('api/update/quotation', formData);
+      formData.append('state', 'draft');
+      return this.http
+        .post('api/update/quotation', formData)
+        .pipe(tap((response) => console.log(response)));
     }
 
     return of(new Error('Something went wrong'));

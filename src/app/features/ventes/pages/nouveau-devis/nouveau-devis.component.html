@@ -105,11 +105,10 @@
           class="bg-neutral-80 py-3 px-4 rounded-md mb-2 border border-neutral-90"
           *ngFor="let ol of orderLines"
         >
-          <div class="flex flex-1 flex-col">
+          <div class="flex flex-1 flex-col relative">
             <div class="text-[16px] font-semibold text-primary-900 mt-auto">
               {{ ol.name }}
             </div>
-
             <div class="text-body text-neutral-500 my-1">
               Quantité: {{ ol.product_uom_qty }} unité{{
                 ol.product_uom_qty === 1 ? "" : "s"
@@ -118,6 +117,23 @@
             <div class="text-body text-neutral-500">
               Prix unitaire:
               {{ ol.price_unit | currency : "EUR" }}
+            </div>
+            <div
+              class="absolute right-1 cursor-pointer"
+              (click)="removeLine(ol)"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                class="fill-neutral-300"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                  fill="inherit"
+                />
+              </svg>
             </div>
           </div>
           <div class="h-[.5px] bg-neutral-100 my-3"></div>
