@@ -42,42 +42,45 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     private toastr: ToasterService,
     private ventesService: VentesService
   ) {
-    this.loading = true;
     this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
     });
-    this.venteServices.getAllCustomers().subscribe((customers) => {
-      this.clients = customers.map((c: any) => {
-        c.text = c.name;
-        return c;
-      });
-    });
-    this.venteServices.getPaymentTerms().subscribe((terms) => {
-      this.terms = terms;
 
-      this.payment_conditions = (terms as any[]).map((t) => {
-        t.text = t.name;
-        return t;
-      });
-    });
     this.sub = this.ventesService
       .editedDevisAsObservable()
       .subscribe((data) => {
         this.editedDevis = data;
+        this.loading = true;
+        // Fetch informations
+        this.venteServices.getAllCustomers().subscribe((customers) => {
+          this.clients = customers.map((c: any) => {
+            c.text = c.name;
+            return c;
+          });
+          this.venteServices.getPaymentTerms().subscribe((terms) => {
+            this.terms = terms;
+            this.payment_conditions = (terms as any[]).map((t) => {
+              t.text = t.name;
+              return t;
+            });
+          });
+        });
+        console.log(data);
         if (
           this.mode === 'edit' &&
           data.order_line &&
           data.order_line.length > 0
         ) {
           data.order_line.forEach((orderline_id: number) => {
+            console.log('Fetch orderline with id: ' + orderline_id);
             this.ventesService.getOrderline(orderline_id).subscribe((data) => {
+              console.log(data);
               data.forEach((ol: any) => {
                 this.venteServices.nexOrderline(ol);
               });
             });
           });
         }
-
         this.nouveauDevisForm = this.fb.group({
           client: [
             this.editedDevis.client
@@ -101,11 +104,11 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
               : { text: '' },
           ],
         });
+        this.loading = false;
       });
     this.venteServices.editedDevisOrderlineAsObservable().subscribe((data) => {
       this.orderLines = data;
     });
-    this.loading = false;
   }
 
   ngOnInit() {}
