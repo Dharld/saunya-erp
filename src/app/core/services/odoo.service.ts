@@ -25,6 +25,7 @@ export class OdooService {
     //   username: 'franck@saunya.com',
     //   password: 'franck',
     // });
+    this.getOrderline(270).then((value) => console.log(value));
   }
 
   login() {}
@@ -38,7 +39,13 @@ export class OdooService {
         }
         let inParams: any[] = [];
         inParams.push([order_line_id]);
-        inParams.push(['name', 'price_unit', 'product_uom_qty', 'order_id']);
+        inParams.push([
+          'name',
+          'product_id',
+          'price_unit',
+          'product_uom_qty',
+          'order_id',
+        ]);
         let params = [];
         params.push(inParams);
         odoo.execute_kw(
@@ -49,7 +56,10 @@ export class OdooService {
             if (err) {
               return console.log(err);
             }
-            res(value);
+            if (value) {
+              return res(value);
+            }
+            throw new Error('No value');
           }
         );
       });
@@ -255,8 +265,6 @@ export class OdooService {
   }
 
   updateDevis(devis: Devis, orderline: any[]) {
-    console.log(devis);
-    console.log(JSON.stringify(orderline));
     const formData = new FormData();
     if (devis.client && devis.payment_condition) {
       formData.append('uid', '2'); // To modify with the uid of the active user

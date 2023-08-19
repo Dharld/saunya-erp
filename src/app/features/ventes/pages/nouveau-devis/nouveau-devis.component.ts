@@ -1,7 +1,13 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, switchMap } from 'rxjs';
+import {
+  Subscription,
+  combineLatest,
+  forkJoin,
+  switchMap,
+  Observable,
+} from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { OrderLine } from 'src/app/core/model/order-line.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
@@ -16,7 +22,7 @@ import { VentesService } from 'src/app/core/services/ventes.service';
 export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   mode = 'create';
   createLoading = false;
-  loading = false;
+  loading: boolean;
   nouveauDevisForm!: FormGroup<{
     client: FormControl;
     expiration_date: FormControl;
@@ -25,6 +31,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   devis$ = this.venteServices.devisAsObservable();
   editedDevis!: any;
   sub!: Subscription;
+  routeSub!: Subscription;
 
   products!: any[];
 
@@ -32,7 +39,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   clients: any[] = [];
   terms: any[] = [];
   payment_conditions: string[] = [];
-  orderLines: OrderLine[] = [];
+  orderLines!: Observable<any>;
 
   constructor(
     private navigation: NavigationService,
@@ -42,45 +49,24 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     private toastr: ToasterService,
     private ventesService: VentesService
   ) {
-    this.route.queryParams.subscribe((params) => {
+    this.routeSub = this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
     });
+    this.loading = true;
+    this.nouveauDevisForm = this.fb.group({
+      client: [{ text: '' }],
+      expiration_date: [''],
+      payment_condition: [{ text: '' }],
+    });
+    this.orderLines = this.venteServices.editedDevisOrderlineAsObservable();
+  }
 
+  ngOnInit() {
     this.sub = this.ventesService
       .editedDevisAsObservable()
       .subscribe((data) => {
+        console.log('sub');
         this.editedDevis = data;
-        this.loading = true;
-        // Fetch informations
-        this.venteServices.getAllCustomers().subscribe((customers) => {
-          this.clients = customers.map((c: any) => {
-            c.text = c.name;
-            return c;
-          });
-          this.venteServices.getPaymentTerms().subscribe((terms) => {
-            this.terms = terms;
-            this.payment_conditions = (terms as any[]).map((t) => {
-              t.text = t.name;
-              return t;
-            });
-          });
-        });
-        console.log(data);
-        if (
-          this.mode === 'edit' &&
-          data.order_line &&
-          data.order_line.length > 0
-        ) {
-          data.order_line.forEach((orderline_id: number) => {
-            console.log('Fetch orderline with id: ' + orderline_id);
-            this.ventesService.getOrderline(orderline_id).subscribe((data) => {
-              console.log(data);
-              data.forEach((ol: any) => {
-                this.venteServices.nexOrderline(ol);
-              });
-            });
-          });
-        }
         this.nouveauDevisForm = this.fb.group({
           client: [
             this.editedDevis.client
@@ -104,14 +90,62 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
               : { text: '' },
           ],
         });
-        this.loading = false;
-      });
-    this.venteServices.editedDevisOrderlineAsObservable().subscribe((data) => {
-      this.orderLines = data;
-    });
-  }
 
-  ngOnInit() {}
+        // Fetch informations
+        const getAllCustomers$ = this.venteServices.getAllCustomers();
+        const getAllPaymentTerms$ = this.venteServices.getPaymentTerms();
+
+        if (
+          this.mode === 'edit' &&
+          data.order_line &&
+          data.order_line.length > 0
+        ) {
+          const fetchOrderline: Observable<any>[] = [];
+          data.order_line.forEach((orderline_id: number) => {
+            fetchOrderline.push(this.venteServices.getOrderline(orderline_id));
+          });
+
+          forkJoin([
+            getAllCustomers$,
+            getAllPaymentTerms$,
+            ...fetchOrderline,
+          ]).subscribe(([customers, terms, ...orderline]) => {
+            this.clients = customers.map((c: any) => {
+              c.text = c.name;
+              return c;
+            });
+            this.terms = terms;
+            this.payment_conditions = (terms as any[]).map((t) => {
+              t.text = t.name;
+              return t;
+            });
+
+            const orderLines = orderline.map(([ol]) => ol);
+            console.log(orderLines);
+
+            this.venteServices.nexOrderline(orderLines);
+
+            this.loading = false;
+          });
+        } else {
+          forkJoin([getAllCustomers$, getAllPaymentTerms$]).subscribe(
+            ([customers, terms]) => {
+              this.clients = customers.map((c: any) => {
+                c.text = c.name;
+                return c;
+              });
+              this.terms = terms;
+              this.payment_conditions = (terms as any[]).map((t) => {
+                t.text = t.name;
+                return t;
+              });
+
+              this.loading = false;
+            }
+          );
+        }
+      });
+  }
 
   ngAfterViewInit(): void {}
 
@@ -126,6 +160,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   addCommandLine() {
     const { client, expiration_date, payment_condition } =
       this.nouveauDevisForm.value;
+    console.log(client);
     this.venteServices.nextEditedDevis({
       id: this.mode === 'edit' ? this.editedDevis.id : 'brouillon',
       client,
@@ -137,11 +172,16 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   removeLine(ol: any) {
-    const sub = this.venteServices
+    /* const sub = this.venteServices
       .editedDevisOrderlineAsObservable()
       .subscribe((orderline) => {
         this.orderLines = orderline.filter((line: any) => line.id != ol.id);
-      });
+      }); */
+    const currentOrderline = this.venteServices.getCurrentOrderline();
+
+    this.venteServices.nexOrderline(
+      currentOrderline.filter((o: any) => o.id !== ol.id)
+    );
   }
 
   createDevis() {
@@ -174,42 +214,45 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       // devis.created_at = this.editedDevis.created_at;
 
       this.createLoading = true;
+      const orderline = this.venteServices.getCurrentOrderline();
 
       const updateDevis$ = this.venteServices.updateDevis(
         devis,
-        this.orderLines.map((ol) => ({
-          product_id: ol.id || ol.product_id,
+        orderline.map((ol: any) => ({
+          product_id: ol.product_id[0],
           qty: +ol.product_uom_qty,
         }))
       );
 
       updateDevis$.subscribe(() => {
-        getDevis$.subscribe(() => {
+        console.log('Devis updated');
+        this.venteServices.getAllDevis().subscribe(() => {
           this.toastr.showSuccess(
-            'Le dévis a été crée avec succès !',
+            'Le dévis a été modifié avec succès !',
             'Success'
           );
-          this.createLoading = false;
+        });
+
+        this.createLoading = false;
+        this.goBack();
+      });
+    } else {
+      const addDevis$ = this.venteServices.addDevis(devis);
+
+      this.createLoading = true;
+      addDevis$.subscribe(() => {
+        this.createLoading = false;
+        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
+        this.venteServices.clearEditedDevis();
+        getDevis$.subscribe(() => {
           this.goBack();
         });
       });
-      return;
     }
-
-    const addDevis$ = this.venteServices.addDevis(devis);
-
-    this.createLoading = true;
-    addDevis$.subscribe(() => {
-      this.createLoading = false;
-      this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
-      this.venteServices.clearEditedDevis();
-      getDevis$.subscribe(() => {
-        this.goBack();
-      });
-    });
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.routeSub.unsubscribe();
   }
 }

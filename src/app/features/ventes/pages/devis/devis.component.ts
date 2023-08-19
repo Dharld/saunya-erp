@@ -24,6 +24,7 @@ import {
   map,
   switchMap,
   tap,
+  startWith,
 } from 'rxjs';
 import { Customer } from 'src/app/core/model/customer.model';
 import { Devis } from 'src/app/core/model/devis.model';
@@ -67,17 +68,15 @@ export class DevisComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
+    console.log('OnInit');
     this.devis$ = this.ventesService.devisAsObservable();
 
     this.ventesService.loading.subscribe((value) => {
       this.loading = value;
     });
 
-    this.ventesService.getAllCustomers().subscribe((customers) => {
-      this.clients = customers;
-    });
-
     const search$ = this.searchText.pipe(
+      startWith(''),
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((text) => this.ventesService.getAllDevis(text ? text : ''))
@@ -97,62 +96,57 @@ export class DevisComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const itemsArr = this.containers.toArray();
-
-    for (let el of itemsArr) {
-      const containerEl = el.nativeElement;
-      let containerSibling = (containerEl as HTMLDivElement)
-        .nextSibling as HTMLDivElement;
-
-      const itemEl = el.nativeElement.childNodes[0];
-
-      const deleteAnimation = this.animationCtrl
-        .create()
-        .addElement(containerEl)
-        .duration(200)
-        .easing('cubic-bezier(.25,.1,.25,1)')
-        .fromTo('height', '55px', '0')
-        .beforeAddClass('to-delete')
-        .afterAddClass('deleted')
-        .afterRemoveClass('to-delete');
-
-      const gesture = this.gestureCtrl.create({
-        el: itemEl,
-        threshold: 0,
-        gestureName: 'swipe-delete',
-        onStart: () => {
-          console.log('Gesture started');
-        },
-        onMove: (ev) => {
-          const currentX = ev.deltaX;
-          if (ev.deltaX < -50) {
-            return;
-          }
-          this.domCtrl.write(() => {
-            itemEl.style.transform = `translate3d(${currentX}px,0,0)`;
-          });
-        },
-        // onEnd: (ev) => {
-        //   itemEl.style.transition = '0.2s ease-out';
-
-        //   if (ev.deltaX < -50) {
-        //     this.domCtrl.write(() => {
-        //       confirm('Do you want to delete this Devis ?');
-        //       deleteAnimation.play();
-        //       deleteAnimation.onFinish(() => {
-        //         (containerEl as HTMLDivElement).remove();
-        //         containerSibling = containerEl.nextSibling;
-        //       });
-        //     });
-        //   } else {
-        //     this.domCtrl.write(() => {
-        //       itemEl.style.transform = `translateX(0)`;
-        //     });
-        //   }
-        // },
-      });
-      gesture.enable(true);
-    }
+    // const itemsArr = this.containers.toArray();
+    // for (let el of itemsArr) {
+    //   const containerEl = el.nativeElement;
+    //   let containerSibling = (containerEl as HTMLDivElement)
+    //     .nextSibling as HTMLDivElement;
+    //   const itemEl = el.nativeElement.childNodes[0];
+    //   const deleteAnimation = this.animationCtrl
+    //     .create()
+    //     .addElement(containerEl)
+    //     .duration(200)
+    //     .easing('cubic-bezier(.25,.1,.25,1)')
+    //     .fromTo('height', '55px', '0')
+    //     .beforeAddClass('to-delete')
+    //     .afterAddClass('deleted')
+    //     .afterRemoveClass('to-delete');
+    //   const gesture = this.gestureCtrl.create({
+    //     el: itemEl,
+    //     threshold: 0,
+    //     gestureName: 'swipe-delete',
+    //     onStart: () => {
+    //       console.log('Gesture started');
+    //     },
+    //     onMove: (ev) => {
+    //       const currentX = ev.deltaX;
+    //       if (ev.deltaX < -50) {
+    //         return;
+    //       }
+    //       this.domCtrl.write(() => {
+    //         itemEl.style.transform = `translate3d(${currentX}px,0,0)`;
+    //       });
+    //     },
+    //     // onEnd: (ev) => {
+    //     //   itemEl.style.transition = '0.2s ease-out';
+    //     //   if (ev.deltaX < -50) {
+    //     //     this.domCtrl.write(() => {
+    //     //       confirm('Do you want to delete this Devis ?');
+    //     //       deleteAnimation.play();
+    //     //       deleteAnimation.onFinish(() => {
+    //     //         (containerEl as HTMLDivElement).remove();
+    //     //         containerSibling = containerEl.nextSibling;
+    //     //       });
+    //     //     });
+    //     //   } else {
+    //     //     this.domCtrl.write(() => {
+    //     //       itemEl.style.transform = `translateX(0)`;
+    //     //     });
+    //     //   }
+    //     // },
+    //   });
+    //   gesture.enable(true);
+    // }
   }
 
   createNewDevis() {

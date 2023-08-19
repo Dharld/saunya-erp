@@ -11,6 +11,7 @@ import { Customer } from '../model/customer.model';
 export class VentesService {
   loading = new BehaviorSubject(false);
   private INITIAL_DEVIS: Devis[] = new Array();
+  reloadDevis = new BehaviorSubject(true);
   // .fill({})
   // .map(function (_, index) {
   //   const newDevis = new Devis('Saunya Cosmetics');
@@ -102,6 +103,7 @@ export class VentesService {
         });
       }),
       tap((devis) => {
+        console.log('Next devis');
         this.devis.next(devis);
         this.loading.next(false);
       })
@@ -112,6 +114,9 @@ export class VentesService {
     return from(this.odooService.getOrderline(orderline_id));
   }
 
+  getCurrentOrderline() {
+    return this.editedDevisOrderline.getValue();
+  }
   getAllCustomers(): Observable<Customer[]> {
     const getCustomers$ = from(this.odooService.getCustomers());
     return getCustomers$;
@@ -171,9 +176,9 @@ export class VentesService {
   }
 
   nexOrderline(orderline: any) {
-    const orderlines = this.editedDevisOrderline.getValue();
-    orderlines.push(orderline);
-    this.editedDevisOrderline.next(orderlines);
+    // const orderlines = this.editedDevisOrderline.getValue();
+    // orderlines.push(orderline);
+    this.editedDevisOrderline.next(orderline);
   }
 
   editedDevisOrderlineAsObservable() {

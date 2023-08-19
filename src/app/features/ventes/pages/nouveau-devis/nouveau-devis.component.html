@@ -1,53 +1,60 @@
-<ion-header>
-  <ion-toolbar class="text-white">
-    <ion-title
-      class="text-[20px] text-white font-semibold flex-1 flex justify-center"
-    >
-      <div class="flex items-center">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          (click)="goBack()"
-        >
-          <path
-            d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
-            fill="#fff"
-          />
-        </svg>
-        <div class="ml-1" *ngIf="mode === 'edit'">
-          {{
-            editedDevis.displayName
-              ? "Devis #" + editedDevis.displayName
-              : "Devis brouillon"
-          }}
+<div
+  *ngIf="loading"
+  class="h-full w-full absolute top-0 left-0 grid place-items-center z-20 bg-white"
+>
+  <app-spinner></app-spinner>
+</div>
+<div *ngIf="!loading && nouveauDevisForm">
+  <ion-header>
+    <ion-toolbar class="text-white">
+      <ion-title
+        class="text-[20px] text-white font-semibold flex-1 flex justify-center"
+      >
+        <div class="flex items-center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            (click)="goBack()"
+          >
+            <path
+              d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
+              fill="#fff"
+            />
+          </svg>
+          <div class="ml-1" *ngIf="mode === 'edit'">
+            {{
+              editedDevis.displayName
+                ? "Devis #" + editedDevis.displayName
+                : "Devis brouillon"
+            }}
+          </div>
+          <div class="ml-1" *ngIf="mode !== 'edit'">Nouveau devis</div>
         </div>
-        <div class="ml-1" *ngIf="mode !== 'edit'">Nouveau devis</div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <div class="p-4 flex-1">
+    <form
+      class="mt-1 overflow-y-auto no-scroll px-2 select-none"
+      [ngClass]="{ 'h-[82vh]': !loading }"
+      [formGroup]="nouveauDevisForm"
+      (submit)="createDevis()"
+      *ngIf="nouveauDevisForm && !loading"
+    >
+      <div class="mb-2">
+        <app-select-box
+          label="Client"
+          placeholder="Veuillez choisir un client"
+          name="client"
+          [formControl]="nouveauDevisForm.controls['client']"
+          [options]="clients"
+          [value]="nouveauDevisForm.get('client')!.value"
+        ></app-select-box>
       </div>
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-<div class="p-4 flex-1">
-  <form
-    class="mt-1 overflow-y-auto no-scroll px-2 select-none"
-    [ngClass]="{ 'h-[82vh]': !loading }"
-    [formGroup]="nouveauDevisForm"
-    (submit)="createDevis()"
-    *ngIf="nouveauDevisForm && !loading"
-  >
-    <div class="mb-2">
-      <app-select-box
-        label="Client"
-        placeholder="Veuillez choisir un client"
-        name="client"
-        [formControl]="nouveauDevisForm.controls['client']"
-        [options]="clients"
-        [value]="nouveauDevisForm.get('client')!.value"
-      ></app-select-box>
-    </div>
-    <!-- <div class="mb-2">
+      <!-- <div class="mb-2">
       <app-select-box
         label="Addresse de facturation"
         placeholder="Entrez l'addresse de Facturation"
@@ -67,93 +74,97 @@
         [value]="nouveauDevisForm.get('delivery_address')!.value"
       ></app-select-box>
     </div> -->
-    <div class="mb-2">
-      <app-date-picker
-        label="Date d'expiration"
-        placeholder="Format: DD-MM-YYYY"
-        name="expiration_date"
-        formControlName="expiration_date"
-        [value]="nouveauDevisForm.get('expiration_date')!.value"
-      ></app-date-picker>
-    </div>
-
-    <div class="mb-2">
-      <app-select-box
-        label="Conditions de paiement"
-        placeholder="Choisissez une date de delai"
-        name="payment_condition"
-        [formControl]="nouveauDevisForm.controls['payment_condition']"
-        [options]="payment_conditions"
-        [value]="nouveauDevisForm.get('payment_condition')!.value"
-      >
-      </app-select-box>
-    </div>
-    <div class="h-[.5px] bg-neutral-100 my-4"></div>
-    <div>
-      <div class="text-neutral-400 text-body-xs font-medium">
-        Ligne de commande
+      <div class="mb-2">
+        <app-date-picker
+          label="Date d'expiration"
+          placeholder="Format: DD-MM-YYYY"
+          name="expiration_date"
+          formControlName="expiration_date"
+          [value]="nouveauDevisForm.get('expiration_date')!.value"
+        ></app-date-picker>
       </div>
-      <button
-        type="button"
-        class="mb-3 mt-2 text-body-xs text-primary-300"
-        (click)="addCommandLine()"
-      >
-        Ajouter un produit
-      </button>
-      <ul class="list" *ngIf="orderLines">
-        <li
-          class="bg-neutral-80 py-3 px-4 rounded-md mb-2 border border-neutral-90"
-          *ngFor="let ol of orderLines"
+
+      <div class="mb-2">
+        <app-select-box
+          label="Conditions de paiement"
+          placeholder="Choisissez une date de delai"
+          name="payment_condition"
+          [formControl]="nouveauDevisForm.controls['payment_condition']"
+          [options]="payment_conditions"
+          [value]="nouveauDevisForm.get('payment_condition')!.value"
         >
-          <div class="flex flex-1 flex-col relative">
-            <div class="text-[16px] font-semibold text-primary-900 mt-auto">
-              {{ ol.name }}
+        </app-select-box>
+      </div>
+      <div class="h-[.5px] bg-neutral-100 my-4"></div>
+      <div>
+        <div class="text-neutral-400 text-body-xs font-medium">
+          Ligne de commande
+        </div>
+        <button
+          type="button"
+          class="mb-3 mt-2 text-body-xs text-primary-300"
+          (click)="addCommandLine()"
+        >
+          Ajouter un produit
+        </button>
+        <ul class="list" *ngIf="(orderLines | async).length > 0">
+          <li
+            class="bg-neutral-80 py-3 px-4 rounded-md mb-2 border border-neutral-90"
+            *ngFor="let order of orderLines | async"
+          >
+            <div class="wrapper" *ngIf="order">
+              <div class="flex flex-1 flex-col relative">
+                <div class="text-[16px] font-semibold text-primary-900 mt-auto">
+                  {{ order.name }}
+                </div>
+                <div class="text-body text-neutral-500 my-1">
+                  Quantité: {{ order.product_uom_qty }} unité{{
+                    order.product_uom_qty === 1 ? "" : "s"
+                  }}
+                </div>
+                <div class="text-body text-neutral-500">
+                  Prix unitaire:
+                  {{ order.price_unit | currency : "EUR" }}
+                </div>
+                <div
+                  class="absolute right-1 cursor-pointer"
+                  (click)="removeLine(order)"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    class="fill-neutral-300"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                      fill="inherit"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div class="h-[.5px] bg-neutral-100 my-3"></div>
+              <div class="flex justify-end">
+                <div class="text-body text-primary-900">
+                  Total:
+                  {{
+                    order.price_unit * order.product_uom_qty | currency : "EUR"
+                  }}
+                </div>
+              </div>
             </div>
-            <div class="text-body text-neutral-500 my-1">
-              Quantité: {{ ol.product_uom_qty }} unité{{
-                ol.product_uom_qty === 1 ? "" : "s"
-              }}
-            </div>
-            <div class="text-body text-neutral-500">
-              Prix unitaire:
-              {{ ol.price_unit | currency : "EUR" }}
-            </div>
-            <div
-              class="absolute right-1 cursor-pointer"
-              (click)="removeLine(ol)"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                class="fill-neutral-300"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
-                  fill="inherit"
-                />
-              </svg>
-            </div>
-          </div>
-          <div class="h-[.5px] bg-neutral-100 my-3"></div>
-          <div class="flex justify-end">
-            <div class="text-body text-primary-900">
-              Total:
-              {{ ol.price_unit * ol.product_uom_qty | currency : "EUR" }}
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div class="button mt-8">
-      <app-button
-        [loading]="createLoading"
-        text="{{
-          this.mode == 'edit' ? 'Modifier le dévis' : 'Créer un nouveau devis'
-        }}"
-      ></app-button>
-    </div>
-  </form>
-  <app-spinner *ngIf="loading"></app-spinner>
+          </li>
+        </ul>
+      </div>
+      <div class="button mt-8">
+        <app-button
+          [loading]="createLoading"
+          text="{{
+            this.mode == 'edit' ? 'Modifier le dévis' : 'Créer un nouveau devis'
+          }}"
+        ></app-button>
+      </div>
+    </form>
+  </div>
 </div>
