@@ -42,10 +42,10 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     private toastr: ToasterService,
     private ventesService: VentesService
   ) {
+    this.loading = true;
     this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
     });
-    this.loading = true;
     this.venteServices.getAllCustomers().subscribe((customers) => {
       this.clients = customers.map((c: any) => {
         c.text = c.name;
@@ -60,10 +60,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
         return t;
       });
     });
-    this.loading = false;
-  }
-
-  ngOnInit() {
     this.sub = this.ventesService
       .editedDevisAsObservable()
       .subscribe((data) => {
@@ -74,7 +70,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
           data.order_line.length > 0
         ) {
           data.order_line.forEach((orderline_id: number) => {
-            console.log('Fetch orderline with ID: ', orderline_id);
             this.ventesService.getOrderline(orderline_id).subscribe((data) => {
               data.forEach((ol: any) => {
                 this.venteServices.nexOrderline(ol);
@@ -110,7 +105,10 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     this.venteServices.editedDevisOrderlineAsObservable().subscribe((data) => {
       this.orderLines = data;
     });
+    this.loading = false;
   }
+
+  ngOnInit() {}
 
   ngAfterViewInit(): void {}
 
