@@ -13,7 +13,6 @@ import {
   AnimationController,
   DomController,
   GestureController,
-  ToastController,
 } from '@ionic/angular';
 import {
   BehaviorSubject,
@@ -21,9 +20,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
-  map,
   switchMap,
-  tap,
   startWith,
 } from 'rxjs';
 import { Customer } from 'src/app/core/model/customer.model';
@@ -48,7 +45,7 @@ export class DevisComponent implements OnInit, AfterViewInit {
   containers!: QueryList<ElementRef>;
   devis!: any[];
   devis$!: Observable<any[]>;
-  loading = false;
+  loading = true;
   states = States;
   show_modal = false;
   loadingDelete = false;
@@ -68,11 +65,16 @@ export class DevisComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    console.log('OnInit');
     this.devis$ = this.ventesService.devisAsObservable();
 
-    this.ventesService.loading.subscribe((value) => {
-      this.loading = value;
+    const loadingDevis$ = this.ventesService.loading;
+    const getCustomers$ = this.ventesService.getAllCustomers();
+
+    loadingDevis$.subscribe((loading) => {
+      getCustomers$.subscribe((customers) => {
+        this.clients = customers;
+        this.loading = loading;
+      });
     });
 
     const search$ = this.searchText.pipe(
@@ -81,7 +83,12 @@ export class DevisComponent implements OnInit, AfterViewInit {
       distinctUntilChanged(),
       switchMap((text) => this.ventesService.getAllDevis(text ? text : ''))
     );
+
     search$.subscribe();
+
+    // this.ventesService.getAllCustomers().subscribe((data) => {
+    //   this.clients = data;
+    // });
 
     const clientChange$ = this.clientChange.pipe(
       filter((change) => change === true),
@@ -158,8 +165,7 @@ export class DevisComponent implements OnInit, AfterViewInit {
     this.navigation.navigateWithParams(['new'], { mode: 'edit' }, this.route);
   }
 
-  openModal(event: Event, devis: Devis) {
-    event.stopPropagation();
+  openModal(devis: Devis) {
     this.show_modal = true;
     this.devisToDelete = devis;
   }
@@ -168,15 +174,17 @@ export class DevisComponent implements OnInit, AfterViewInit {
     this.loadingDelete = true;
     this.ventesService.deleteDevis(this.devisToDelete!).subscribe((result) => {
       if (result) {
-        this.loadingDelete = false;
-        this.toast.showSuccess(
-          `Le devis ${this.devisToDelete!.displayName} - ${
-            this.devisToDelete!.client?.name
-          } a été supprimé avec succès`,
-          'Succès'
-        );
-        this.devisToDelete = null;
-        this.show_modal = false;
+        this.ventesService.getAllDevis().subscribe(() => {
+          this.loadingDelete = false;
+          this.toast.showSuccess(
+            `Le devis ${this.devisToDelete!.displayName} - ${
+              this.devisToDelete!.client?.name
+            } a été supprimé avec succès`,
+            'Succès'
+          );
+          this.devisToDelete = null;
+          this.show_modal = false;
+        });
       }
     });
   }

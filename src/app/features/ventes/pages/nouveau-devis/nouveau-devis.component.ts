@@ -242,9 +242,12 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       this.createLoading = true;
       addDevis$.subscribe(() => {
         this.createLoading = false;
-        this.toastr.showSuccess('Le dévis a été crée avec succès !', 'Success');
         this.venteServices.clearEditedDevis();
-        getDevis$.subscribe(() => {
+        this.venteServices.getAllDevis().subscribe(() => {
+          this.toastr.showSuccess(
+            'Le dévis a été crée avec succès !',
+            'Success'
+          );
           this.goBack();
         });
       });

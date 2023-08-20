@@ -1,12 +1,3 @@
-.list::-webkit-scrollbar {
-  display: none;
-}
-
-.list {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
 div.to-delete {
   height: fit-content;
   transition: all 150ms ease;

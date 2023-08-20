@@ -25,7 +25,6 @@ export class OdooService {
     //   username: 'franck@saunya.com',
     //   password: 'franck',
     // });
-    this.getOrderline(270).then((value) => console.log(value));
   }
 
   login() {}
@@ -151,6 +150,65 @@ export class OdooService {
         let inParams: any[] = [];
         let domain: [string, string, number | string][] = [
           ['name', 'ilike', name],
+          ['state', '=', 'draft'],
+        ];
+        if (partner_id > 0) {
+          domain.push(['partner_id', '=', partner_id]);
+        }
+        inParams.push(domain);
+        inParams.push([
+          'partner_id',
+          'name',
+          'amount_total',
+          'date_order',
+          'state',
+          'payment_term_id',
+          'order_line',
+          'validity_date',
+        ]);
+        let params = [];
+        params.push(inParams);
+
+        odoo.execute_kw(
+          'sale.order',
+          'search_read',
+          params,
+          async function (err: any, value: any) {
+            if (err) {
+              return console.log(err);
+            }
+            devis = value;
+
+            /* for (let i = 0; i < devis.length; i++) {
+              const d: any = devis[i];
+              const sc = d.order_line[0];
+              if (sc) {
+                const orderline: any = await that.getOrderline(sc);
+                d.order_lines = [];
+                d.order_lines = orderline;
+              }
+            } */
+            res(devis);
+          }
+        );
+      });
+    });
+  }
+  getCommandes(name = '', partner_id: number = -1) {
+    let odoo = this.odoo;
+    const that = this;
+    let devis: Devis[];
+
+    return new Promise<any[]>((res, rej) => {
+      odoo.connect(function (err: any) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log('Connected to Odoo server.');
+        let inParams: any[] = [];
+        let domain: [string, string, number | string][] = [
+          ['name', 'ilike', name],
+          ['state', '=', 'sale'],
         ];
         if (partner_id > 0) {
           domain.push(['partner_id', '=', partner_id]);

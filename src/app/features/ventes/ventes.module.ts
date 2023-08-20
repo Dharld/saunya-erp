@@ -9,6 +9,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NewOrderLineComponent } from './pages/new-order-line/new-order-line.component';
 import { CoreModule } from 'src/app/core/core.module';
 import { FilterPipe } from 'src/app/core/pipes/filter.pipe';
+import { ListWrapperComponent } from './pages/component/list-wrapper/list-wrapper.component';
+import { CommandeComponent } from './pages/commande/commande.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,8 @@ import { FilterPipe } from 'src/app/core/pipes/filter.pipe';
     DevisComponent,
     NouveauDevisComponent,
     NewOrderLineComponent,
+    ListWrapperComponent,
+    CommandeComponent,
   ],
   imports: [
     CommonModule,

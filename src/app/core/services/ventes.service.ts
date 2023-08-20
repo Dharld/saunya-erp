@@ -32,8 +32,10 @@ export class VentesService {
   //   return newDevis;
   // });
   private devis = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
+  private commandes = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
 
   private editedDevis!: BehaviorSubject<Devis>;
+  private editedCommande!: BehaviorSubject<Devis>;
   private editedDevisOrderline!: BehaviorSubject<any>;
 
   constructor(private odooService: OdooService) {
@@ -41,6 +43,7 @@ export class VentesService {
     DRAFT_DEVIS.id = 'brouillon';
     this.editedDevisOrderline = new BehaviorSubject<any>([]);
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
+    this.editedCommande = new BehaviorSubject<Devis>(DRAFT_DEVIS);
   }
 
   nextEditedDevis(devis: any) {
@@ -110,6 +113,39 @@ export class VentesService {
     );
   }
 
+  getAllCommande(searchTerm = '', partner_id = -1): Observable<any[]> {
+    // return this.devis.pipe(delay(500));
+    this.loading.next(true);
+    return from(this.odooService.getCommandes(searchTerm, partner_id)).pipe(
+      map((devis) => {
+        return devis.slice().map(function (d) {
+          return {
+            id: d.id,
+            client: {
+              id: d.partner_id[0],
+              name: d.partner_id[1],
+            },
+            displayName: d.name,
+            total: d.amount_total,
+            state: d.state,
+            created_at: d.date_order,
+            payment_condition: {
+              id: d.payment_term_id[0],
+              name: d.payment_term_id[1],
+            },
+            order_line: d.order_line,
+            expiration_date: d.validity_date,
+          };
+        });
+      }),
+      tap((commande) => {
+        console.log('Next commande');
+        this.commandes.next(commande);
+        this.loading.next(false);
+      })
+    );
+  }
+
   getOrderline(orderline_id: number) {
     return from(this.odooService.getOrderline(orderline_id));
   }
@@ -169,6 +205,10 @@ export class VentesService {
 
   devisAsObservable() {
     return this.devis.asObservable();
+  }
+
+  commandeAsObservable() {
+    return this.commandes.asObservable();
   }
 
   editedDevisAsObservable() {
