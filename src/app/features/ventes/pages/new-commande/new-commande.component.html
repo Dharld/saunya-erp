@@ -4,7 +4,7 @@
 >
   <app-spinner></app-spinner>
 </div>
-<div *ngIf="!loading && nouveauDevisForm">
+<div *ngIf="!loading && newOrder">
   <ion-header>
     <ion-toolbar class="text-white">
       <ion-title
@@ -26,12 +26,12 @@
           </svg>
           <div class="ml-1" *ngIf="mode === 'edit'">
             {{
-              editedDevis.displayName
-                ? "Devis #" + editedDevis.displayName
+              editedOrder.displayName
+                ? "Devis #" + editedOrder.displayName
                 : "Devis brouillon"
             }}
           </div>
-          <div class="ml-1" *ngIf="mode !== 'edit'">Nouveau devis</div>
+          <div class="ml-1" *ngIf="mode !== 'edit'">Nouvelle commande</div>
         </div>
       </ion-title>
     </ion-toolbar>
@@ -40,47 +40,27 @@
     <form
       class="mt-1 overflow-y-auto no-scroll px-2 select-none"
       [ngClass]="{ 'h-[82vh]': !loading }"
-      [formGroup]="nouveauDevisForm"
-      (submit)="createDevis()"
-      *ngIf="nouveauDevisForm && !loading"
+      [formGroup]="newOrder"
+      (submit)="createInvoice()"
+      *ngIf="newOrder && !loading"
     >
       <div class="mb-2">
         <app-select-box
           label="Client"
           placeholder="Veuillez choisir un client"
           name="client"
-          [formControl]="nouveauDevisForm.controls['client']"
+          [formControl]="newOrder.controls['client']"
           [options]="clients"
-          [value]="nouveauDevisForm.get('client')!.value"
+          [value]="newOrder.get('client')!.value"
         ></app-select-box>
       </div>
-      <!-- <div class="mb-2">
-      <app-select-box
-        label="Addresse de facturation"
-        placeholder="Entrez l'addresse de Facturation"
-        name="invoice_address"
-        formControlName="invoice_address"
-        [options]="invoice_addresses"
-        [value]="nouveauDevisForm.get('invoice_address')!.value"
-      ></app-select-box>
-    </div>
-    <div class="mb-2">
-      <app-select-box
-        label="Addresse de Livraison"
-        placeholder="Entrez l'addresse de Livraison"
-        name="delivery_address"
-        formControlName="delivery_address"
-        [options]="delivery_addresses"
-        [value]="nouveauDevisForm.get('delivery_address')!.value"
-      ></app-select-box>
-    </div> -->
       <div class="mb-2">
         <app-date-picker
           label="Date d'expiration"
           placeholder="Format: DD-MM-YYYY"
           name="expiration_date"
           formControlName="expiration_date"
-          [value]="nouveauDevisForm.get('expiration_date')!.value"
+          [value]="newOrder.get('expiration_date')!.value"
         ></app-date-picker>
       </div>
 
@@ -89,9 +69,9 @@
           label="Conditions de paiement"
           placeholder="Choisissez une date de delai"
           name="payment_condition"
-          [formControl]="nouveauDevisForm.controls['payment_condition']"
+          [formControl]="newOrder.controls['payment_condition']"
           [options]="payment_conditions"
-          [value]="nouveauDevisForm.get('payment_condition')!.value"
+          [value]="newOrder.get('payment_condition')!.value"
         >
         </app-select-box>
       </div>
@@ -100,13 +80,13 @@
         <div class="text-neutral-400 text-body-xs font-medium">
           Ligne de commande
         </div>
-        <button
+        <!-- <button
           type="button"
           class="mb-3 mt-2 text-body-xs text-primary-300"
           (click)="addCommandLine()"
         >
           Ajouter un produit
-        </button>
+        </button> -->
         <ul class="list" *ngIf="(orderLines | async).length > 0">
           <li
             class="bg-neutral-80 py-3 px-4 rounded-md mb-2 border border-neutral-90"
@@ -157,20 +137,13 @@
           </li>
         </ul>
       </div>
-      <div class="button flex flex-col gap-2 mt-8">
+      <div class="button flex flex-col gap-2 mt-4">
         <app-button
-          type="button"
-          text="Confirmer"
-          (click)="confirmDevis()"
-          [loading]="confirmLoading"
+          [loading]="createLoading"
+          text="Créer une facture"
         ></app-button>
         <app-button
-          type="submit"
-          [loading]="createLoading"
-          [blueLoading]="createLoading"
-          text="{{
-            this.mode == 'edit' ? 'Modifier le dévis' : 'Créer un nouveau devis'
-          }}"
+          text="Annuler le bon de commande"
           styles="outlineButton"
         ></app-button>
       </div>

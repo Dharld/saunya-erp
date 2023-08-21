@@ -219,3 +219,12 @@ ion-chip {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+swiper-container {
+  width: 100%;
+
+  swiper-slide {
+    user-select: none;
+    width: fit-content !important;
+  }
+}

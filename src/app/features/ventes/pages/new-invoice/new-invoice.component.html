@@ -1,0 +1,90 @@
+<ion-header>
+  <ion-toolbar class="text-white">
+    <ion-title
+      class="text-[20px] text-white font-semibold flex-1 flex justify-center"
+    >
+      <div class="flex items-center">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          (click)="goBack()"
+        >
+          <path
+            d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
+            fill="#fff"
+          />
+        </svg>
+        <div class="ml-1">Nouvelle Facture</div>
+      </div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div class="p-4 flex-1 flex flex-col">
+  <app-spinner *ngIf="loading"></app-spinner>
+  <form
+    [formGroup]="newInvoice"
+    class="mt-1 overflow-y-auto no-scroll px-2 select-none flex-1"
+    *ngIf="!loading"
+    (submit)="createNewInvoice()"
+  >
+    <div class="mb-2">
+      <app-select-box
+        label="Client"
+        placeholder="Veuillez choisir un client"
+        name="client"
+        [options]="clients"
+        formControlName="client"
+      ></app-select-box>
+    </div>
+    <div class="mb-2">
+      <app-input-box
+        label="Reference de paiement"
+        placeholder="Veuillez choisir votre référence de paiement"
+        name="refpayment"
+        formControlName="refpayment"
+      ></app-input-box>
+    </div>
+    <div class="mb-2">
+      <app-date-picker
+        label="Date de facturation"
+        placeholder="Ex: DD-MM-YYYY"
+        name="facturationDate"
+        formControlName="facturationDate"
+      ></app-date-picker>
+    </div>
+    <div class="mb-2">
+      <app-date-picker
+        label="Date d'échéance'"
+        placeholder="Ex: DD-MM-YYYY"
+        name="lastDate"
+        formControlName="lastDate"
+      ></app-date-picker>
+    </div>
+    <div class="mb-2">
+      <app-select-box
+        label="Journal"
+        placeholder="Veuillez choisir un Journal"
+        name="journal"
+        [options]="journals"
+        formControlName="journal"
+      ></app-select-box>
+    </div>
+    <div class="my-4 flex justify-between items-center">
+      <div class="text-neutral-400 text-body">Lignes de facture</div>
+      <div class="text-primary-300 hover:underline text-body-xs cursor-pointer">
+        Ajouter une ligne de facture
+      </div>
+    </div>
+    <div class="mt-8">
+      <app-button
+        text="Confirmer"
+        type="submit"
+        [loading]="createLoading"
+      ></app-button>
+    </div>
+  </form>
+</div>

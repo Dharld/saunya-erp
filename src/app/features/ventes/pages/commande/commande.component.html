@@ -47,15 +47,15 @@
       </swiper-slide>
     </swiper-container>
   </div>
-  <div *ngIf="devis$ | async">
+  <div *ngIf="order$ | async">
     <app-list-wrapper
-      [devis]="devis$ | async"
+      [devis]="order$ | async"
       [loading]="loading"
       (clickedDevis)="openModal($event)"
     ></app-list-wrapper>
   </div>
   <app-spinner *ngIf="loading"></app-spinner>
   <div class="fixed bottom-4 right-4 z-50">
-    <app-button [fab]="true" (click)="createNewDevis()"></app-button>
+    <app-button [fab]="true" (click)="createNewOrder()"></app-button>
   </div>
 </div>

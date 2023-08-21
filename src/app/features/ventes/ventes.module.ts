@@ -11,6 +11,9 @@ import { CoreModule } from 'src/app/core/core.module';
 import { FilterPipe } from 'src/app/core/pipes/filter.pipe';
 import { ListWrapperComponent } from './pages/component/list-wrapper/list-wrapper.component';
 import { CommandeComponent } from './pages/commande/commande.component';
+import { NewCommandeComponent } from './pages/new-commande/new-commande.component';
+import { FacturationComponent } from './pages/facturation/facturation.component';
+import { NewInvoiceComponent } from './pages/new-invoice/new-invoice.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +23,9 @@ import { CommandeComponent } from './pages/commande/commande.component';
     NewOrderLineComponent,
     ListWrapperComponent,
     CommandeComponent,
+    NewCommandeComponent,
+    FacturationComponent,
+    NewInvoiceComponent,
   ],
   imports: [
     CommonModule,

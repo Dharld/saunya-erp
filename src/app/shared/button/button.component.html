@@ -1,17 +1,26 @@
 <button
-  type="submit"
+  [type]="type"
   class="btn rounded-[4px] {{ styles }}"
   [disabled]="state"
   *ngIf="!fab"
 >
   <div *ngIf="loading" class="w-full">
-    <img
-      class="m-auto"
-      width="24px"
-      height="24px"
-      src="assets/icon/loader.svg"
-      alt=""
-    />
+    <div class="wrapper" *ngIf="!blueLoading">
+      <img
+        class="m-auto"
+        width="24px"
+        height="24px"
+        src="assets/icon/loader.svg"
+      />
+    </div>
+    <div class="wrapper" *ngIf="blueLoading">
+      <img
+        class="m-auto"
+        width="24px"
+        height="24px"
+        src="assets/icon/loader_primary.svg"
+      />
+    </div>
   </div>
   <div *ngIf="!loading" class="flex justify-center items-center gap-2">
     <div *ngIf="text != ''" class="text-[14px]">{{ text }}</div>

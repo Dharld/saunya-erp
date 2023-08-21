@@ -40,8 +40,8 @@ export class CommandeComponent implements OnInit {
 
   @ViewChildren('container', { read: ElementRef })
   containers!: QueryList<ElementRef>;
-  devis!: any[];
-  devis$!: Observable<any[]>;
+  order!: any[];
+  order$!: Observable<any[]>;
   loading = true;
   states = States;
   show_modal = false;
@@ -62,7 +62,7 @@ export class CommandeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.devis$ = this.ventesService.commandeAsObservable();
+    this.order$ = this.ventesService.commandeAsObservable();
 
     const loadingDevis$ = this.ventesService.loading;
     const getCustomers$ = this.ventesService.getAllCustomers();
@@ -83,14 +83,10 @@ export class CommandeComponent implements OnInit {
 
     search$.subscribe();
 
-    // this.ventesService.getAllCustomers().subscribe((data) => {
-    //   this.clients = data;
-    // });
-
     const clientChange$ = this.clientChange.pipe(
       filter((change) => change === true),
       switchMap(() =>
-        this.ventesService.getAllDevis(
+        this.ventesService.getAllCommande(
           this.searchText.getValue(),
           this.activeClient.id
         )
@@ -153,18 +149,18 @@ export class CommandeComponent implements OnInit {
     // }
   }
 
-  createNewDevis() {
+  createNewOrder() {
     this.navigation.navigateTo(['new'], this.route);
   }
 
-  editDevis(devis: Devis) {
-    this.ventesService.nextEditedDevis(devis);
+  editOrder(order: any) {
+    this.ventesService.nextEditedDevis(order);
     this.navigation.navigateWithParams(['new'], { mode: 'edit' }, this.route);
   }
 
-  openModal(devis: Devis) {
+  openModal(order: any) {
     this.show_modal = true;
-    this.devisToDelete = devis;
+    this.devisToDelete = order;
   }
 
   deleteDevis() {

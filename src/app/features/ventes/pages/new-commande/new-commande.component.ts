@@ -1,36 +1,28 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import {
-  Subscription,
-  combineLatest,
-  forkJoin,
-  switchMap,
-  Observable,
-} from 'rxjs';
+import { Subscription, forkJoin, Observable } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
-import { OrderLine } from 'src/app/core/model/order-line.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
 
 @Component({
-  selector: 'app-nouveau-devis',
-  templateUrl: './nouveau-devis.component.html',
-  styleUrls: ['./nouveau-devis.component.scss'],
+  selector: 'app-new-commande',
+  templateUrl: './new-commande.component.html',
+  styleUrls: ['./new-commande.component.scss'],
 })
-export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
+export class NewCommandeComponent implements OnInit {
   mode = 'create';
-  confirmLoading = false;
   createLoading = false;
   loading: boolean;
-  nouveauDevisForm!: FormGroup<{
+  newOrder!: FormGroup<{
     client: FormControl;
     expiration_date: FormControl;
     payment_condition: FormControl;
   }>;
   devis$ = this.venteServices.devisAsObservable();
-  editedDevis!: any;
+  editedOrder!: any;
   sub!: Subscription;
   routeSub!: Subscription;
 
@@ -54,7 +46,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       this.mode = params['mode'];
     });
     this.loading = true;
-    this.nouveauDevisForm = this.fb.group({
+    this.newOrder = this.fb.group({
       client: [{ text: '' }],
       expiration_date: [''],
       payment_condition: [{ text: '' }],
@@ -67,26 +59,26 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       .editedDevisAsObservable()
       .subscribe((data) => {
         console.log('sub');
-        this.editedDevis = data;
-        this.nouveauDevisForm = this.fb.group({
+        this.editedOrder = data;
+        this.newOrder = this.fb.group({
           client: [
-            this.editedDevis.client
+            this.editedOrder.client
               ? {
-                  ...this.editedDevis.client,
-                  text: this.editedDevis.client.name,
+                  ...this.editedOrder.client,
+                  text: this.editedOrder.client.name,
                 }
               : { text: '' },
           ],
           expiration_date: [
-            this.editedDevis.expiration_date === false
+            this.editedOrder.expiration_date === false
               ? ''
-              : this.editedDevis.expiration_date,
+              : this.editedOrder.expiration_date,
           ],
           payment_condition: [
-            this.editedDevis.payment_condition
+            this.editedOrder.payment_condition
               ? {
-                  ...this.editedDevis.payment_condition,
-                  text: this.editedDevis.payment_condition.name,
+                  ...this.editedOrder.payment_condition,
+                  text: this.editedOrder.payment_condition.name,
                 }
               : { text: '' },
           ],
@@ -159,15 +151,14 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addCommandLine() {
-    const { client, expiration_date, payment_condition } =
-      this.nouveauDevisForm.value;
+    const { client, expiration_date, payment_condition } = this.newOrder.value;
     console.log(client);
     this.venteServices.nextEditedDevis({
-      id: this.mode === 'edit' ? this.editedDevis.id : 'brouillon',
+      id: this.mode === 'edit' ? this.editedOrder.id : 'brouillon',
       client,
       expiration_date,
       payment_condition,
-      displayName: this.editedDevis.displayName,
+      displayName: this.editedOrder.displayName,
     });
     this.navigation.navigateTo(['../brouillon', 'new-order-line'], this.route);
   }
@@ -185,34 +176,33 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  createDevis() {
-    const { client, expiration_date, payment_condition } =
-      this.nouveauDevisForm.value;
+  createInvoice() {
+    const { client, expiration_date, payment_condition } = this.newOrder.value;
     const getDevis$ = this.venteServices.getAllDevis();
 
     let devis: Devis = {
       client,
       payment_condition,
       expiration_date,
-      order_lines: this.editedDevis.order_lines
-        ? this.editedDevis.order_lines
+      order_lines: this.editedOrder.order_lines
+        ? this.editedOrder.order_lines
         : [],
       state: 'draft',
     };
 
     if (this.mode === 'edit') {
-      const { client, payment_condition } = this.nouveauDevisForm.value;
+      const { client, payment_condition } = this.newOrder.value;
 
       const devis: Devis = {
-        id: this.editedDevis.id,
+        id: this.editedOrder.id,
         client,
         payment_condition,
         state: 'draft',
       };
 
-      // devis.id = this.editedDevis.id;
-      // devis.state = this.editedDevis.state;
-      // devis.created_at = this.editedDevis.created_at;
+      // devis.id = this.editedOrder.id;
+      // devis.state = this.editedOrder.state;
+      // devis.created_at = this.editedOrder.created_at;
 
       this.createLoading = true;
       const orderline = this.venteServices.getCurrentOrderline();
@@ -255,24 +245,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  confirmDevis() {
-    console.log(this.editedDevis);
-    if (this.editedDevis.id !== 'brouillon') {
-      this.confirmLoading = true;
-      this.venteServices
-        .sendOrder(this.editedDevis.id, 'sale')
-        .subscribe(() => {
-          this.confirmLoading = false;
-          this.toastr.showSuccess('Votre devis a été confirmé', 'Succès');
-          forkJoin([
-            this.venteServices.getAllDevis(),
-            this.venteServices.getAllCommande(),
-          ]).subscribe(() => {
-            this.goBack();
-          });
-        });
-    }
-  }
   ngOnDestroy(): void {
     this.sub.unsubscribe();
     this.routeSub.unsubscribe();

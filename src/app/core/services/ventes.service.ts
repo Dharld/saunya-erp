@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, from, map, of, tap } from 'rxjs';
 import { OrderLine } from '../model/order-line.model';
 import { OdooService } from './odoo.service';
 import { Customer } from '../model/customer.model';
+import { Invoice } from '../model/invoice.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,46 +13,46 @@ export class VentesService {
   loading = new BehaviorSubject(false);
   private INITIAL_DEVIS: Devis[] = new Array();
   reloadDevis = new BehaviorSubject(true);
-  // .fill({})
-  // .map(function (_, index) {
-  //   const newDevis = new Devis('Saunya Cosmetics');
-  //   newDevis.id = 'DEVIS' + index;
-  //   newDevis.invoice_address = 'Yaoundé, CAMEROUN';
-  //   newDevis.delivery_address = 'Doual, CAMEROUN';
-  //   newDevis.payment_condition = 'Paiement immédiat';
-  //   newDevis.expiration_date = fromJSDateToString(new Date(), 'dd-MM-yyyy');
-  //   newDevis.order_lines = [
-  //     {
-  //       product: 'Test',
-  //       quantity: 2,
-  //       unitPrice: 10000,
-  //       taxes: '',
-  //       description: '',
-  //     },
-  //   ];
-  //   return newDevis;
-  // });
+
   private devis = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
   private commandes = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
+  private invoices = new BehaviorSubject<Invoice[]>([]);
 
   private editedDevis!: BehaviorSubject<Devis>;
+  private editedInvoice!: BehaviorSubject<Invoice>;
   private editedCommande!: BehaviorSubject<Devis>;
   private editedDevisOrderline!: BehaviorSubject<any>;
 
   constructor(private odooService: OdooService) {
     const DRAFT_DEVIS = new Devis('');
+    const DRAFT_INVOICE: Invoice = {
+      id: 'brouillon',
+      name: 'DRAFT_INVOICE',
+    };
     DRAFT_DEVIS.id = 'brouillon';
     this.editedDevisOrderline = new BehaviorSubject<any>([]);
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
     this.editedCommande = new BehaviorSubject<Devis>(DRAFT_DEVIS);
+    this.editedInvoice = new BehaviorSubject<Invoice>(DRAFT_INVOICE);
   }
 
   nextEditedDevis(devis: any) {
     this.editedDevis.next(devis);
   }
 
+  nextEditedInvoice(invoice: any) {
+    this.editedInvoice.next(invoice);
+  }
+
   clearEditedDevis() {
     this.editedDevis.next(new Devis(''));
+  }
+
+  clearEditedInvoice() {
+    this.editedInvoice.next({
+      id: 'brouillon',
+      name: 'DRAFT_INVOICE',
+    });
   }
 
   clearOrderline() {
@@ -61,6 +62,10 @@ export class VentesService {
 
   addDevis(devis: Devis) {
     return from(this.odooService.createDevis(devis));
+  }
+
+  addInvoice(invoiceData: any) {
+    return from(this.odooService.createInvoice(invoiceData));
   }
 
   updateDevis(devis: Devis, orderline: any[]) {
@@ -80,6 +85,9 @@ export class VentesService {
     );
   }
 
+  getAllJournal() {
+    return from(this.odooService.getJournals());
+  }
   getAllDevis(searchTerm = '', partner_id = -1): Observable<any[]> {
     // return this.devis.pipe(delay(500));
     this.loading.next(true);
@@ -108,6 +116,17 @@ export class VentesService {
       tap((devis) => {
         console.log('Next devis');
         this.devis.next(devis);
+        this.loading.next(false);
+      })
+    );
+  }
+
+  getAllInvoices(searchTerm = '', partner_id = -1): Observable<Invoice[]> {
+    this.loading.next(true);
+    return from(this.odooService.getInvoices(searchTerm, partner_id)).pipe(
+      tap((invoices) => {
+        console.log('Next invoices');
+        this.invoices.next(invoices);
         this.loading.next(false);
       })
     );
@@ -187,6 +206,23 @@ export class VentesService {
     );
   }
 
+  deleteInvoice(invoice: any) {
+    return from(this.odooService.deleteInvoice(invoice)).pipe(
+      tap((success) => {
+        if (success) {
+          let invoiceArr = this.devis.getValue();
+          invoiceArr = invoiceArr.filter((i) => {
+            if (i.id === invoice.id) {
+              return undefined;
+            }
+            return i;
+          });
+          this.devis.next(invoiceArr);
+        }
+      })
+    );
+  }
+
   addOrderLine(devis: Devis, orderLine: OrderLine) {
     const getDevis$ = this.getDevis(devis.id as string);
     getDevis$.subscribe((data) => {
@@ -203,6 +239,13 @@ export class VentesService {
     });
   }
 
+  sendOrder(devisId: number, state: string) {
+    console.log('Send');
+    return from(this.odooService.changeDevisState(devisId, state)).pipe(
+      tap((value) => console.log(value))
+    );
+  }
+
   devisAsObservable() {
     return this.devis.asObservable();
   }
@@ -211,10 +254,17 @@ export class VentesService {
     return this.commandes.asObservable();
   }
 
+  invoiceAsObservable() {
+    return this.invoices.asObservable();
+  }
+
   editedDevisAsObservable() {
     return this.editedDevis.asObservable();
   }
 
+  editedInvoiceAsObservable() {
+    return this.editedInvoice.asObservable();
+  }
   nexOrderline(orderline: any) {
     // const orderlines = this.editedDevisOrderline.getValue();
     // orderlines.push(orderline);

@@ -17,7 +17,7 @@ const fromJSDateToString = (date: Date, format: string) => {
 
 const fromFormatToOdoo = (dateStr: string) => {
   const date = fromFormatToJSDate(dateStr, 'dd-MM-yyyy');
-  return date.toISOString().slice(0, 10);
+  return fromJSDateToString(date, 'yyyy-MM-dd');
 };
 
 const fromOdooToFormat = (odooDate: string, format: string) => {
