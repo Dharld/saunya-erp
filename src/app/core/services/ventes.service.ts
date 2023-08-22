@@ -121,6 +121,10 @@ export class VentesService {
     );
   }
 
+  getAccounts(page = 1) {
+    return from(this.odooService.getAccounts(page));
+  }
+
   getAllInvoices(searchTerm = '', partner_id = -1): Observable<Invoice[]> {
     this.loading.next(true);
     return from(this.odooService.getInvoices(searchTerm, partner_id)).pipe(

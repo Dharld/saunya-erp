@@ -95,6 +95,16 @@ export class NewInvoiceComponent implements OnInit {
   }
 
   addInvoiceLine() {
+    const { client, refpayment, facturationDate, lastDate, journal } =
+      this.newInvoice.value;
+    this.ventesService.nextEditedInvoice({
+      id: 'brouillon',
+      client,
+      refpayment,
+      facturationDate,
+      lastDate,
+      journal,
+    });
     this.navigation.navigateTo(
       ['../brouillon', 'new-invoice-line'],
       this.route

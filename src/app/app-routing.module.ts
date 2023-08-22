@@ -13,6 +13,7 @@ import { NewOrderLineComponent } from './features/ventes/pages/new-order-line/ne
 import { TestComponent } from './features/test/test.component';
 import { NewCommandeComponent } from './features/ventes/pages/new-commande/new-commande.component';
 import { NewInvoiceComponent } from './features/ventes/pages/new-invoice/new-invoice.component';
+import { NewInvoiceLineComponent } from './features/ventes/pages/new-invoice-line/new-invoice-line.component';
 
 const routes: Routes = [
   {
@@ -75,6 +76,10 @@ const routes: Routes = [
       {
         path: 'facturation/new',
         component: NewInvoiceComponent,
+      },
+      {
+        path: 'facturation/:id/new-invoice-line',
+        component: NewInvoiceLineComponent,
       },
     ],
   },

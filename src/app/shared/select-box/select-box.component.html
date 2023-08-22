@@ -1,4 +1,4 @@
-<div class="w-full group relative">
+<div class="w-full group relative select-box-container">
   <label
     [for]="name"
     class="text-neutral-400 text-body-xs group-focus-within:text-primary-300 mb-1 font-medium leading-3"
@@ -43,9 +43,9 @@
   </div>
   <ul
     #ul
-    class="dropdown w-full bg-white rounded-b-sm shadow-sm overflow-hidden absolute bottom-[{{
-      ul.style.height
-    }}px] {{ showDropDown ? 'scale-y-100' : 'scale-y-0' }} z-10 origin-top"
+    class="dropdown w-full h-[250px]  bg-white rounded-b-sm shadow-sm overflow-auto absolute  {{
+      showDropDown ? 'scale-y-100' : 'scale-y-0'
+    }} z-10 origin-top"
   >
     <li
       class="px-2 py-3 text-body hover:bg-primary-200 hover:text-white cursor-pointer transition"

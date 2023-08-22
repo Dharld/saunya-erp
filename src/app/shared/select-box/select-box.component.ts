@@ -10,6 +10,7 @@ import {
   EventEmitter,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { fromEvent, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-box',
@@ -50,7 +51,20 @@ export class SelectBoxComponent
 
   constructor(private renderer2: Renderer2) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    fromEvent(document, 'click')
+      .pipe(
+        tap((event) => {
+          const selectContainer = (event.target as HTMLElement).closest(
+            '.select-box-container'
+          );
+          if (!selectContainer) {
+            this.closeDropdown();
+          }
+        })
+      )
+      .subscribe();
+  }
 
   ngAfterViewInit() {}
 

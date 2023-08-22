@@ -14,6 +14,7 @@ import { CommandeComponent } from './pages/commande/commande.component';
 import { NewCommandeComponent } from './pages/new-commande/new-commande.component';
 import { FacturationComponent } from './pages/facturation/facturation.component';
 import { NewInvoiceComponent } from './pages/new-invoice/new-invoice.component';
+import { NewInvoiceLineComponent } from './pages/new-invoice-line/new-invoice-line.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { NewInvoiceComponent } from './pages/new-invoice/new-invoice.component';
     NewCommandeComponent,
     FacturationComponent,
     NewInvoiceComponent,
+    NewInvoiceLineComponent,
   ],
   imports: [
     CommonModule,

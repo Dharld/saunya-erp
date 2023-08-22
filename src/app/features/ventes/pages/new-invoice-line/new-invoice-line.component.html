@@ -1,3 +1,71 @@
-<p>
-  new-invoice-line works!
-</p>
+<div class="wrappper">
+  <ion-header>
+    <ion-toolbar class="text-white">
+      <ion-title
+        class="text-[20px] text-white font-semibold flex-1 flex justify-center"
+      >
+        <div class="flex items-center">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            (click)="goBack()"
+          >
+            <path
+              d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
+              fill="#fff"
+            />
+          </svg>
+          <div class="ml-1">Nouvelle Ligne de facture</div>
+        </div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <form
+    [formGroup]="invoiceLineForm"
+    class="py-2 px-4"
+    *ngIf="!loading"
+    (ngSubmit)="addInvoiceLine()"
+  >
+    <div class="mb-3">
+      <app-select-box
+        label="Produit"
+        placeholder="Veuillez ajouter un produit de votre catalogue"
+        name="product"
+        [options]="products"
+        formControlName="product"
+      ></app-select-box>
+    </div>
+    <div class="flex w-full gap-1 mb-3">
+      <app-input-box
+        label="Quantité"
+        placeholder="Combien d'articles ?"
+        value="1"
+        name="quantity"
+        class="flex-1"
+        type="number"
+        formControlName="quantity"
+      ></app-input-box>
+    </div>
+    <div class="mb-3">
+      <app-select-box
+        label="Compte"
+        placeholder="Veuillez sélectionner le compte associé"
+        name="account"
+        [options]="accounts"
+        formControlName="account"
+      ></app-select-box>
+    </div>
+
+    <div class="mt-12 flex flex-col gap-2">
+      <app-button
+        text="Ajouter une ligne de commande"
+        type="submit"
+      ></app-button>
+      <app-button text="Annuler" styles="outlineButton"></app-button>
+    </div>
+  </form>
+  <app-spinner *ngIf="loading"></app-spinner>
+</div>

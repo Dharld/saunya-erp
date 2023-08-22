@@ -7,6 +7,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { Invoice } from '../model/invoice.model';
 
+const LIMIT_ACCOUNT = 30;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -20,6 +22,9 @@ export class OdooService {
       username: 'info@net-2s.com',
       password: '200?skfb',
     });
+    Promise.all([this.getAccounts(1), this.getAccounts(2)]).then((data) =>
+      console.log(data)
+    );
   }
 
   login() {}
@@ -60,7 +65,12 @@ export class OdooService {
     });
   }
 
-  getItems<T>(model: string, fields: string[]): Promise<T[]> {
+  getItems<T>(
+    model: string,
+    fields: string[],
+    offset = -1,
+    limit = -1
+  ): Promise<T[]> {
     let odoo = this.odoo;
 
     return new Promise<T[]>((res, rej) => {
@@ -72,6 +82,12 @@ export class OdooService {
         let inParams: any[] = [];
         inParams.push([]);
         inParams.push(fields);
+        if (offset >= 0) {
+          inParams.push(offset);
+        }
+        if (limit >= 0) {
+          inParams.push(limit);
+        }
         let params = [];
         params.push(inParams);
 
@@ -319,6 +335,11 @@ export class OdooService {
         );
       });
     });
+  }
+
+  getAccounts(page: number = 1) {
+    const skip = (page - 1) * LIMIT_ACCOUNT;
+    return this.getItems<any>('account.account', ['name'], skip, LIMIT_ACCOUNT);
   }
 
   getProducts() {

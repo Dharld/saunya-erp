@@ -75,7 +75,10 @@
     </div>
     <div class="my-4 flex justify-between items-center">
       <div class="text-neutral-400 text-body">Lignes de facture</div>
-      <div class="text-primary-300 hover:underline text-body-xs cursor-pointer">
+      <div
+        class="text-primary-300 hover:underline text-body-xs cursor-pointer"
+        (click)="addInvoiceLine()"
+      >
         Ajouter une ligne de facture
       </div>
     </div>
