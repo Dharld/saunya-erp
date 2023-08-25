@@ -110,10 +110,6 @@ ion-tab-button {
   scrollbar-width: none; /* Firefox */
 }
 
-.toast-error {
-  background-color: var(--red500);
-}
-
 .toast-success {
   position: relative;
   width: 50%;
@@ -123,10 +119,15 @@ ion-tab-button {
   background-image: url("assets/icon/check__green.png");
   opacity: 1;
 }
+
 .toast-error {
-  background-color: var(--red200);
-  color: var(--red700) !important;
+  position: relative;
+  width: 50%;
+  background-color: var(--red-200);
+  color: var(--red-700) !important;
   background-image: unset !important;
+  z-index: 100;
+  opacity: 1;
 }
 .toast-warning {
   background-color: var(--yellow200);
@@ -227,4 +228,9 @@ swiper-container {
     user-select: none;
     width: fit-content !important;
   }
+}
+
+.item.sc-ion-label-md-h,
+.item .sc-ion-label-md-h {
+  @apply font-sans;
 }

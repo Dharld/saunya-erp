@@ -17,7 +17,10 @@ export class ToasterService {
 
   // show error toast
   showError(message: string, title: string) {
-    this.toastr.error(message, title);
+    this.toastr.error(message, title, {
+      disableTimeOut: true,
+      positionClass: 'toast-top-right',
+    });
   }
   // show info toast
   showInfo(message: string, title: string) {

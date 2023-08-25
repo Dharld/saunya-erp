@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
   BehaviorSubject,
   Observable,
+  Subscription,
   concatAll,
   debounceTime,
   distinctUntilChanged,
@@ -41,10 +42,11 @@ const PAYMENT_STATES: keyedMap = {
   styleUrls: ['./facturation.component.scss'],
 })
 export class FacturationComponent implements OnInit {
+  sub!: Subscription;
   searchText: BehaviorSubject<string> = new BehaviorSubject('');
   activeClient: Customer | any = null;
   clients: Customer[] = [];
-  invoices$!: Observable<Invoice[]>;
+  invoices!: Invoice[];
   loading = true;
   clientChange: BehaviorSubject<boolean> = new BehaviorSubject(false);
   states = STATES;
@@ -61,16 +63,17 @@ export class FacturationComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.invoices$ = this.ventesService.invoiceAsObservable();
+    this.sub = this.ventesService.invoiceAsObservable().subscribe((data) => {
+      this.invoices = data;
+    });
 
-    const loadingDevis$ = this.ventesService.loading;
     const getCustomers$ = this.ventesService.getAllCustomers();
 
-    loadingDevis$.subscribe((loading) => {
-      getCustomers$.subscribe((customers) => {
-        this.clients = customers;
-        this.loading = loading;
-      });
+    this.ventesService.loadingInvoice.subscribe((value) => {
+      this.loading = value;
+    });
+    getCustomers$.subscribe((customers) => {
+      this.clients = customers;
     });
 
     const search$ = this.searchText.pipe(
@@ -111,38 +114,42 @@ export class FacturationComponent implements OnInit {
     this.navigation.navigateTo(['new'], this.route);
   }
 
+  editInvoice(invoice: any) {
+    this.ventesService.nextEditedInvoice(invoice);
+    this.navigation.navigateWithParams(['new'], { mode: 'edit' }, this.route);
+  }
+
   deleteInvoice() {
+    this.loading = false;
+
     if (this.invoiceToDelete) {
+      this.loadingDelete = true;
       const deleteInvoice$ = this.ventesService.deleteInvoice(
         this.invoiceToDelete
       );
-      const getAllInvoices$ = this.ventesService.getAllInvoices();
-      const source$ = of(deleteInvoice$, getAllInvoices$);
-      const completeInvoiceCreation$ = source$.pipe(concatAll());
 
-      completeInvoiceCreation$
-        .pipe(
-          scan((acc, _) => {
-            if (acc === 1) {
-              this.toast.showSuccess(
-                `La facture ${this.invoiceToDelete.name} - ${this.invoiceToDelete.partner_id[1]} a été supprimée avec succès.`,
-                'Succès'
-              );
-              this.loading = false;
-              this.invoiceToDelete = null;
-            }
-            return acc + 1;
-          }, 0)
-        )
-        .subscribe();
+      deleteInvoice$.subscribe(() => {
+        this.toast.showSuccess(
+          `La facture ${this.invoiceToDelete.name} - ${this.invoiceToDelete.partner_id[1]} a été supprimée avec succès.`,
+          'Succès'
+        );
+        this.invoiceToDelete = null;
+        this.show_modal = false;
+        this.loadingDelete = false;
+      });
     }
   }
 
-  openModal(i: any) {
+  openModal(event: Event, i: any) {
+    event.stopPropagation();
     this.show_modal = true;
     this.invoiceToDelete = i;
   }
   goBack() {
     this.navigation.goBack();
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 }

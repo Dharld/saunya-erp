@@ -11,6 +11,15 @@ const fromFormatToJSDate = (dateStr: string, format: string) => {
   return DateTime.fromFormat(dateStr, format).toJSDate();
 };
 
+const convertDateFormat = (
+  dateStr: string,
+  format1: string,
+  format2: string
+) => {
+  const date = DateTime.fromFormat(dateStr, format1).toJSDate();
+  return DateTime.fromJSDate(date).toFormat(format2);
+};
+
 const fromJSDateToString = (date: Date, format: string) => {
   return DateTime.fromJSDate(date).toFormat(format);
 };
@@ -31,4 +40,5 @@ export {
   fromJSDateToString,
   fromFormatToOdoo,
   fromOdooToFormat,
+  convertDateFormat,
 };

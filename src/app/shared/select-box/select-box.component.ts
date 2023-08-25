@@ -8,9 +8,10 @@ import {
   ViewChild,
   AfterViewInit,
   EventEmitter,
+  OnDestroy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { fromEvent, tap } from 'rxjs';
+import { Subscription, fromEvent, tap } from 'rxjs';
 
 @Component({
   selector: 'app-select-box',
@@ -25,10 +26,10 @@ import { fromEvent, tap } from 'rxjs';
   ],
 })
 export class SelectBoxComponent
-  implements OnInit, AfterViewInit, ControlValueAccessor
+  implements OnInit, AfterViewInit, OnDestroy, ControlValueAccessor
 {
   showDropDown = false;
-
+  sub!: Subscription;
   readOnly = true;
   @Input() formControlInput = '';
   @Input() name = '';
@@ -52,7 +53,7 @@ export class SelectBoxComponent
   constructor(private renderer2: Renderer2) {}
 
   ngOnInit() {
-    fromEvent(document, 'click')
+    this.sub = fromEvent(document, 'click')
       .pipe(
         tap((event) => {
           const selectContainer = (event.target as HTMLElement).closest(
@@ -102,5 +103,9 @@ export class SelectBoxComponent
   }
   closeDropdown() {
     this.showDropDown = false;
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

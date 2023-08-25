@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Observable, concatAll, forkJoin, mergeAll, of } from 'rxjs';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
@@ -22,7 +23,8 @@ export class NewInvoiceLineComponent implements OnInit {
     private navigation: NavigationService,
     private ventesService: VentesService,
     private fb: FormBuilder,
-    private toast: ToasterService
+    private toast: ToasterService,
+    private route: ActivatedRoute
   ) {
     this.invoiceLineForm = this.fb.group({
       product: [{ text: '' }],
@@ -59,9 +61,12 @@ export class NewInvoiceLineComponent implements OnInit {
   addInvoiceLine() {
     const { product, quantity, account } = this.invoiceLineForm.value;
     const invoice_line = {
-      product_id: product.id,
-      qty: +quantity,
-      account_id: account.id,
+      id: !this.editedInvoice.invoice_lines
+        ? 0
+        : this.editedInvoice.invoice_lines.length,
+      product,
+      quantity: +quantity,
+      account,
     };
     const editedInvoice = {
       ...this.editedInvoice,
@@ -72,16 +77,18 @@ export class NewInvoiceLineComponent implements OnInit {
 
     this.ventesService.nextEditedInvoice(editedInvoice);
 
-    if (this.editedInvoice.id === 'brouillon') {
+    if (this.editedInvoice.id !== 'brouillon') {
       this.toast.showSuccess(
-        `La ligne de commande a été ajoutée à la facture ${this.editedInvoice.id}`,
+        `La ligne de facture a été ajoutée à la facture ${this.editedInvoice.id}`,
         'Succès'
       );
     } else {
       this.toast.showSuccess(
-        `La ligne de commande a été ajoutée à la facture brouillon`,
+        `La ligne de facture a été ajoutée à la facture brouillon`,
         'Succès'
       );
     }
+
+    this.goBack();
   }
 }

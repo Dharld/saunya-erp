@@ -15,9 +15,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 import { TestComponent } from './features/test/test.component';
 import { register } from 'swiper/element/bundle';
-import { NoopInterceptor } from './core/interceptors/noop.interceptor';
 import { httpInterceptorProviders } from './core/interceptors';
-import { GlobalErrorHandler } from './core/error-handling/global-error-handler.service';
+import { ErrorHandlerService } from './core/services/error.service';
 
 register();
 
@@ -36,7 +35,7 @@ register();
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: DEFAULT_CURRENCY_CODE, useValue: 'XAF' },
-    // { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    { provide: ErrorHandler, useClass: ErrorHandlerService },
     httpInterceptorProviders,
   ],
   bootstrap: [AppComponent],

@@ -22,8 +22,9 @@
     </ion-title>
   </ion-toolbar>
 </ion-header>
-
-<div class="p-4 flex-1 flex flex-col">
+<div
+  class="p-4 h-[calc(100%-112px)] overflow-auto flex-1 flex flex-col font-sans list"
+>
   <app-spinner *ngIf="loading"></app-spinner>
   <form
     [formGroup]="newInvoice"
@@ -82,9 +83,29 @@
         Ajouter une ligne de facture
       </div>
     </div>
+    <ion-list *ngIf="editedInvoice.invoice_lines?.length > 0">
+      <ion-item
+        *ngFor="let line of editedInvoice.invoice_lines"
+        class="flex flex-col"
+      >
+        <ion-label>
+          <div class="text-neutral-600 font-semibold">
+            {{ line.product.name }} x {{ line.quantity }}
+          </div>
+          <div class="text-neutral-500">{{ line.account.name }}</div>
+        </ion-label>
+        <div
+          slot="end"
+          class="font-sans text-red-300 hover:text-red-200"
+          (click)="removeLine(line.id)"
+        >
+          Supprimer
+        </div>
+      </ion-item>
+    </ion-list>
     <div class="mt-8">
       <app-button
-        text="Confirmer"
+        text="{{ this.mode === 'edit' ? 'Modifier' : 'Confirmer' }}"
         type="submit"
         [loading]="createLoading"
       ></app-button>

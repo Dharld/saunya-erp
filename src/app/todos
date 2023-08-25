@@ -47,7 +47,9 @@ SaunyaERP:
     ✔ Finish the workflow to modify an element @started(23-08-16 10:29) @done(23-08-17 23:33) @lasted(1d13h4m17s)
         ✔ The first part without the command line @done(23-08-16 10:29)
         ☐ The second time with it @started(23-08-16 13:25)
-    ☐ Create a component to list the elements
-    ☐ Arrange the workflow so that when we go back, we have the updated list of devis @started(23-08-19 09:49)
-    ☐ Then start designing the commande part
-    ☐ Finish with the facturation
+    ✔ Arrange the workflow so that when we go back, we have the updated list of devis @started(23-08-19 09:49) @done(23-08-25 10:11) @lasted(6d22m18s)
+    ✔ Then start designing the commande part @done(23-08-25 10:11)
+    ✔ Finish with the facturation @done(23-08-25 10:11)
+    ☐ Add error handling in the application
+    ☐ Ameliorate the payment conditions selection and also the "position fiscale" so that if a client already have some values settled.
+    ☐ Mode offline

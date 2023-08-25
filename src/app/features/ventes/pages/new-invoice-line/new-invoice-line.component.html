@@ -64,8 +64,14 @@
         text="Ajouter une ligne de commande"
         type="submit"
       ></app-button>
-      <app-button text="Annuler" styles="outlineButton"></app-button>
+      <app-button
+        text="Annuler"
+        styles="outlineButton"
+        (click)="goBack()"
+      ></app-button>
     </div>
   </form>
-  <app-spinner *ngIf="loading"></app-spinner>
+  <div class="py-4" *ngIf="loading">
+    <app-spinner></app-spinner>
+  </div>
 </div>

@@ -1,20 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+} from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { ToastrService } from 'ngx-toastr';
-import { concatAll, forkJoin, of, scan } from 'rxjs';
+import { Subscription, concatAll, forkJoin, of, scan } from 'rxjs';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
-import { fromFormatToOdoo } from 'src/utils/luxon';
+import { convertDateFormat, fromFormatToOdoo } from 'src/utils/luxon';
 
 @Component({
   selector: 'app-new-invoice',
   templateUrl: './new-invoice.component.html',
   styleUrls: ['./new-invoice.component.scss'],
 })
-export class NewInvoiceComponent implements OnInit {
+export class NewInvoiceComponent implements OnInit, OnDestroy {
+  mode!: string;
+  editedInvoice!: any;
+
   newInvoice!: FormGroup<{
     client: FormControl;
     refpayment: FormControl;
@@ -29,6 +37,8 @@ export class NewInvoiceComponent implements OnInit {
   createLoading = false;
   loading = true;
 
+  sub!: Subscription;
+
   constructor(
     private ventesService: VentesService,
     private fb: FormBuilder,
@@ -42,6 +52,51 @@ export class NewInvoiceComponent implements OnInit {
       facturationDate: [''],
       lastDate: [''],
       journal: [{ text: '' }],
+    });
+    const clientControl = this.newInvoice.get('client');
+    const refPaymentControl = this.newInvoice.get('refpayment');
+    const facturationDateControl = this.newInvoice.get('facturationDate');
+    const lastDateControl = this.newInvoice.get('lastDate');
+    const journalControl = this.newInvoice.get('journal');
+
+    this.sub = this.ventesService
+      .editedInvoiceAsObservable()
+      .subscribe((data) => {
+        this.editedInvoice = data;
+        const {
+          partner_id: client,
+          payment_reference: refpayment,
+          invoice_date: facturationDate,
+          invoice_date_due: lastDate,
+          journal_id: journal,
+        } = this.editedInvoice;
+        if (this.editedInvoice.id !== 'brouillon') {
+          this.setSelectControl(clientControl!, client);
+          this.setInputControl(refPaymentControl!, refpayment);
+          this.setInputControl(
+            facturationDateControl!,
+            convertDateFormat(facturationDate, 'yyyy-MM-dd', 'dd-MM-yyyy')
+          );
+          this.setInputControl(
+            lastDateControl!,
+            convertDateFormat(lastDate, 'yyyy-MM-dd', 'dd-MM-yyyy')
+          );
+          this.setSelectControl(journalControl!, journal);
+        }
+      });
+    this.route.queryParams.subscribe((params) => {
+      this.mode = params['mode'];
+      if (this.mode === 'edit' && this.editedInvoice.id !== 'brouillon') {
+        console.log(this.editedInvoice);
+        this.ventesService
+          .getInvoiceLine(this.editedInvoice)
+          .subscribe((lines) => {
+            console.log(lines);
+            lines.forEach((line) =>
+              this.ventesService.nextEditedInvoiceline(line[0])
+            );
+          });
+      }
     });
   }
 
@@ -62,48 +117,74 @@ export class NewInvoiceComponent implements OnInit {
     });
   }
 
+  setSelectControl(control: AbstractControl<any, any>, model: any) {
+    control?.setValue({
+      id: model[0],
+      name: model[1],
+      text: model[1],
+    });
+  }
+
+  setInputControl(control: AbstractControl<any, any>, value: any) {
+    control.setValue(value);
+  }
+
   createNewInvoice() {
-    const invoiceData = {
+    let invoiceData: any = {
       ...this.newInvoice.value,
       facturationDate: fromFormatToOdoo(this.newInvoice.value.facturationDate),
       lastDate: fromFormatToOdoo(this.newInvoice.value.lastDate),
+      invoice_lines: this.editedInvoice.invoice_lines,
     };
-    this.createLoading = true;
+
+    if (this.mode === 'edit') {
+      invoiceData.invoice_id = this.editedInvoice.id;
+    }
 
     const addInvoice$ = this.ventesService.addInvoice(invoiceData);
-    const getAllInvoices = this.ventesService.getAllInvoices();
+    const updateInvoice$ = this.ventesService.updateInvoice(invoiceData);
 
-    const source$ = of(addInvoice$, getAllInvoices);
+    if (this.mode === 'edit') {
+      this.createLoading = true;
+      updateInvoice$.subscribe((res) => {
+        if (res.success) {
+          // this.ventesService.clearEditedInvoice();
+          this.createLoading = false;
+          this.toast.showSuccess(
+            'Votre facture a été modifiée avec succès',
+            'Succès'
+          );
+          this.goBack();
+        }
+      });
+    } else {
+      this.createLoading = true;
+      addInvoice$.subscribe((res) => {
+        if (res.success) {
+          this.createLoading = false;
+          this.toast.showSuccess(
+            'Votre facture a été créée avec succès',
+            'Succès'
+          );
 
-    const completeInvoiceCreation$ = source$.pipe(concatAll());
-
-    completeInvoiceCreation$
-      .pipe(
-        scan((acc, _) => {
-          if (acc === 1) {
-            this.toast.showSuccess(
-              'Votre facture a été créé avec succès.',
-              'Succès'
-            );
-            this.createLoading = false;
-            this.goBack();
-          }
-          return acc + 1;
-        }, 0)
-      )
-      .subscribe();
+          this.goBack();
+        }
+      });
+      this.createLoading = false;
+    }
   }
 
   addInvoiceLine() {
     const { client, refpayment, facturationDate, lastDate, journal } =
       this.newInvoice.value;
     this.ventesService.nextEditedInvoice({
-      id: 'brouillon',
+      id: this.editedInvoice.id,
       client,
       refpayment,
       facturationDate,
       lastDate,
       journal,
+      invoice_lines: this.editedInvoice.invoice_lines,
     });
     this.navigation.navigateTo(
       ['../brouillon', 'new-invoice-line'],
@@ -111,8 +192,23 @@ export class NewInvoiceComponent implements OnInit {
     );
   }
 
+  removeLine(line_id: number) {
+    const invoice_lines = this.editedInvoice.invoice_lines.filter(
+      (line: any) => line.id !== line_id
+    );
+    this.ventesService.nextEditedInvoice({
+      ...this.editedInvoice,
+      invoice_lines,
+    });
+    this.toast.showSuccess('Ligne de facturation supprimée.', 'succès');
+  }
+
   goBack() {
+    this.ventesService.clearEditedInvoice();
     this.navigation.goBack();
-    // this.navigation.goBack();
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

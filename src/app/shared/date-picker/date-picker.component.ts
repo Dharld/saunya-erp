@@ -118,6 +118,7 @@ export class DatePickerComponent
   writeValue(value: any): void {
     if (!this.disabled && value) {
       this.markAsTouched();
+      this.value = value;
       this.onChange(value);
     }
   }

@@ -1,26 +1,23 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { ErrorHandler, Inject, Injectable, Injector } from '@angular/core';
+import { ToasterService } from './toastr.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ErrorService {
-  getClientMessage(err: Error) {
-    if (!navigator.onLine) {
-      return 'No Internet Connection';
+export class ErrorHandlerService implements ErrorHandler {
+  constructor(@Inject(Injector) private readonly injector: Injector) {}
+
+  private get toaster() {
+    return this.injector.get(ToasterService);
+  }
+
+  handleError(error: any): void {
+    if (error.reason) {
+      console.error(error.reason);
+    } else {
+      console.error(error);
     }
-    return err.message ? err.message : err.toString();
-  }
-  getClientStack(error: Error): string {
-    return error.stack!;
-  }
 
-  getServerMessage(error: HttpErrorResponse): string {
-    return error.message;
-  }
-
-  getServerStack(error: HttpErrorResponse): string {
-    // handle stack trace
-    return 'stack';
+    this.toaster.showError(error, 'Error');
   }
 }

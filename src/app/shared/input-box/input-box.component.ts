@@ -55,11 +55,12 @@ export class InputBoxComponent implements OnInit, ControlValueAccessor {
   writeValue(value: any): void {
     if (!this.disabled && this.readOnly != true) {
       this.markAsTouched();
-      this.renderer.setProperty(
+      /* this.renderer.setProperty(
         this.elementRef.nativeElement.childNodes[0].childNodes[1],
         'value',
         value
-      );
+      ); */
+      this.value = value;
       this.onChange(value);
     }
   }

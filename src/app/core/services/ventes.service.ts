@@ -11,6 +11,8 @@ import { Invoice } from '../model/invoice.model';
 })
 export class VentesService {
   loading = new BehaviorSubject(false);
+  loadingInvoice = new BehaviorSubject(false);
+
   private INITIAL_DEVIS: Devis[] = new Array();
   reloadDevis = new BehaviorSubject(true);
 
@@ -44,6 +46,30 @@ export class VentesService {
     this.editedInvoice.next(invoice);
   }
 
+  nextEditedInvoiceline(invoice_line: any) {
+    console.log(invoice_line);
+    const { product_id, quantity, id, account_id } = invoice_line;
+    const editedInvoice = Object.assign({}, this.editedInvoice.getValue());
+    const line = {
+      id: id,
+      product: {
+        id: product_id[0],
+        name: product_id[1],
+      },
+      account: {
+        id: account_id[0],
+        name: account_id[1],
+      },
+      quantity: +quantity,
+    };
+    if (!editedInvoice.invoice_lines) {
+      editedInvoice.invoice_lines = [line];
+    } else {
+      editedInvoice.invoice_lines = [...editedInvoice.invoice_lines, line];
+    }
+    this.editedInvoice.next(editedInvoice);
+  }
+
   clearEditedDevis() {
     this.editedDevis.next(new Devis(''));
   }
@@ -65,11 +91,34 @@ export class VentesService {
   }
 
   addInvoice(invoiceData: any) {
-    return from(this.odooService.createInvoice(invoiceData));
+    console.log(invoiceData);
+    return from(this.odooService.createInvoice(invoiceData)).pipe(
+      tap(() => {
+        this.loadingInvoice.next(true);
+        this.getAllInvoices().subscribe(() => {
+          this.loadingInvoice.next(false);
+        });
+      })
+    );
+  }
+
+  getInvoiceLine(invoice: any) {
+    return from(this.odooService.getInvoiceLine(invoice));
   }
 
   updateDevis(devis: Devis, orderline: any[]) {
     return from(this.odooService.updateDevis(devis, orderline));
+  }
+
+  updateInvoice(invoice: any) {
+    return from(this.odooService.updateInvoice(invoice)).pipe(
+      tap(() => {
+        this.loadingInvoice.next(true);
+        this.getAllInvoices().subscribe(() => {
+          this.loadingInvoice.next(false);
+        });
+      })
+    );
   }
 
   getNumberOfDevis() {
@@ -126,12 +175,12 @@ export class VentesService {
   }
 
   getAllInvoices(searchTerm = '', partner_id = -1): Observable<Invoice[]> {
-    this.loading.next(true);
+    this.loadingInvoice.next(true);
     return from(this.odooService.getInvoices(searchTerm, partner_id)).pipe(
       tap((invoices) => {
+        this.loadingInvoice.next(false);
         console.log('Next invoices');
         this.invoices.next(invoices);
-        this.loading.next(false);
       })
     );
   }
@@ -214,14 +263,16 @@ export class VentesService {
     return from(this.odooService.deleteInvoice(invoice)).pipe(
       tap((success) => {
         if (success) {
-          let invoiceArr = this.devis.getValue();
+          let invoiceArr = this.invoices.getValue();
+          console.log(invoiceArr);
           invoiceArr = invoiceArr.filter((i) => {
             if (i.id === invoice.id) {
               return undefined;
             }
             return i;
           });
-          this.devis.next(invoiceArr);
+          console.log(invoiceArr);
+          this.invoices.next(invoiceArr);
         }
       })
     );
