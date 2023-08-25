@@ -5,6 +5,7 @@ import { OrderLine } from '../model/order-line.model';
 import { OdooService } from './odoo.service';
 import { Customer } from '../model/customer.model';
 import { Invoice } from '../model/invoice.model';
+import { NetworkService } from './network.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,10 @@ export class VentesService {
   private editedCommande!: BehaviorSubject<Devis>;
   private editedDevisOrderline!: BehaviorSubject<any>;
 
-  constructor(private odooService: OdooService) {
+  constructor(
+    private odooService: OdooService,
+    private network: NetworkService
+  ) {
     const DRAFT_DEVIS = new Devis('');
     const DRAFT_INVOICE: Invoice = {
       id: 'brouillon',
