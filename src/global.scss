@@ -129,6 +129,17 @@ ion-tab-button {
   z-index: 100;
   opacity: 1;
 }
+
+.toast-info {
+  position: relative;
+  width: 50%;
+  background-color: var(--primary-200);
+  color: var(--primary-900) !important;
+  background-image: unset !important;
+  z-index: 100;
+  opacity: 1;
+}
+
 .toast-warning {
   background-color: var(--yellow200);
   color: var(--yellow800) !important;

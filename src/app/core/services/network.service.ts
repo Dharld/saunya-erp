@@ -37,4 +37,8 @@ export class NetworkService {
       this.toaster.showError('You are now offline', 'Connection Status');
     }
   }
+
+  getCurrentNetworkStatus() {
+    return this.status.getValue();
+  }
 }

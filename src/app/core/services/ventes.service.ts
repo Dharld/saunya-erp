@@ -6,6 +6,7 @@ import { OdooService } from './odoo.service';
 import { Customer } from '../model/customer.model';
 import { Invoice } from '../model/invoice.model';
 import { NetworkService } from './network.service';
+import { ToasterService } from './toastr.service';
 
 @Injectable({
   providedIn: 'root',

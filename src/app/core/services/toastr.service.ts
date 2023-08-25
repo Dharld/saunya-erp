@@ -24,7 +24,10 @@ export class ToasterService {
   }
   // show info toast
   showInfo(message: string, title: string) {
-    this.toastr.info(message, title);
+    this.toastr.info(message, title, {
+      disableTimeOut: true,
+      positionClass: 'toast-top-right',
+    });
   }
 
   // show warning toast

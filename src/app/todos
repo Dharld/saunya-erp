@@ -52,9 +52,9 @@ SaunyaERP:
     ✔ Finish with the facturation @done(23-08-25 10:11)
     ✔ Add error handling in the application @done(23-08-25 22:15)
     ☐ Mode offline @started(23-08-25 22:16)
-        ☐ Create the network service
+        ✔ Create the network service @done(23-08-25 23:06)
             This service is gonna be used to check for the connectivity of the application.
             It will automatically detect changes and through a behaviour subject, it's gonna notify the rest of the application.
-        ☐ Create the offline manager service
+        ✔ Create the offline manager service @done(23-08-25 23:26)
             This service is gonna store our requests to the local cache. For example, every PUT, POST and DELETE request is going to be stored in the cache when the application will be offline and then those requests will be dispatched when we'll be back online.
     ☐ Ameliorate the payment conditions selection and also the "position fiscale" so that if a client already have some values settled.
