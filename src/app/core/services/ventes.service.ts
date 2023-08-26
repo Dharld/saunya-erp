@@ -7,6 +7,12 @@ import { Customer } from '../model/customer.model';
 import { Invoice } from '../model/invoice.model';
 import { NetworkService } from './network.service';
 import { ToasterService } from './toastr.service';
+import { Platform } from '@ionic/angular';
+import { ConnectionStatus } from '@capacitor/network';
+import { OfflineManagerService } from './offline-manager.service';
+import { Storage } from '@ionic/storage';
+
+const API_STORAGE_KEY = 'specialkey';
 
 @Injectable({
   providedIn: 'root',
@@ -26,11 +32,16 @@ export class VentesService {
   private editedInvoice!: BehaviorSubject<Invoice>;
   private editedCommande!: BehaviorSubject<Devis>;
   private editedDevisOrderline!: BehaviorSubject<any>;
+  private _storage: Storage | null = null;
 
   constructor(
     private odooService: OdooService,
-    private network: NetworkService
+    private network: NetworkService,
+    private plt: Platform,
+    private storage: Storage,
+    private offlineManager: OfflineManagerService
   ) {
+    this.init();
     const DRAFT_DEVIS = new Devis('');
     const DRAFT_INVOICE: Invoice = {
       id: 'brouillon',
@@ -41,6 +52,23 @@ export class VentesService {
     this.editedDevis = new BehaviorSubject<Devis>(DRAFT_DEVIS);
     this.editedCommande = new BehaviorSubject<Devis>(DRAFT_DEVIS);
     this.editedInvoice = new BehaviorSubject<Invoice>(DRAFT_INVOICE);
+
+    this.plt.ready().then(() => {
+      this.initializeApp();
+    });
+  }
+
+  async init() {
+    const storage = await this.storage.create();
+    this._storage = storage;
+  }
+
+  initializeApp() {
+    this.network.statusAsObservable().subscribe((status: ConnectionStatus) => {
+      if (status.connected === true) {
+        this.offlineManager.checkForEvents().subscribe();
+      }
+    });
   }
 
   nextEditedDevis(devis: any) {
@@ -142,12 +170,41 @@ export class VentesService {
   getAllJournal() {
     return from(this.odooService.getJournals());
   }
-  getAllDevis(searchTerm = '', partner_id = -1): Observable<any[]> {
+
+  getAllDevis(
+    searchTerm = '',
+    partner_id = -1,
+    refresh = false
+  ): Observable<any[]> {
     // return this.devis.pipe(delay(500));
     this.loading.next(true);
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false || !refresh) {
+      return from(this.getLocalData('quotations')).pipe(
+        map((devis) => {
+          const devisArr = devis.filter((d: any) => {
+            // console.log(d);
+            // console.log(`${d.displayName} - ${searchTerm} - ${partner_id}`);
+            if (partner_id === -1)
+              return (d.displayName as string).includes(searchTerm);
+            else
+              return (
+                (d.displayName as string).includes(searchTerm) &&
+                d.client.id === partner_id
+              );
+          });
+          console.log(devisArr);
+          return devisArr;
+        }),
+        tap((devis) => {
+          this.loading.next(false);
+          this.devis.next(devis);
+        })
+      );
+    }
     return from(this.odooService.getDevis(searchTerm, partner_id)).pipe(
       map((devis) => {
-        return devis.slice().map(function (d) {
+        const devisArr = devis.slice().map(function (d: any) {
           return {
             id: d.id,
             client: {
@@ -166,11 +223,28 @@ export class VentesService {
             expiration_date: d.validity_date,
           };
         });
+        this.setLocalData('quotations', devisArr);
+        return devisArr;
       }),
       tap((devis) => {
-        console.log('Next devis');
         this.devis.next(devis);
         this.loading.next(false);
+      })
+    );
+  }
+
+  getAllCustomers(refresh = false): Observable<Customer[]> {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false || !refresh) {
+      return from(this.getLocalData('customers')).pipe(
+        map((clients) => {
+          return clients ?? [];
+        })
+      );
+    }
+    return from(this.odooService.getCustomers()).pipe(
+      tap((res) => {
+        this.setLocalData('customers', res);
       })
     );
   }
@@ -229,10 +303,6 @@ export class VentesService {
 
   getCurrentOrderline() {
     return this.editedDevisOrderline.getValue();
-  }
-  getAllCustomers(): Observable<Customer[]> {
-    const getCustomers$ = from(this.odooService.getCustomers());
-    return getCustomers$;
   }
 
   getPaymentTerms() {
@@ -333,5 +403,14 @@ export class VentesService {
 
   editedDevisOrderlineAsObservable() {
     return this.editedDevisOrderline.asObservable();
+  }
+
+  private setLocalData(key: string, data: any) {
+    this.storage.set(`${API_STORAGE_KEY}-${key}`, data);
+  }
+
+  private async getLocalData(key: string) {
+    const data = await this.storage.get(`${API_STORAGE_KEY}-${key}`);
+    return data;
   }
 }

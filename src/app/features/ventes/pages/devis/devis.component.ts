@@ -13,6 +13,7 @@ import {
   AnimationController,
   DomController,
   GestureController,
+  Platform,
 } from '@ionic/angular';
 import {
   BehaviorSubject,
@@ -58,48 +59,43 @@ export class DevisComponent implements OnInit, AfterViewInit {
     private navigation: NavigationService,
     private route: ActivatedRoute,
     private ventesService: VentesService,
-    private gestureCtrl: GestureController,
-    private animationCtrl: AnimationController,
-    private domCtrl: DomController,
-    private toast: ToasterService
+    private toast: ToasterService,
+    private plt: Platform
   ) {}
 
   ngOnInit() {
     this.devis$ = this.ventesService.devisAsObservable();
 
-    const loadingDevis$ = this.ventesService.loading;
-    const getCustomers$ = this.ventesService.getAllCustomers();
-
-    loadingDevis$.subscribe((loading) => {
-      getCustomers$.subscribe((customers) => {
-        this.clients = customers;
-        this.loading = loading;
-      });
+    this.ventesService.loading.subscribe((loading) => {
+      this.loading = loading;
     });
 
-    const search$ = this.searchText.pipe(
-      startWith(''),
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((text) => this.ventesService.getAllDevis(text ? text : ''))
-    );
-
-    search$.subscribe();
-
-    // this.ventesService.getAllCustomers().subscribe((data) => {
-    //   this.clients = data;
-    // });
-
-    const clientChange$ = this.clientChange.pipe(
-      filter((change) => change === true),
-      switchMap(() =>
-        this.ventesService.getAllDevis(
-          this.searchText.getValue(),
-          this.activeClient.id
+    this.searchText
+      .pipe(
+        startWith(''),
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((text) =>
+          this.ventesService.getAllDevis(text ? text : '', -1)
         )
       )
-    );
-    clientChange$.subscribe();
+      .subscribe();
+
+    this.clientChange
+      .pipe(
+        filter((change) => change === true),
+        switchMap(() =>
+          this.ventesService.getAllDevis(
+            this.searchText.getValue(),
+            this.activeClient.id
+          )
+        )
+      )
+      .subscribe();
+
+    this.plt.ready().then(() => {
+      this.loadData(true);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -154,6 +150,40 @@ export class DevisComponent implements OnInit, AfterViewInit {
     //   });
     //   gesture.enable(true);
     // }
+  }
+
+  loadData(refresh = false, refresher?: any) {
+    this.loadClients(refresh, refresher);
+    this.loadDevis(
+      this.searchText.getValue() ?? '',
+      this.activeClient?.id ?? -1,
+      refresh,
+      refresher
+    );
+  }
+
+  loadClients(refresh = false, refresher?: any) {
+    this.ventesService.getAllCustomers(refresh).subscribe((customers) => {
+      this.clients = customers;
+      if (refresher) {
+        refresher.target.complete();
+      }
+    });
+  }
+
+  loadDevis(
+    searchTerm = '',
+    partner_id = -1,
+    refresh = false,
+    refresher?: any
+  ) {
+    this.ventesService
+      .getAllDevis(searchTerm, partner_id, refresh)
+      .subscribe(() => {
+        if (refresher) {
+          refresher.target.complete;
+        }
+      });
   }
 
   createNewDevis() {

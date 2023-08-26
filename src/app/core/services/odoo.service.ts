@@ -5,6 +5,8 @@ import { Customer } from '../model/customer.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, of, tap } from 'rxjs';
 import { OdooError } from '../error-handling/odoo-error';
+import { NetworkService } from './network.service';
+import { Storage } from '@ionic/storage-angular';
 
 const LIMIT_ACCOUNT = 30;
 
@@ -13,8 +15,13 @@ const LIMIT_ACCOUNT = 30;
 })
 export class OdooService {
   odoo: any;
+  private _storage: Storage | null = null;
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private networkService: NetworkService,
+    private storage: Storage
+  ) {
     this.odoo = new Odoo({
       url: 'https://comptabilite.net-2s.com',
       db: 'comptabilite.net-2s.com',
@@ -159,6 +166,7 @@ export class OdooService {
       });
     });
   }
+
   getItemsWithDomain<T>(
     model: string,
     domain: any[],
@@ -194,7 +202,11 @@ export class OdooService {
   }
 
   getCustomers(): Promise<Customer[]> {
-    return this.getItems<Customer>('res.partner', ['name', 'email']);
+    return this.getItems<Customer>('res.partner', ['name', 'email']).then(
+      (clients) => {
+        return clients;
+      }
+    );
   }
 
   getJournals(): Promise<any[]> {
@@ -209,7 +221,12 @@ export class OdooService {
     let odoo = this.odoo;
     const that = this;
     let devis: Devis[];
+    /*     let status = this.networkService.getCurrentNetworkStatus();
 
+    if (status.connected === false) {
+      return this.getLocalData('quotations') ?? [];
+    }
+ */
     return new Promise<any[]>((res, rej) => {
       odoo.connect(function (err: any) {
         if (err) {
@@ -247,7 +264,7 @@ export class OdooService {
               rej(that.throwBadQuery(err));
             }
             devis = value;
-
+            // that.setLocalData('quotations', devis);
             res(devis);
           }
         );

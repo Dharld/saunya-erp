@@ -17,6 +17,7 @@ import { TestComponent } from './features/test/test.component';
 import { register } from 'swiper/element/bundle';
 import { httpInterceptorProviders } from './core/interceptors';
 import { ErrorHandlerService } from './core/services/error.service';
+import { IonicStorageModule } from '@ionic/storage-angular';
 
 register();
 
@@ -31,6 +32,7 @@ register();
     FeaturesModule,
     HttpClientModule,
     ToastrModule.forRoot(),
+    IonicStorageModule.forRoot(),
   ],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },

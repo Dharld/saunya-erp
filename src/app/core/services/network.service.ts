@@ -8,17 +8,19 @@ import { ToasterService } from './toastr.service';
   providedIn: 'root',
 })
 export class NetworkService {
-  private INITIAL_CONNECTION_STATUS: ConnectionStatus = {
-    connected: false,
-    connectionType: 'unknown' as ConnectionType,
-  };
-
-  private status: BehaviorSubject<ConnectionStatus> = new BehaviorSubject(
-    this.INITIAL_CONNECTION_STATUS
-  );
+  private status!: BehaviorSubject<ConnectionStatus>;
 
   constructor(private plt: Platform, private toaster: ToasterService) {
     this.plt.ready().then(() => {
+      const INITIAL_CONNECTION_STATUS: ConnectionStatus = {
+        connected: navigator.onLine,
+        connectionType: 'none' as ConnectionType,
+      };
+      if (navigator.onLine) {
+        INITIAL_CONNECTION_STATUS.connected = true;
+        INITIAL_CONNECTION_STATUS.connectionType = 'unknown';
+      }
+      this.status = new BehaviorSubject(INITIAL_CONNECTION_STATUS);
       Network.addListener('networkStatusChange', (status) => {
         this.updateNetworkStatus(status);
       });
