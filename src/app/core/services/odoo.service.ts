@@ -28,6 +28,7 @@ export class OdooService {
       username: 'info@net-2s.com',
       password: '200?skfb',
     });
+    // this.getProducts().then((products) => console.log(products));
   }
 
   login() {}

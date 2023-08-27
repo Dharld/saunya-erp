@@ -193,7 +193,6 @@ export class VentesService {
                 d.client.id === partner_id
               );
           });
-          console.log(devisArr);
           return devisArr;
         }),
         tap((devis) => {
@@ -249,6 +248,75 @@ export class VentesService {
     );
   }
 
+  getPaymentTerms(refresh = false) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false || refresh) {
+      return from(this.getLocalData('paymentTerms')).pipe(
+        map((paymentTerms) => {
+          return paymentTerms ?? [];
+        })
+      );
+    }
+    return from(this.odooService.getPaymentTerms()).pipe(
+      tap((res) => {
+        this.setLocalData('paymentTerms', res);
+      })
+    );
+  }
+
+  getOrderline(orderline_id: number, forceRefresh = false) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false || !forceRefresh) {
+      return from(this.getLocalData('orderlines-' + orderline_id)).pipe(
+        map((orderline) => {
+          return orderline ?? [];
+        })
+      );
+    }
+    return from(this.odooService.getOrderline(orderline_id)).pipe(
+      tap((orderline) => {
+        this.setLocalData('orderlines-' + orderline_id, orderline);
+      })
+    );
+  }
+
+  getProducts(forceRefresh = false) {
+    const status = this.network.getCurrentNetworkStatus();
+
+    if (status.connected === false || !forceRefresh) {
+      return from(this.getLocalData('products')).pipe(
+        map((products) => {
+          return products ?? [];
+        })
+      );
+    }
+    return from(this.odooService.getProducts()).pipe(
+      tap((products) => {
+        console.log('Products stored to the cache.');
+        this.setLocalData('products', products);
+      })
+    );
+  }
+
+  getTaxes(forceRefresh = false) {
+    const status = this.network.getCurrentNetworkStatus();
+
+    if (status.connected === false || !forceRefresh) {
+      return from(this.getLocalData('taxes')).pipe(
+        map((taxes) => {
+          return taxes ?? [];
+        })
+      );
+    }
+
+    return from(this.odooService.getTaxes()).pipe(
+      tap((taxes) => {
+        console.log('Taxes stored to the cache.');
+        this.setLocalData('taxes', taxes);
+      })
+    );
+  }
+
   getAccounts(page = 1) {
     return from(this.odooService.getAccounts(page));
   }
@@ -297,24 +365,8 @@ export class VentesService {
     );
   }
 
-  getOrderline(orderline_id: number) {
-    return from(this.odooService.getOrderline(orderline_id));
-  }
-
   getCurrentOrderline() {
     return this.editedDevisOrderline.getValue();
-  }
-
-  getPaymentTerms() {
-    return from(this.odooService.getPaymentTerms());
-  }
-
-  getProducts() {
-    return from(this.odooService.getProducts());
-  }
-
-  getTaxes() {
-    return from(this.odooService.getTaxes());
   }
 
   deleteDevis(devis: Devis) {

@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Platform } from '@ionic/angular';
 import {
   Subscription,
   combineLatest,
@@ -48,7 +49,8 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private venteServices: VentesService,
     private toastr: ToasterService,
-    private ventesService: VentesService
+    private ventesService: VentesService,
+    private plt: Platform
   ) {
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
@@ -63,74 +65,56 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.sub = this.ventesService
-      .editedDevisAsObservable()
-      .subscribe((data) => {
-        console.log('sub');
-        this.editedDevis = data;
-        this.nouveauDevisForm = this.fb.group({
-          client: [
-            this.editedDevis.client
-              ? {
-                  ...this.editedDevis.client,
-                  text: this.editedDevis.client.name,
-                }
-              : { text: '' },
-          ],
-          expiration_date: [
-            this.editedDevis.expiration_date === false
-              ? ''
-              : this.editedDevis.expiration_date,
-          ],
-          payment_condition: [
-            this.editedDevis.payment_condition
-              ? {
-                  ...this.editedDevis.payment_condition,
-                  text: this.editedDevis.payment_condition.name,
-                }
-              : { text: '' },
-          ],
-        });
-
-        // Fetch informations
-        const getAllCustomers$ = this.venteServices.getAllCustomers();
-        const getAllPaymentTerms$ = this.venteServices.getPaymentTerms();
-
-        if (
-          this.mode === 'edit' &&
-          data.order_line &&
-          data.order_line.length > 0
-        ) {
-          const fetchOrderline: Observable<any>[] = [];
-          data.order_line.forEach((orderline_id: number) => {
-            fetchOrderline.push(this.venteServices.getOrderline(orderline_id));
+    this.plt.ready().then(() => {
+      this.sub = this.ventesService
+        .editedDevisAsObservable()
+        .subscribe((data) => {
+          this.editedDevis = data;
+          this.nouveauDevisForm = this.fb.group({
+            client: [
+              this.editedDevis.client
+                ? {
+                    ...this.editedDevis.client,
+                    text: this.editedDevis.client.name,
+                  }
+                : { text: '' },
+            ],
+            expiration_date: [
+              this.editedDevis.expiration_date === false
+                ? ''
+                : this.editedDevis.expiration_date,
+            ],
+            payment_condition: [
+              this.editedDevis.payment_condition
+                ? {
+                    ...this.editedDevis.payment_condition,
+                    text: this.editedDevis.payment_condition.name,
+                  }
+                : { text: '' },
+            ],
           });
 
-          forkJoin([
-            getAllCustomers$,
-            getAllPaymentTerms$,
-            ...fetchOrderline,
-          ]).subscribe(([customers, terms, ...orderline]) => {
-            this.clients = customers.map((c: any) => {
-              c.text = c.name;
-              return c;
+          // Fetch informations
+          const getAllCustomers$ = this.venteServices.getAllCustomers();
+          const getAllPaymentTerms$ = this.venteServices.getPaymentTerms();
+
+          if (
+            this.mode === 'edit' &&
+            data.order_line &&
+            data.order_line.length > 0
+          ) {
+            const fetchOrderline: Observable<any>[] = [];
+            data.order_line.forEach((orderline_id: number) => {
+              fetchOrderline.push(
+                this.venteServices.getOrderline(orderline_id)
+              );
             });
-            this.terms = terms;
-            this.payment_conditions = (terms as any[]).map((t) => {
-              t.text = t.name;
-              return t;
-            });
 
-            const orderLines = orderline.map(([ol]) => ol);
-            console.log(orderLines);
-
-            this.venteServices.nexOrderline(orderLines);
-
-            this.loading = false;
-          });
-        } else {
-          forkJoin([getAllCustomers$, getAllPaymentTerms$]).subscribe(
-            ([customers, terms]) => {
+            forkJoin([
+              getAllCustomers$,
+              getAllPaymentTerms$,
+              ...fetchOrderline,
+            ]).subscribe(([customers, terms, ...orderline]) => {
               this.clients = customers.map((c: any) => {
                 c.text = c.name;
                 return c;
@@ -141,13 +125,44 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
                 return t;
               });
 
+              const orderLines = orderline.map(([ol]) => ol);
+              console.log(orderLines);
+
+              this.venteServices.nexOrderline(orderLines);
+
               this.loading = false;
-            }
-          );
-        }
-      });
+            });
+          } else {
+            this.loadData();
+          }
+        });
+    });
   }
 
+  loadData(refresh = false, refresher?: any) {
+    const getAllCustomers$ = this.venteServices.getAllCustomers(refresh);
+    const getAllPaymentTerms$ = this.venteServices.getPaymentTerms(refresh);
+
+    forkJoin([getAllCustomers$, getAllPaymentTerms$]).subscribe(
+      ([customers, terms]) => {
+        this.clients = customers.map((c: any) => {
+          c.text = c.name;
+          return c;
+        });
+        this.terms = terms;
+        this.payment_conditions = (terms as any[]).map((t) => {
+          t.text = t.name;
+          return t;
+        });
+
+        this.loading = false;
+
+        if (refresher) {
+          refresher.target.complete();
+        }
+      }
+    );
+  }
   ngAfterViewInit(): void {}
 
   goBack() {

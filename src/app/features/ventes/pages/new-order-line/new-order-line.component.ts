@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
@@ -46,19 +47,9 @@ export class NewOrderLineComponent implements OnInit {
     this.ventesService.editedDevisAsObservable().subscribe((data) => {
       this.editedDevis = data;
     });
-    this.ventesService.getProducts().subscribe((products) => {
-      this.products = products.map((p) => {
-        p.text = p.name;
-        return p;
-      });
-      this.ventesService.getTaxes().subscribe((taxes) => {
-        this.taxes = taxes.map((t) => {
-          t.text = t.name;
-          return t;
-        });
-        this.loading = false;
-      });
-    });
+
+    this.loadData(true);
+
     const productControl = this.orderForm.get('product');
     productControl?.valueChanges.subscribe((p) => {
       this.orderForm.get('unitPrice')?.setValue(p.lst_price);
@@ -72,6 +63,24 @@ export class NewOrderLineComponent implements OnInit {
 
   goBack() {
     this.navigation.goBack();
+  }
+
+  loadData(refresh = false) {
+    const getProducts$ = this.ventesService.getProducts(refresh);
+    const getTaxes$ = this.ventesService.getTaxes();
+
+    forkJoin([getProducts$, getTaxes$]).subscribe(([products, taxes]) => {
+      this.products =
+        products?.map((p: any) => {
+          p.text = p.name;
+          return p;
+        }) ?? [];
+      this.taxes = taxes.map((t: any) => {
+        t.text = t.name;
+        return t;
+      });
+      this.loading = false;
+    });
   }
 
   createOrderLine() {
