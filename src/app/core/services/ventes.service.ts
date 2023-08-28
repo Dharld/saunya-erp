@@ -6,7 +6,6 @@ import { OdooService } from './odoo.service';
 import { Customer } from '../model/customer.model';
 import { Invoice } from '../model/invoice.model';
 import { NetworkService } from './network.service';
-import { ToasterService } from './toastr.service';
 import { Platform } from '@ionic/angular';
 import { ConnectionStatus } from '@capacitor/network';
 import { OfflineManagerService } from './offline-manager.service';
@@ -28,7 +27,7 @@ export class VentesService {
   private commandes = new BehaviorSubject<Devis[]>(this.INITIAL_DEVIS);
   private invoices = new BehaviorSubject<Invoice[]>([]);
 
-  private editedDevis!: BehaviorSubject<Devis>;
+  private editedDevis!: BehaviorSubject<any>;
   private editedInvoice!: BehaviorSubject<Invoice>;
   private editedCommande!: BehaviorSubject<Devis>;
   private editedDevisOrderline!: BehaviorSubject<any>;
@@ -120,6 +119,24 @@ export class VentesService {
   }
 
   addDevis(devis: Devis) {
+    let url = 'https://comptabilite.net-2s.com/api/create/quotation';
+
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false) {
+      const orderline = devis.order_lines?.map(
+        ({ product_id, product_uom_qty: qty }) => ({
+          product_id,
+          qty,
+        })
+      );
+
+      const formData = new FormData();
+      formData.append('uid', '2'); // To modify with the uid of the active user
+      formData.append('customer_id', `${devis.client?.id}`);
+      formData.append('payment_term_id', `${devis.payment_condition?.id}`);
+      formData.append('order_line', JSON.stringify(orderline));
+      return from(this.offlineManager.storeRequest(url, 'POST', formData));
+    }
     return from(this.odooService.createDevis(devis));
   }
 
@@ -406,19 +423,16 @@ export class VentesService {
   }
 
   addOrderLine(devis: Devis, orderLine: OrderLine) {
-    const getDevis$ = this.getDevis(devis.id as string);
-    getDevis$.subscribe((data) => {
-      const draft = this.editedDevis.getValue();
-      draft.id = devis.id;
-      draft.order_lines =
-        devis.order_lines === undefined
-          ? [orderLine]
-          : [...devis.order_lines, orderLine];
-      // console.log(draft);
-      // console.log(orderLine);
-      this.editedDevis.next(draft);
-      this.nexOrderline(orderLine);
-    });
+    const draft = this.editedDevis.getValue();
+    draft.id = devis.id;
+    const orderline =
+      devis.order_lines?.length === 0
+        ? [orderLine]
+        : [...(draft.order_lines as any), orderLine];
+    draft.order_lines = orderline;
+
+    this.editedDevis.next(draft);
+    this.nexOrderline(orderline);
   }
 
   sendOrder(devisId: number, state: string) {

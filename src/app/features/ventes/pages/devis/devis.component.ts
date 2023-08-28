@@ -23,6 +23,8 @@ import {
   filter,
   switchMap,
   startWith,
+  catchError,
+  throwError,
 } from 'rxjs';
 import { Customer } from 'src/app/core/model/customer.model';
 import { Devis } from 'src/app/core/model/devis.model';
@@ -202,21 +204,30 @@ export class DevisComponent implements OnInit, AfterViewInit {
 
   deleteDevis() {
     this.loadingDelete = true;
-    this.ventesService.deleteDevis(this.devisToDelete!).subscribe((result) => {
-      if (result) {
-        this.ventesService.getAllDevis().subscribe(() => {
-          this.loadingDelete = false;
-          this.toast.showSuccess(
-            `Le devis ${this.devisToDelete!.displayName} - ${
-              this.devisToDelete!.client?.name
-            } a été supprimé avec succès`,
-            'Succès'
-          );
+    this.ventesService
+      .deleteDevis(this.devisToDelete!)
+      .pipe(
+        catchError((err) => {
           this.devisToDelete = null;
           this.show_modal = false;
-        });
-      }
-    });
+          return throwError(err);
+        })
+      )
+      .subscribe((result) => {
+        if (result) {
+          this.ventesService.getAllDevis().subscribe(() => {
+            this.loadingDelete = false;
+            this.toast.showSuccess(
+              `Le devis ${this.devisToDelete!.displayName} - ${
+                this.devisToDelete!.client?.name
+              } a été supprimé avec succès`,
+              'Succès'
+            );
+            this.devisToDelete = null;
+            this.show_modal = false;
+          });
+        }
+      });
   }
 
   setSearchText(text: string) {

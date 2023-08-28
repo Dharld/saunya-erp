@@ -78,6 +78,7 @@ export class SelectBoxComponent
   }
 
   writeValue(value: any): void {
+    console.log(value);
     this.value = value;
     /* if (!this.disabled && this.in && value) {
       console.log(this.in.nativeElement);

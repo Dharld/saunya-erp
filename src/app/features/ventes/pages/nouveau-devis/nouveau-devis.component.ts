@@ -8,6 +8,8 @@ import {
   forkJoin,
   switchMap,
   Observable,
+  catchError,
+  throwError,
 } from 'rxjs';
 import { Devis } from 'src/app/core/model/devis.model';
 import { OrderLine } from 'src/app/core/model/order-line.model';
@@ -61,82 +63,89 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       expiration_date: [''],
       payment_condition: [{ text: '' }],
     });
+
     this.orderLines = this.venteServices.editedDevisOrderlineAsObservable();
   }
 
   ngOnInit() {
-    this.plt.ready().then(() => {
-      this.sub = this.ventesService
-        .editedDevisAsObservable()
-        .subscribe((data) => {
-          this.editedDevis = data;
-          this.nouveauDevisForm = this.fb.group({
-            client: [
-              this.editedDevis.client
-                ? {
-                    ...this.editedDevis.client,
-                    text: this.editedDevis.client.name,
-                  }
-                : { text: '' },
-            ],
-            expiration_date: [
-              this.editedDevis.expiration_date === false
-                ? ''
-                : this.editedDevis.expiration_date,
-            ],
-            payment_condition: [
-              this.editedDevis.payment_condition
-                ? {
-                    ...this.editedDevis.payment_condition,
-                    text: this.editedDevis.payment_condition.name,
-                  }
-                : { text: '' },
-            ],
+    this.nouveauDevisForm = this.fb.group({
+      client: [{ text: '' }],
+      expiration_date: [''],
+      payment_condition: [{ text: '' }],
+    });
+    this.sub = this.ventesService
+      .editedDevisAsObservable()
+      .subscribe((data) => {
+        this.editedDevis = data;
+        console.log(this.editedDevis);
+        const clientControl = this.nouveauDevisForm.get('client');
+        clientControl?.setValue(
+          this.editedDevis.client
+            ? {
+                ...this.editedDevis.client,
+                text: this.editedDevis.client.name ?? '',
+              }
+            : { text: '' }
+        );
+        const paymentCondition = this.nouveauDevisForm.get('payment_condition');
+        paymentCondition?.setValue(
+          this.editedDevis.payment_condition
+            ? {
+                ...this.editedDevis.payment_condition,
+                text: this.editedDevis.payment_condition.name ?? '',
+              }
+            : { text: '' }
+        );
+        const dateControl = this.nouveauDevisForm.get('expiration_date');
+        dateControl?.setValue(
+          this.editedDevis.expiration_date !== undefined &&
+            this.editedDevis.expiration_date != false
+            ? this.editedDevis.expiration_date
+            : ''
+        );
+
+        // Fetch informations
+        const getAllCustomers$ = this.venteServices.getAllCustomers();
+        const getAllPaymentTerms$ = this.venteServices.getPaymentTerms();
+
+        if (
+          this.mode === 'edit' &&
+          data.order_line &&
+          data.order_line.length > 0
+        ) {
+          const fetchOrderline: Observable<any>[] = [];
+
+          data.order_line.forEach((orderline_id: number) => {
+            fetchOrderline.push(
+              this.venteServices.getOrderline(orderline_id, true)
+            );
           });
 
-          // Fetch informations
-          const getAllCustomers$ = this.venteServices.getAllCustomers();
-          const getAllPaymentTerms$ = this.venteServices.getPaymentTerms();
-
-          if (
-            this.mode === 'edit' &&
-            data.order_line &&
-            data.order_line.length > 0
-          ) {
-            const fetchOrderline: Observable<any>[] = [];
-            data.order_line.forEach((orderline_id: number) => {
-              fetchOrderline.push(
-                this.venteServices.getOrderline(orderline_id)
-              );
+          forkJoin([
+            getAllCustomers$,
+            getAllPaymentTerms$,
+            ...fetchOrderline,
+          ]).subscribe(([customers, terms, ...orderline]) => {
+            this.clients = customers.map((c: any) => {
+              c.text = c.name;
+              return c;
+            });
+            this.terms = terms;
+            this.payment_conditions = (terms as any[]).map((t) => {
+              t.text = t.name;
+              return t;
             });
 
-            forkJoin([
-              getAllCustomers$,
-              getAllPaymentTerms$,
-              ...fetchOrderline,
-            ]).subscribe(([customers, terms, ...orderline]) => {
-              this.clients = customers.map((c: any) => {
-                c.text = c.name;
-                return c;
-              });
-              this.terms = terms;
-              this.payment_conditions = (terms as any[]).map((t) => {
-                t.text = t.name;
-                return t;
-              });
+            const orderLines = orderline.map(([ol]) => ol);
 
-              const orderLines = orderline.map(([ol]) => ol);
-              console.log(orderLines);
+            this.venteServices.nexOrderline(orderLines);
 
-              this.venteServices.nexOrderline(orderLines);
-
-              this.loading = false;
-            });
-          } else {
-            this.loadData();
-          }
-        });
-    });
+            this.loading = false;
+          });
+        } else {
+          this.loadData();
+        }
+      });
   }
 
   loadData(refresh = false, refresher?: any) {
@@ -176,13 +185,14 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   addCommandLine() {
     const { client, expiration_date, payment_condition } =
       this.nouveauDevisForm.value;
-    console.log(client);
+
     this.venteServices.nextEditedDevis({
       id: this.mode === 'edit' ? this.editedDevis.id : 'brouillon',
       client,
       expiration_date,
       payment_condition,
       displayName: this.editedDevis.displayName,
+      order_lines: this.editedDevis.order_lines ?? [],
     });
     this.navigation.navigateTo(['../brouillon', 'new-order-line'], this.route);
   }
@@ -203,7 +213,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   createDevis() {
     const { client, expiration_date, payment_condition } =
       this.nouveauDevisForm.value;
-    const getDevis$ = this.venteServices.getAllDevis();
 
     let devis: Devis = {
       client,
@@ -232,13 +241,24 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       this.createLoading = true;
       const orderline = this.venteServices.getCurrentOrderline();
 
-      const updateDevis$ = this.venteServices.updateDevis(
-        devis,
-        orderline.map((ol: any) => ({
-          product_id: ol.product_id[0],
-          qty: +ol.product_uom_qty,
-        }))
-      );
+      const updateDevis$ = this.venteServices
+        .updateDevis(
+          devis,
+          orderline.map((ol: any) => ({
+            product_id: ol.product_id[0],
+            qty: +ol.product_uom_qty,
+          }))
+        )
+        .pipe(
+          catchError((err) => {
+            this.toastr.showError(
+              'Nous ne pouvons pas modifier le devis.',
+              'Erreur'
+            );
+            this.createLoading = false;
+            return throwError(() => err);
+          })
+        );
 
       updateDevis$.subscribe(() => {
         console.log('Devis updated');

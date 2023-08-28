@@ -18,6 +18,5 @@ export class ModalComponent implements OnInit {
 
   openModal() {
     this.show_modal = true;
-    console.log("I'm opened");
   }
 }

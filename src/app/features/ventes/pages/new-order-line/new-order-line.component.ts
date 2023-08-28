@@ -62,12 +62,13 @@ export class NewOrderLineComponent implements OnInit {
   ngOnInit() {}
 
   goBack() {
+    // this.ventesService.nextEditedDevis({ ...this.editedDevis });
     this.navigation.goBack();
   }
 
-  loadData(refresh = false) {
+  loadData(refresh = false, refresher?: any) {
     const getProducts$ = this.ventesService.getProducts(refresh);
-    const getTaxes$ = this.ventesService.getTaxes();
+    const getTaxes$ = this.ventesService.getTaxes(refresh);
 
     forkJoin([getProducts$, getTaxes$]).subscribe(([products, taxes]) => {
       this.products =
@@ -79,7 +80,12 @@ export class NewOrderLineComponent implements OnInit {
         t.text = t.name;
         return t;
       });
+
       this.loading = false;
+
+      if (refresher) {
+        refresher.target.complete();
+      }
     });
   }
 
@@ -105,7 +111,7 @@ export class NewOrderLineComponent implements OnInit {
 
     if (this.editedDevis.client) {
       this.toast.showSuccess(
-        `La ligne de commande a été ajoutée au devis du client ${this.editedDevis.client.name}`,
+        `La ligne de commande a été ajoutée au devis ${this.editedDevis.id}`,
         'Succès'
       );
     } else {

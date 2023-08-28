@@ -1,4 +1,4 @@
-<div class="relative bg-white z-20 h-full">
+<div class="relative bg-white z-20 h-full select-none">
   <div class="p-4 bg-primary-500 text-white flex justify-between">
     <div>Nouvelle ligne de commande</div>
     <svg
@@ -16,73 +16,74 @@
       />
     </svg>
   </div>
-  <form
-    [formGroup]="orderForm"
-    class="py-2 px-4"
-    (submit)="createOrderLine()"
-    *ngIf="!loading"
-  >
-    <div class="mb-3">
-      <app-select-box
-        label="Produit"
-        placeholder="Veuillez ajouter un produit de votre catalogue"
-        name="product"
-        formControlName="product"
-        [options]="products"
-      ></app-select-box>
-    </div>
+  <ion-content>
+    <ion-refresher slot="fixed" (ionRefresh)="loadData(true, $event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <form
+      [formGroup]="orderForm"
+      class="py-2 px-4"
+      (submit)="createOrderLine()"
+      *ngIf="!loading"
+    >
+      <div class="mb-3">
+        <app-select-box
+          label="Produit"
+          placeholder="Veuillez ajouter un produit de votre catalogue"
+          name="product"
+          formControlName="product"
+          [options]="products"
+        ></app-select-box>
+      </div>
 
-    <div class="flex w-full gap-1 mb-3">
+      <div class="flex w-full gap-1 mb-3">
+        <app-input-box
+          label="Quantité"
+          placeholder="Combien d'articles ?"
+          value="1"
+          name="quantity"
+          formControlName="quantity"
+          class="flex-1"
+          type="number"
+        ></app-input-box>
+        <app-input-box
+          label="Prix unitaire"
+          placeholder="Prix d'une unité"
+          name="unitPrice"
+          formControlName="unitPrice"
+          class="flex-1"
+          type="number"
+          #inputbox
+        ></app-input-box>
+      </div>
+
+      <div class="mb-3">
+        <app-select-box
+          label="Taxes"
+          placeholder="TVA sur le produit"
+          name="taxes"
+          formControlName="taxes"
+          [options]="taxes"
+        ></app-select-box>
+      </div>
+
       <app-input-box
-        label="Quantité"
-        placeholder="Combien d'articles ?"
-        value="1"
-        name="quantity"
-        formControlName="quantity"
-        class="flex-1"
-        type="number"
+        label="Description"
+        placeholder="Décrivez le produit"
+        formControlName="description"
+        name="description"
+        type="textarea"
+        #inputboxdesc
       ></app-input-box>
-      <app-input-box
-        label="Prix unitaire"
-        placeholder="Prix d'une unité"
-        name="unitPrice"
-        formControlName="unitPrice"
-        class="flex-1"
-        type="number"
-        #inputbox
-      ></app-input-box>
-    </div>
 
-    <div class="mb-3">
-      <app-select-box
-        label="Taxes"
-        placeholder="TVA sur le produit"
-        name="taxes"
-        formControlName="taxes"
-        [options]="taxes"
-      ></app-select-box>
-    </div>
-
-    <app-input-box
-      label="Description"
-      placeholder="Décrivez le produit"
-      formControlName="description"
-      name="description"
-      type="textarea"
-      #inputboxdesc
-    ></app-input-box>
-
-    <div class="mt-12 flex flex-col gap-2">
-      <app-button
-        text="Ajouter une ligne de commande"
-        class="flex-"
-      ></app-button>
-      <app-button
-        text="Annuler"
-        styles="outlineButton"
-        class="flex-1"
-      ></app-button>
-    </div>
-  </form>
-  <app-spinner *ngIf="loading"></app-spinner>
+      <div class="mt-12 flex flex-col gap-2">
+        <app-button
+          text="Ajouter une ligne de commande"
+          type="submit"
+        ></app-button>
+        <app-button text="Annuler" styles="outlineButton"></app-button>
+      </div>
+    </form>
+    <app-spinner *ngIf="loading"></app-spinner>
+  </ion-content>
 </div>

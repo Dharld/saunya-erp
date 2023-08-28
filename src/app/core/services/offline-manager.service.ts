@@ -35,7 +35,6 @@ export class OfflineManagerService {
                 'Données locales synchronisées correctement!',
                 'Succès'
               );
-
               this.storage.remove(STORAGE_REQ_KEY);
             })
           );
@@ -49,8 +48,8 @@ export class OfflineManagerService {
 
   storeRequest(url: string, type: string, data: any) {
     this.toaster.showInfo(
-      'Your data will be stored locally because you seem to be offline.',
-      'Information'
+      'Votre requête sera executée lorsque vous serez à nouveau connecté.',
+      'Requête sauvegardée'
     );
 
     let action: StoredRequest = {
@@ -82,7 +81,7 @@ export class OfflineManagerService {
 
     for (let op of operations) {
       console.log('Make one request: ', op);
-      let oneObs = this.http.request(op.type, op.url, op.data);
+      let oneObs = this.http.request(op.type, op.url, { body: op.data });
       obs.push(oneObs);
     }
 

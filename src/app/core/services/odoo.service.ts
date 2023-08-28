@@ -510,7 +510,7 @@ export class OdooService {
         var params = [];
         params.push(inParams);
         odoo.execute_kw(
-          'account.order',
+          'sale.order',
           'unlink',
           params,
           function (err: any, value: any) {

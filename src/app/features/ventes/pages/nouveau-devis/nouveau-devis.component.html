@@ -58,26 +58,7 @@
             [value]="nouveauDevisForm.get('client')!.value"
           ></app-select-box>
         </div>
-        <!-- <div class="mb-2">
-      <app-select-box
-        label="Addresse de facturation"
-        placeholder="Entrez l'addresse de Facturation"
-        name="invoice_address"
-        formControlName="invoice_address"
-        [options]="invoice_addresses"
-        [value]="nouveauDevisForm.get('invoice_address')!.value"
-      ></app-select-box>
-    </div>
-    <div class="mb-2">
-      <app-select-box
-        label="Addresse de Livraison"
-        placeholder="Entrez l'addresse de Livraison"
-        name="delivery_address"
-        formControlName="delivery_address"
-        [options]="delivery_addresses"
-        [value]="nouveauDevisForm.get('delivery_address')!.value"
-      ></app-select-box>
-    </div> -->
+
         <div class="mb-2">
           <app-date-picker
             label="Date d'expiration"
@@ -87,8 +68,7 @@
             [value]="nouveauDevisForm.get('expiration_date')!.value"
           ></app-date-picker>
         </div>
-
-        <div class="mb-2">
+        <div clas s="mb-2">
           <app-select-box
             label="Conditions de paiement"
             placeholder="Choisissez une date de delai"
@@ -170,6 +150,7 @@
             text="Confirmer"
             (click)="confirmDevis()"
             [loading]="confirmLoading"
+            *ngIf="mode === 'edit'"
           ></app-button>
           <app-button
             type="submit"
@@ -180,7 +161,7 @@
                 ? 'Modifier le dévis'
                 : 'Créer un nouveau devis'
             }}"
-            styles="outlineButton"
+            styles="{{ mode === 'edit' ? 'outlineButton' : '' }}"
           ></app-button>
         </div>
       </form>
