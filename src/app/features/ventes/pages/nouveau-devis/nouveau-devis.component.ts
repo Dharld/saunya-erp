@@ -14,6 +14,7 @@ import {
 import { Devis } from 'src/app/core/model/devis.model';
 import { OrderLine } from 'src/app/core/model/order-line.model';
 import { NavigationService } from 'src/app/core/services/navigation.service';
+import { NetworkService } from 'src/app/core/services/network.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
 
@@ -52,7 +53,8 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
     private venteServices: VentesService,
     private toastr: ToasterService,
     private ventesService: VentesService,
-    private plt: Platform
+    private plt: Platform,
+    private network: NetworkService
   ) {
     this.routeSub = this.route.queryParams.subscribe((params) => {
       this.mode = params['mode'];
@@ -77,7 +79,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       .editedDevisAsObservable()
       .subscribe((data) => {
         this.editedDevis = data;
-        console.log(this.editedDevis);
         const clientControl = this.nouveauDevisForm.get('client');
         clientControl?.setValue(
           this.editedDevis.client
@@ -261,7 +262,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
         );
 
       updateDevis$.subscribe(() => {
-        console.log('Devis updated');
         this.venteServices.getAllDevis().subscribe(() => {
           this.toastr.showSuccess(
             'Le dévis a été modifié avec succès !',
@@ -276,14 +276,23 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       const addDevis$ = this.venteServices.addDevis(devis);
 
       this.createLoading = true;
+
       addDevis$.subscribe(() => {
         this.createLoading = false;
         this.venteServices.clearEditedDevis();
         this.venteServices.getAllDevis().subscribe(() => {
-          this.toastr.showSuccess(
-            'Le dévis a été crée avec succès !',
-            'Success'
-          );
+          const status = this.network.getCurrentNetworkStatus();
+          if (status.connected) {
+            this.toastr.showSuccess(
+              'Le dévis a été crée avec succès !',
+              'Success'
+            );
+          } else {
+            this.toastr.showInfo(
+              'Le devis sera créé lorsque vous aurez accès à une connexion internet stable.',
+              'Requête sauvegardée'
+            );
+          }
           this.goBack();
         });
       });
@@ -291,7 +300,6 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   confirmDevis() {
-    console.log(this.editedDevis);
     if (this.editedDevis.id !== 'brouillon') {
       this.confirmLoading = true;
       this.venteServices

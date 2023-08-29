@@ -119,25 +119,55 @@ export class VentesService {
   }
 
   addDevis(devis: Devis) {
-    let url = 'https://comptabilite.net-2s.com/api/create/quotation';
-
     const status = this.network.getCurrentNetworkStatus();
     if (status.connected === false) {
-      const orderline = devis.order_lines?.map(
-        ({ product_id, product_uom_qty: qty }) => ({
-          product_id,
-          qty,
-        })
+      return from(
+        this.offlineManager.storeRequest('createQuotation', { devis })
       );
-
-      const formData = new FormData();
-      formData.append('uid', '2'); // To modify with the uid of the active user
-      formData.append('customer_id', `${devis.client?.id}`);
-      formData.append('payment_term_id', `${devis.payment_condition?.id}`);
-      formData.append('order_line', JSON.stringify(orderline));
-      return from(this.offlineManager.storeRequest(url, 'POST', formData));
     }
     return from(this.odooService.createDevis(devis));
+  }
+
+  deleteDevis(devis: Devis) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false) {
+      return from(
+        this.offlineManager.storeRequest('deleteQuotation', {
+          devis,
+        })
+      ).pipe(
+        tap((success) => {
+          this.removeDevisFromState(devis);
+        })
+      );
+    }
+    return from(this.odooService.deleteDevis(+devis.id!)).pipe(
+      tap((success) => {
+        if (success) {
+          this.removeDevisFromState(devis);
+          /* let devisArr = this.devis.getValue();
+          devisArr = devisArr.filter((d) => {
+            if (d.id === devis.id) {
+              return undefined;
+            }
+            return d;
+          });
+          this.devis.next(devisArr); */
+        }
+      })
+    );
+  }
+
+  removeDevisFromState(devis: Devis) {
+    let devisArr = this.devis.getValue();
+    devisArr = devisArr.filter((d) => {
+      if (d.id === devis.id) {
+        return false;
+      }
+      return true;
+    });
+    console.log(devisArr);
+    this.devis.next(devisArr);
   }
 
   addInvoice(invoiceData: any) {
@@ -157,6 +187,15 @@ export class VentesService {
   }
 
   updateDevis(devis: Devis, orderline: any[]) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false) {
+      return from(
+        this.offlineManager.storeRequest('updateQuotation', {
+          devis,
+          orderline,
+        })
+      );
+    }
     return from(this.odooService.updateDevis(devis, orderline));
   }
 
@@ -384,23 +423,6 @@ export class VentesService {
 
   getCurrentOrderline() {
     return this.editedDevisOrderline.getValue();
-  }
-
-  deleteDevis(devis: Devis) {
-    return from(this.odooService.deleteDevis(+devis.id!)).pipe(
-      tap((success) => {
-        if (success) {
-          let devisArr = this.devis.getValue();
-          devisArr = devisArr.filter((d) => {
-            if (d.id === devis.id) {
-              return undefined;
-            }
-            return d;
-          });
-          this.devis.next(devisArr);
-        }
-      })
-    );
   }
 
   deleteInvoice(invoice: any) {

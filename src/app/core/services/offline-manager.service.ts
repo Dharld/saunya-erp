@@ -3,16 +3,21 @@ import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { ToasterService } from './toastr.service';
 import { Observable, finalize, forkJoin, from, of, switchMap } from 'rxjs';
+import { OdooService } from './odoo.service';
 
 const STORAGE_REQ_KEY = 'storedreq';
 
 interface StoredRequest {
-  url: string;
-  type: string;
+  type: OperationType;
   data: any;
   time: number;
   id: string;
 }
+
+export type OperationType =
+  | 'createQuotation'
+  | 'updateQuotation'
+  | 'deleteQuotation';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +26,8 @@ export class OfflineManagerService {
   constructor(
     private storage: Storage,
     private http: HttpClient,
-    private toaster: ToasterService
+    private toaster: ToasterService,
+    private odooService: OdooService
   ) {}
 
   checkForEvents(): Observable<any> {
@@ -46,14 +52,13 @@ export class OfflineManagerService {
     );
   }
 
-  storeRequest(url: string, type: string, data: any) {
+  storeRequest(type: OperationType, data: any) {
     this.toaster.showInfo(
       'Votre requête sera executée lorsque vous serez à nouveau connecté.',
       'Requête sauvegardée'
     );
 
     let action: StoredRequest = {
-      url,
       type,
       data,
       time: new Date().getTime(),
@@ -81,8 +86,15 @@ export class OfflineManagerService {
 
     for (let op of operations) {
       console.log('Make one request: ', op);
-      let oneObs = this.http.request(op.type, op.url, { body: op.data });
-      obs.push(oneObs);
+      if (op.type === 'createQuotation') {
+        obs.push(this.odooService.createDevis(op.data.devis));
+      } else if (op.type === 'updateQuotation') {
+        obs.push(
+          this.odooService.updateDevis(op.data.devis, op.data.orderline)
+        );
+      } else if (op.type === 'deleteQuotation') {
+        this.odooService.deleteDevis(+op.data.devis.id);
+      }
     }
 
     return forkJoin(obs);
