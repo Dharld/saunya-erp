@@ -6,9 +6,7 @@ import {
   FormGroup,
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { ToastrService } from 'ngx-toastr';
-import { Subscription, concatAll, forkJoin, of, scan } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
@@ -137,15 +135,13 @@ export class NewInvoiceComponent implements OnInit, OnDestroy {
       invoice_lines: this.editedInvoice.invoice_lines,
     };
 
-    if (this.mode === 'edit') {
-      invoiceData.invoice_id = this.editedInvoice.id;
-    }
+    this.createLoading = true;
 
     const addInvoice$ = this.ventesService.addInvoice(invoiceData);
     const updateInvoice$ = this.ventesService.updateInvoice(invoiceData);
 
     if (this.mode === 'edit') {
-      this.createLoading = true;
+      invoiceData.invoice_id = this.editedInvoice.id;
       updateInvoice$.subscribe((res) => {
         if (res.success) {
           // this.ventesService.clearEditedInvoice();
@@ -161,17 +157,16 @@ export class NewInvoiceComponent implements OnInit, OnDestroy {
       this.createLoading = true;
       addInvoice$.subscribe((res) => {
         if (res.success) {
-          this.createLoading = false;
           this.toast.showSuccess(
             'Votre facture a été créée avec succès',
             'Succès'
           );
-
-          this.goBack();
         }
+        console.log('Go Back');
+        this.goBack();
       });
-      this.createLoading = false;
     }
+    this.createLoading = false;
   }
 
   addInvoiceLine() {

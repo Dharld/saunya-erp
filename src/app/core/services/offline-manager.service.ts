@@ -17,7 +17,9 @@ interface StoredRequest {
 export type OperationType =
   | 'createQuotation'
   | 'updateQuotation'
-  | 'deleteQuotation';
+  | 'deleteQuotation'
+  | 'deleteInvoice'
+  | 'createInvoice';
 
 @Injectable({
   providedIn: 'root',
@@ -94,6 +96,10 @@ export class OfflineManagerService {
         );
       } else if (op.type === 'deleteQuotation') {
         this.odooService.deleteDevis(+op.data.devis.id);
+      } else if (op.type === 'deleteInvoice') {
+        this.odooService.deleteInvoice(op.data.invoice);
+      } else if (op.type === 'createInvoice') {
+        this.odooService.createInvoice(op.data.invoiceData);
       }
     }
 

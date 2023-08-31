@@ -58,7 +58,6 @@ export class NewCommandeComponent implements OnInit {
     this.sub = this.ventesService
       .editedDevisAsObservable()
       .subscribe((data) => {
-        console.log('sub');
         this.editedOrder = data;
         this.newOrder = this.fb.group({
           client: [

@@ -515,7 +515,13 @@ export class OdooService {
           params,
           function (err: any, value: any) {
             if (err) {
-              return console.log(err);
+              rej(
+                new OdooError(
+                  "Vous devez d'abord annuler ce bon de commande avant de le supprimer.",
+                  err
+                )
+              );
+              // return console.error(err);
             }
             res(value);
           }
@@ -583,6 +589,6 @@ export class OdooService {
   }
 
   throwBadQuery(err: Error) {
-    return new OdooError('Odoo Bad Query:\n', err);
+    return new OdooError('Odoo mauvaise requête.:\n', err);
   }
 }

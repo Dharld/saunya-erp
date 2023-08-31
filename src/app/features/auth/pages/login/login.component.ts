@@ -25,7 +25,10 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.server$ = this.api.server$;
-    this.server$.subscribe((data) => (this.dbs = data.db));
+    this.server$.subscribe((data) => {
+      console.log(data);
+      this.dbs = data.db.map((db: string) => ({ text: db, name: db }));
+    });
 
     this.loginForm = this.fb.group({
       email: ['', Validators.email],

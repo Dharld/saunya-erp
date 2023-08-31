@@ -170,18 +170,6 @@ export class VentesService {
     this.devis.next(devisArr);
   }
 
-  addInvoice(invoiceData: any) {
-    console.log(invoiceData);
-    return from(this.odooService.createInvoice(invoiceData)).pipe(
-      tap(() => {
-        this.loadingInvoice.next(true);
-        this.getAllInvoices().subscribe(() => {
-          this.loadingInvoice.next(false);
-        });
-      })
-    );
-  }
-
   getInvoiceLine(invoice: any) {
     return from(this.odooService.getInvoiceLine(invoice));
   }
@@ -242,10 +230,12 @@ export class VentesService {
             // console.log(d);
             // console.log(`${d.displayName} - ${searchTerm} - ${partner_id}`);
             if (partner_id === -1)
-              return (d.displayName as string).includes(searchTerm);
+              return (d.displayName as string)
+                .toLowerCase()
+                .includes(searchTerm);
             else
               return (
-                (d.displayName as string).includes(searchTerm) &&
+                (d.displayName as string).toLowerCase().includes(searchTerm) &&
                 d.client.id === partner_id
               );
           });
@@ -288,6 +278,94 @@ export class VentesService {
     );
   }
 
+  addInvoice(invoiceData: any) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false) {
+      return from(
+        this.offlineManager.storeRequest('createInvoice', { invoiceData })
+      );
+    }
+    return from(this.odooService.createInvoice(invoiceData)).pipe(
+      tap(() => {
+        this.loadingInvoice.next(true);
+        this.getAllInvoices().subscribe(() => {
+          this.loadingInvoice.next(false);
+        });
+      })
+    );
+  }
+
+  getAllInvoices(
+    searchTerm = '',
+    partner_id = -1,
+    refresh?: any
+  ): Observable<Invoice[]> {
+    this.loadingInvoice.next(true);
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === false || !refresh) {
+      return from(this.getLocalData('invoices')).pipe(
+        map((invoices) => {
+          const invoiceArr = invoices.filter((i: any) => {
+            if (partner_id === -1)
+              return i.name.toLowerCase().includes(searchTerm);
+            else
+              return (
+                i.name.toLowerCase().includes(searchTerm) &&
+                i.partner_id[0] === partner_id
+              );
+          });
+          return invoiceArr;
+        }),
+        tap((invoices) => {
+          this.loadingInvoice.next(false);
+          this.invoices.next(invoices);
+        })
+      );
+    }
+    return from(this.odooService.getInvoices(searchTerm, partner_id)).pipe(
+      tap((invoices) => {
+        this.loadingInvoice.next(false);
+        console.log('Next invoices');
+        this.setLocalData('invoices', invoices);
+        this.invoices.next(invoices);
+      })
+    );
+  }
+
+  deleteInvoice(invoice: any) {
+    const status = this.network.getCurrentNetworkStatus();
+    if (status.connected === true) {
+      return from(this.odooService.deleteInvoice(invoice)).pipe(
+        tap((success) => {
+          if (success) {
+            let invoiceArr = this.invoices.getValue();
+            invoiceArr = invoiceArr.filter((i) => {
+              if (i.id === invoice.id) {
+                return false;
+              }
+              return true;
+            });
+            this.invoices.next(invoiceArr);
+          }
+        })
+      );
+    } else {
+      return from(
+        this.offlineManager.storeRequest('deleteInvoice', { invoice })
+      ).pipe(
+        tap((success) => {
+          let invoiceArr = this.invoices.getValue();
+          invoiceArr = invoiceArr.filter((i) => {
+            if (i.id === invoice.id) {
+              return false;
+            }
+            return true;
+          });
+          this.invoices.next(invoiceArr);
+        })
+      );
+    }
+  }
   getAllCustomers(refresh = false): Observable<Customer[]> {
     const status = this.network.getCurrentNetworkStatus();
     if (status.connected === false || !refresh) {
@@ -377,17 +455,6 @@ export class VentesService {
     return from(this.odooService.getAccounts(page));
   }
 
-  getAllInvoices(searchTerm = '', partner_id = -1): Observable<Invoice[]> {
-    this.loadingInvoice.next(true);
-    return from(this.odooService.getInvoices(searchTerm, partner_id)).pipe(
-      tap((invoices) => {
-        this.loadingInvoice.next(false);
-        console.log('Next invoices');
-        this.invoices.next(invoices);
-      })
-    );
-  }
-
   getAllCommande(searchTerm = '', partner_id = -1): Observable<any[]> {
     // return this.devis.pipe(delay(500));
     this.loading.next(true);
@@ -423,25 +490,6 @@ export class VentesService {
 
   getCurrentOrderline() {
     return this.editedDevisOrderline.getValue();
-  }
-
-  deleteInvoice(invoice: any) {
-    return from(this.odooService.deleteInvoice(invoice)).pipe(
-      tap((success) => {
-        if (success) {
-          let invoiceArr = this.invoices.getValue();
-          console.log(invoiceArr);
-          invoiceArr = invoiceArr.filter((i) => {
-            if (i.id === invoice.id) {
-              return undefined;
-            }
-            return i;
-          });
-          console.log(invoiceArr);
-          this.invoices.next(invoiceArr);
-        }
-      })
-    );
   }
 
   addOrderLine(devis: Devis, orderLine: OrderLine) {

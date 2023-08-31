@@ -85,7 +85,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'ventes/devis',
+    redirectTo: 'auth',
     pathMatch: 'full',
   },
 ];

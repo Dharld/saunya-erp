@@ -14,6 +14,8 @@ import {
   debounceTime,
   switchMap,
   filter,
+  of,
+  catchError,
 } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -165,21 +167,35 @@ export class CommandeComponent implements OnInit {
 
   deleteDevis() {
     this.loadingDelete = true;
-    this.ventesService.deleteDevis(this.devisToDelete!).subscribe((result) => {
-      if (result) {
-        this.ventesService.getAllDevis().subscribe(() => {
-          this.loadingDelete = false;
-          this.toast.showSuccess(
-            `Le devis ${this.devisToDelete!.displayName} - ${
-              this.devisToDelete!.client?.name
-            } a été supprimé avec succès`,
-            'Succès'
-          );
-          this.devisToDelete = null;
+    this.ventesService
+      .deleteDevis(this.devisToDelete!)
+      .pipe(
+        catchError((err) => {
           this.show_modal = false;
-        });
-      }
-    });
+          this.loadingDelete = false;
+          this.devisToDelete = null;
+          this.toast.showError(
+            "Vous devez d'abord annuler ce bon de commande avant de pouvoir le supprimer.",
+            'Erreur'
+          );
+          return of(err);
+        })
+      )
+      .subscribe((result) => {
+        if (!(result instanceof Error)) {
+          this.ventesService.getAllDevis().subscribe(() => {
+            this.loadingDelete = false;
+            this.toast.showSuccess(
+              `Le devis ${this.devisToDelete!.displayName} - ${
+                this.devisToDelete!.client?.name
+              } a été supprimé avec succès`,
+              'Succès'
+            );
+            this.devisToDelete = null;
+            this.show_modal = false;
+          });
+        }
+      });
   }
 
   setSearchText(text: string) {
