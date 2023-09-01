@@ -51,7 +51,7 @@ SaunyaERP:
     ✔ Then start designing the commande part @done(23-08-25 10:11)
     ✔ Finish with the facturation @done(23-08-25 10:11)
     ✔ Add error handling in the application @done(23-08-25 22:15)
-    ☐ Mode offline @started(23-08-25 22:16)
+    ✔ Mode offline @started(23-08-25 22:16) @done(23-08-31 18:17) @lasted(5d20h1m31s)
         ✔ Create the network service @done(23-08-25 23:06)
             This service is gonna be used to check for the connectivity of the application.
             It will automatically detect changes and through a behaviour subject, it's gonna notify the rest of the application.
@@ -59,7 +59,8 @@ SaunyaERP:
             This service is gonna store our requests to the local cache. For example, every PUT, POST and DELETE request is going to be stored in the cache when the application will be offline and then those requests will be dispatched when we'll be back online.
         ✔ Implement the offline mode for the devis @done(23-08-30 07:17)
         ✘ Implement the offline mode for the commande @started(23-08-30 07:17) @cancelled(23-08-30 07:32) @wasted(15m26s)
-        ☐ Implement the offline mode for the facturation @started(23-08-30 07:32)
+        ✔ Implement the offline mode for the facturation @started(23-08-30 07:32) @done(23-08-31 18:17) @lasted(1d10h45m36s)
            There are some little problems that we must fix later on
-        ☐ Connect the whole flow so that we can have a good presentation
+    /********* SEPTEMBER *********/
+    ☐ Create a coherent flow through which we can easily navigate
    ☐ Ameliorate the payment conditions selection and also the "position fiscale" so that if a client already have some values settled.

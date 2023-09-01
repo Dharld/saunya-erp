@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Login } from 'src/app/core/model/login.model';
 import { ApiService } from 'src/app/core/services/api.service';
 import { NavigationService } from 'src/app/core/services/navigation.service';
+import { ToasterService } from 'src/app/core/services/toastr.service';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +22,7 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private api: ApiService,
+    private toaster: ToasterService,
     private navigationService: NavigationService,
     private route: ActivatedRoute
   ) {
@@ -46,11 +48,21 @@ export class LoginComponent implements OnInit {
 
     login$.subscribe((res) => {
       this.loading = false;
-      if (res.success == 1) {
+      if (res.success === 0) {
+        this.toaster.showError(
+          'The credentials provided are not valid',
+          'Invalid credentials'
+        );
+      }
+      /* if (res.success == 1) {
         this.navigationService.navigateTo(['../../home'], this.route);
       } else {
         this.errorMessage = (res as any).message;
-      }
+      } */
     });
+  }
+
+  goBack() {
+    this.navigationService.goBack();
   }
 }

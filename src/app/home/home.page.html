@@ -1,11 +1,46 @@
-<ion-content [fullscreen]="true">
-  <div class="relative h-full w-full font-sans px-4 py-2">
-    <div class="flex">
-      <div class="flex-1"></div>
-      <div class="interactive-state" (click)="toggleMenu()">
-        <img src="assets/icon/menu.png" alt="" class="w-5 bg-cover" />
-      </div>
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Menu de navigation</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <div class="flex flex-col h-full font-sans pb-4 px-4">
+      <ion-list class="flex-1">
+        <!-- <h5 class="text-neutral-300 font-semibold pl-4">Modules</h5> -->
+        <ion-item class="cursor-pointer" (click)="goTo('ventes')" button>
+          <ion-label class="font-sans">Ventes</ion-label>
+        </ion-item>
+      </ion-list>
+      <ion-menu-toggle>
+        <app-button (click)="signOut()" text="Se déconnecter"></app-button>
+      </ion-menu-toggle>
     </div>
-    <div id="container">{{ (user$ | async)?.name }}</div>
-  </div>
-</ion-content>
+  </ion-content>
+</ion-menu>
+<div class="ion-page" id="main-content">
+  <ion-content [fullscreen]="true">
+    <ion-header class="font-sans">
+      <ion-toolbar>
+        <div class="flex py-3">
+          <ion-title>Page d'acceuil</ion-title>
+          <div
+            class="pr-6 flex items-center gap-2 relative"
+            *ngIf="user$ | async"
+          >
+            <ion-menu-toggle>
+              <div class="flex items-center gap-2 cursor-pointer">
+                <ion-label class="text-white font-sans select-none"
+                  >{{ user.name }}</ion-label
+                >
+                <ion-avatar class="w-10 h-10 p-2 bg-white">
+                  <img [src]="user.image" alt="" />
+                </ion-avatar>
+              </div>
+            </ion-menu-toggle>
+          </div>
+        </div>
+      </ion-toolbar>
+    </ion-header>
+  </ion-content>
+</div>

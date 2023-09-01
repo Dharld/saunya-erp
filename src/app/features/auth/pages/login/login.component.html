@@ -1,5 +1,29 @@
+<ion-header class="font-sans">
+  <ion-toolbar>
+    <div class="flex py-3">
+      <ion-title>
+        <div class="flex items-center gap-2">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            (click)="goBack()"
+          >
+            <path
+              d="M16.62 2.98995C16.13 2.49995 15.34 2.49995 14.85 2.98995L6.54001 11.3C6.44731 11.3925 6.37376 11.5024 6.32358 11.6233C6.2734 11.7443 6.24757 11.874 6.24757 12.005C6.24757 12.1359 6.2734 12.2656 6.32358 12.3866C6.37376 12.5076 6.44731 12.6174 6.54001 12.71L14.85 21.02C15.34 21.51 16.13 21.51 16.62 21.02C17.11 20.53 17.11 19.74 16.62 19.25L9.38001 12L16.63 4.74995C17.11 4.26995 17.11 3.46995 16.62 2.98995Z"
+              fill="#fff"
+            />
+          </svg>
+          <ion-label>Login</ion-label>
+        </div>
+      </ion-title>
+    </div>
+  </ion-toolbar>
+</ion-header>
 <ion-content>
-  <div class="w-full h-full px-4 py-8 font-sans">
+  <div class="w-full px-4 py-8 font-sans">
     <h3 class="text-h3 text-primary-900">Se connecter,</h3>
     <p class="text-neutral-200 text-body">
       Nous sommes heureux de vous revoir. Entrez votre addresse email et votre
@@ -23,45 +47,54 @@
         [value]="(server$ | async)?.servername"
         [readOnly]="true"
       ></app-input-box>
-      <app-input-box
-        label="Email"
-        placeholder="Ex: theuser@gmail.com"
-        name="email"
-        formControlName="email"
-      ></app-input-box>
-      <app-input-box
-        label="Password"
-        placeholder="Entrez le mot de passe"
-        name="password"
-        formControlName="password"
-        type="password"
-      ></app-input-box>
-      <div *ngIf="dbs.length == 1; else many">
+      <div class="mt-4">
         <app-input-box
-          label="DB"
-          name="db"
-          formControlName="db"
-          [value]="dbs[0]"
-          [readOnly]="true"
+          label="Email"
+          placeholder="Ex: theuser@gmail.com"
+          name="email"
+          formControlName="email"
         ></app-input-box>
       </div>
-      <ng-template #many>
-        <div>
-          <app-select-box
+      <div class="mt-4">
+        <app-input-box
+          label="Password"
+          placeholder="Entrez le mot de passe"
+          name="password"
+          formControlName="password"
+          type="password"
+        ></app-input-box>
+      </div>
+      <div class="mt-4">
+        <div *ngIf="dbs.length == 1; else many">
+          <app-input-box
+            label="DB"
+            name="db"
             formControlName="db"
-            [options]="this.dbs"
-            label="Choisissez votre DB"
-          ></app-select-box>
+            [value]="dbs[0]"
+            [readOnly]="true"
+          ></app-input-box>
         </div>
-      </ng-template>
+        <ng-template #many>
+          <div>
+            <app-select-box
+              formControlName="db"
+              [options]="this.dbs"
+              label="Choisissez votre DB"
+            ></app-select-box>
+          </div>
+        </ng-template>
+      </div>
+
       <div *ngIf="errorMessage != ''" class="text-light-error text-body-small">
         *{{ errorMessage }}
       </div>
       <div class="mt-12 w-full">
         <app-button
+          type="submit"
           text="Continuer"
           trailingIcon="forward"
           [loading]="loading"
+          class="w-full"
         ></app-button>
       </div>
     </form>

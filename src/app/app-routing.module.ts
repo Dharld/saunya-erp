@@ -14,6 +14,8 @@ import { TestComponent } from './features/test/test.component';
 import { NewCommandeComponent } from './features/ventes/pages/new-commande/new-commande.component';
 import { NewInvoiceComponent } from './features/ventes/pages/new-invoice/new-invoice.component';
 import { NewInvoiceLineComponent } from './features/ventes/pages/new-invoice-line/new-invoice-line.component';
+import { AuthGuard } from './core/guards/auth.guard';
+import { ServerAuthGuard } from './core/guards/server-auth.guard';
 
 const routes: Routes = [
   {
@@ -41,7 +43,7 @@ const routes: Routes = [
       {
         path: 'login',
         component: LoginComponent,
-        canActivate: [ServerGuard],
+        canActivate: [ServerGuard, ServerAuthGuard],
       },
     ],
   },
@@ -50,42 +52,55 @@ const routes: Routes = [
     component: VentesComponent,
     children: [
       {
+        path: '',
+        redirectTo: 'devis',
+        pathMatch: 'full',
+      },
+      {
         path: 'devis',
         component: DevisComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'devis/new',
         component: NouveauDevisComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'devis/:id/new-order-line',
         component: NewOrderLineComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'commande',
         component: CommandeComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'commande/new',
         component: NewCommandeComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'facturation',
         component: FacturationComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'facturation/new',
         component: NewInvoiceComponent,
+        canActivate: [AuthGuard],
       },
       {
         path: 'facturation/:id/new-invoice-line',
         component: NewInvoiceLineComponent,
+        canActivate: [AuthGuard],
       },
     ],
   },
   {
     path: '',
-    redirectTo: 'auth',
+    redirectTo: 'ventes/devis',
     pathMatch: 'full',
   },
 ];
