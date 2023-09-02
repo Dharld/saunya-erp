@@ -3,6 +3,7 @@ import { MenuService } from '../shared/menu-service.service';
 import { ApiService } from '../core/services/api.service';
 import { NavigationService } from '../core/services/navigation.service';
 import { ActivatedRoute } from '@angular/router';
+import { IonMenu } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
+  @ViewChild('menu') menu!: IonMenu;
   user$ = this.api.user$;
   user: any;
 

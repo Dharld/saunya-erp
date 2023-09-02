@@ -177,7 +177,6 @@ export class NewCommandeComponent implements OnInit {
 
   createInvoice() {
     const { client, expiration_date, payment_condition } = this.newOrder.value;
-    const getDevis$ = this.venteServices.getAllDevis();
 
     let devis: Devis = {
       client,
@@ -216,7 +215,7 @@ export class NewCommandeComponent implements OnInit {
 
       updateDevis$.subscribe(() => {
         console.log('Devis updated');
-        this.venteServices.getAllDevis().subscribe(() => {
+        this.venteServices.getAllDevis('', -1, true).subscribe(() => {
           this.toastr.showSuccess(
             'Le dévis a été modifié avec succès !',
             'Success'
@@ -233,7 +232,7 @@ export class NewCommandeComponent implements OnInit {
       addDevis$.subscribe(() => {
         this.createLoading = false;
         this.venteServices.clearEditedDevis();
-        this.venteServices.getAllDevis().subscribe(() => {
+        this.venteServices.getAllDevis('', -1, true).subscribe(() => {
           this.toastr.showSuccess(
             'Le dévis a été crée avec succès !',
             'Success'

@@ -10,6 +10,7 @@ import { IonicModule } from '@ionic/angular';
 import { DatePickerComponent } from './date-picker/date-picker.component';
 import { ModalComponent } from './modal/modal.component';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { HeaderComponent } from './header/header.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { SpinnerComponent } from './spinner/spinner.component';
     DatePickerComponent,
     ModalComponent,
     SpinnerComponent,
+    HeaderComponent,
   ],
   imports: [CommonModule, FormsModule, IonicModule],
   exports: [

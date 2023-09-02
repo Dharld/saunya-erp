@@ -23,12 +23,10 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private api: ApiService,
     private toaster: ToasterService,
-    private navigationService: NavigationService,
-    private route: ActivatedRoute
+    private navigationService: NavigationService
   ) {
     this.server$ = this.api.server$;
     this.server$.subscribe((data) => {
-      console.log(data);
       this.dbs = data.db.map((db: string) => ({ text: db, name: db }));
     });
 

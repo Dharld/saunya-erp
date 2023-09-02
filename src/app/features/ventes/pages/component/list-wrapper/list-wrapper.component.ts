@@ -32,6 +32,7 @@ export class ListWrapperComponent implements OnInit {
   }
 
   deleteDevis(event: Event, devis: Devis) {
+    console.log('Delete');
     event.stopPropagation();
     this.clickedDevis.emit(devis);
     // this.show_modal = true;

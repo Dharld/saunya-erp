@@ -22,6 +22,7 @@ import {
   AnimationController,
   DomController,
   GestureController,
+  IonMenu,
 } from '@ionic/angular';
 import { Customer } from 'src/app/core/model/customer.model';
 import { Devis } from 'src/app/core/model/devis.model';
@@ -30,6 +31,7 @@ import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { States } from 'src/utils/states';
+import { ApiService } from 'src/app/core/services/api.service';
 
 @Component({
   selector: 'app-commande',
@@ -37,10 +39,14 @@ import { States } from 'src/utils/states';
   styleUrls: ['./commande.component.scss'],
 })
 export class CommandeComponent implements OnInit {
-  @ViewChild(ModalComponent) modal!: ModalComponent;
   devisToDelete: Devis | null = null;
 
   @ViewChildren('container', { read: ElementRef })
+  @ViewChild('modal')
+  modal!: ModalComponent;
+
+  @ViewChild(IonMenu) menu!: IonMenu;
+
   containers!: QueryList<ElementRef>;
   order!: any[];
   order$!: Observable<any[]>;
@@ -57,9 +63,7 @@ export class CommandeComponent implements OnInit {
     private navigation: NavigationService,
     private route: ActivatedRoute,
     private ventesService: VentesService,
-    private gestureCtrl: GestureController,
-    private animationCtrl: AnimationController,
-    private domCtrl: DomController,
+    private api: ApiService,
     private toast: ToasterService
   ) {}
 
@@ -161,7 +165,7 @@ export class CommandeComponent implements OnInit {
   }
 
   openModal(order: any) {
-    this.show_modal = true;
+    this.modal.openModal();
     this.devisToDelete = order;
   }
 
@@ -171,7 +175,7 @@ export class CommandeComponent implements OnInit {
       .deleteDevis(this.devisToDelete!)
       .pipe(
         catchError((err) => {
-          this.show_modal = false;
+          this.modal.closeModal();
           this.loadingDelete = false;
           this.devisToDelete = null;
           this.toast.showError(
@@ -183,7 +187,7 @@ export class CommandeComponent implements OnInit {
       )
       .subscribe((result) => {
         if (!(result instanceof Error)) {
-          this.ventesService.getAllDevis().subscribe(() => {
+          this.ventesService.getAllDevis('', -1, true).subscribe(() => {
             this.loadingDelete = false;
             this.toast.showSuccess(
               `Le devis ${this.devisToDelete!.displayName} - ${
@@ -192,7 +196,7 @@ export class CommandeComponent implements OnInit {
               'Succès'
             );
             this.devisToDelete = null;
-            this.show_modal = false;
+            this.modal.closeModal();
           });
         }
       });
@@ -205,5 +209,15 @@ export class CommandeComponent implements OnInit {
   setActiveClient(c: Customer) {
     this.activeClient = c;
     this.clientChange.next(true);
+  }
+
+  goTo(location: string) {
+    this.menu.close();
+    this.navigation.navigateTo([`/${location}`]);
+  }
+
+  signOut() {
+    this.navigation.navigateTo(['/auth/login'], this.route);
+    this.api.signout();
   }
 }

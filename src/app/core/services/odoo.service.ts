@@ -7,6 +7,8 @@ import { Observable, map, of, tap } from 'rxjs';
 import { OdooError } from '../error-handling/odoo-error';
 import { NetworkService } from './network.service';
 import { Storage } from '@ionic/storage-angular';
+import { ApiService } from './api.service';
+import { EncryptionService } from './encryption.service';
 
 const LIMIT_ACCOUNT = 30;
 
@@ -19,14 +21,22 @@ export class OdooService {
 
   constructor(
     private http: HttpClient,
-    private networkService: NetworkService,
-    private storage: Storage
+    private api: ApiService,
+    private encryption: EncryptionService
   ) {
+    const user = this.api.getCurrentUser();
+
+    if (!user) {
+      throw new Error(
+        'Vous devez vous connecter pour pouvoir effectuer cette opération'
+      );
+    }
+
     this.odoo = new Odoo({
-      url: 'https://comptabilite.net-2s.com',
-      db: 'comptabilite.net-2s.com',
-      username: 'info@net-2s.com',
-      password: '200?skfb',
+      url: user.server,
+      db: user.db,
+      username: user.email,
+      password: this.encryption.decrypt(user.password),
     });
     // this.getProducts().then((products) => console.log(products));
   }
@@ -401,6 +411,13 @@ export class OdooService {
   }
 
   createDevis(devis: Devis) {
+    const user = this.api.getCurrentUser();
+
+    if (!user) {
+      throw new Error(
+        'Vous devez vous connecter pour effectuer cette opération'
+      );
+    }
     const orderline = devis.order_lines?.map(
       ({ product_id, product_uom_qty: qty }) => ({
         product_id,
@@ -409,7 +426,7 @@ export class OdooService {
     );
 
     const formData = new FormData();
-    formData.append('uid', '2'); // To modify with the uid of the active user
+    formData.append('uid', user.uid); // To modify with the uid of the active user
     formData.append('customer_id', `${devis.client?.id}`);
     formData.append('payment_term_id', `${devis.payment_condition?.id}`);
     formData.append('order_line', JSON.stringify(orderline));
@@ -426,8 +443,16 @@ export class OdooService {
       refpayment,
     } = invoiceData;
 
+    const user = this.api.getCurrentUser();
+
+    if (!user) {
+      throw new Error(
+        'Vous devez vous connecter pour effectuer cette opération'
+      );
+    }
+
     const formData = new FormData();
-    formData.append('uid', '2');
+    formData.append('uid', user.uid);
     formData.append('customer_id', clientId);
     formData.append('payment_reference', refpayment);
     formData.append('invoice_date', facturationDate);
@@ -456,8 +481,16 @@ export class OdooService {
       refpayment,
     } = invoiceData;
 
+    const user = this.api.getCurrentUser();
+
+    if (!user) {
+      throw new Error(
+        'Vous devez vous connecter pour effectuer cette opération'
+      );
+    }
+
     const formData = new FormData();
-    formData.append('uid', '2');
+    formData.append('uid', user.uid);
 
     formData.append('customer_id', clientId);
     formData.append('invoice_id', invoice_id);
@@ -481,9 +514,17 @@ export class OdooService {
   }
 
   updateDevis(devis: Devis, orderline: any[]) {
+    const user = this.api.getCurrentUser();
+
+    if (!user) {
+      throw new Error(
+        'Vous devez vous connecter pour effectuer cette opération'
+      );
+    }
+
     const formData = new FormData();
     if (devis.client && devis.payment_condition) {
-      formData.append('uid', '2'); // To modify with the uid of the active user
+      formData.append('uid', user.uid); // To modify with the uid of the active user
       formData.append('customer_id', `${devis.client.id}`);
       formData.append('quotation_id', `${devis.id}`);
       formData.append('payment_term_id', `${devis.payment_condition.id}`);

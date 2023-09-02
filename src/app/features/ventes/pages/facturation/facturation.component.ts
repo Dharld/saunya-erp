@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { IonMenu } from '@ionic/angular';
 import {
   BehaviorSubject,
   Observable,
@@ -16,10 +17,12 @@ import {
 } from 'rxjs';
 import { Customer } from 'src/app/core/model/customer.model';
 import { Invoice } from 'src/app/core/model/invoice.model';
+import { ApiService } from 'src/app/core/services/api.service';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 
 type keyedMap = {
   [key: string]: any;
@@ -44,6 +47,9 @@ const PAYMENT_STATES: keyedMap = {
   styleUrls: ['./facturation.component.scss'],
 })
 export class FacturationComponent implements OnInit {
+  @ViewChild('modal') modal!: ModalComponent;
+  @ViewChild('menu') menu!: IonMenu;
+
   sub!: Subscription;
   searchText: BehaviorSubject<string> = new BehaviorSubject('');
   activeClient: Customer | any = null;
@@ -62,7 +68,8 @@ export class FacturationComponent implements OnInit {
     private route: ActivatedRoute,
     private navigation: NavigationService,
     private toast: ToasterService,
-    private network: NetworkService
+    private network: NetworkService,
+    private api: ApiService
   ) {}
 
   ngOnInit() {
@@ -75,6 +82,7 @@ export class FacturationComponent implements OnInit {
     this.ventesService.loadingInvoice.subscribe((value) => {
       this.loading = value;
     });
+
     getCustomers$.subscribe((customers) => {
       this.clients = customers;
     });
@@ -86,7 +94,8 @@ export class FacturationComponent implements OnInit {
       switchMap((text) =>
         this.ventesService.getAllInvoices(
           text,
-          this.activeClient ? this.activeClient.id : -1
+          this.activeClient ? this.activeClient.id : -1,
+          true
         )
       )
     );
@@ -97,7 +106,8 @@ export class FacturationComponent implements OnInit {
       switchMap(() =>
         this.ventesService.getAllInvoices(
           this.searchText.value,
-          this.activeClient.id
+          this.activeClient.id,
+          true
         )
       )
     );
@@ -124,14 +134,15 @@ export class FacturationComponent implements OnInit {
 
   deleteInvoice() {
     this.loading = false;
-
     if (this.invoiceToDelete) {
       this.loadingDelete = true;
+      this.modal.openModal();
+
       const deleteInvoice$ = this.ventesService
         .deleteInvoice(this.invoiceToDelete)
         .pipe(
           catchError((err) => {
-            this.show_modal = false;
+            this.modal.closeModal();
             this.loadingDelete = false;
             this.invoiceToDelete = null;
             console.error(err);
@@ -149,7 +160,7 @@ export class FacturationComponent implements OnInit {
             );
           }
           this.invoiceToDelete = null;
-          this.show_modal = false;
+          this.modal.closeModal();
           this.loadingDelete = false;
         }
       });
@@ -191,11 +202,22 @@ export class FacturationComponent implements OnInit {
   }
   openModal(event: Event, i: any) {
     event.stopPropagation();
-    this.show_modal = true;
+    this.modal.openModal();
     this.invoiceToDelete = i;
   }
+
   goBack() {
     this.navigation.goBack();
+  }
+
+  goTo(location: string) {
+    this.menu.close();
+    this.navigation.navigateTo([`/${location}`]);
+  }
+
+  signOut() {
+    this.navigation.navigateTo(['/auth/login'], this.route);
+    this.api.signout();
   }
 
   ngOnDestroy() {

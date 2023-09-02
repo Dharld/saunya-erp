@@ -8,4 +8,6 @@ export interface User {
   phone?: boolean;
   image?: string;
   expires_on?: string;
+  server?: string;
+  db?: string;
 }

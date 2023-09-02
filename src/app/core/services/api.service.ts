@@ -8,6 +8,9 @@ import { NetworkService } from './network.service';
 import { Storage } from '@ionic/storage';
 import { Router } from '@angular/router';
 import { NavigationService } from './navigation.service';
+import { EncryptionService } from './encryption.service';
+import '@capacitor-community/http';
+import { Plugins } from '@capacitor/core';
 
 const API_STORAGE_KEY = 'specialkey';
 
@@ -23,12 +26,13 @@ export class ApiService {
   user$ = this.user.asObservable();
   _storage: any;
 
-  url = '';
+  url = 'https://comptabilite.net-2s.com';
 
   constructor(
     private http: HttpClient,
     private storage: Storage,
-    private navigation: NavigationService
+    private navigation: NavigationService,
+    private encryption: EncryptionService
   ) {
     this.init();
     this.getLocalData('userData').then((data) => {
@@ -63,15 +67,22 @@ export class ApiService {
   login(credentials: Login) {
     const formData = new FormData();
     const { email: login, password, db } = credentials;
+    const server = this.getCurrentServer();
     formData.set('login', login.trim());
-    formData.set('password', password.trim());
+    formData.set('password', password);
     formData.set('db', db.name.trim());
     const login$ = this.http
       .post<ApiResponse>(`${this.url}/api/auth`, formData)
       .pipe(
         tap((res) => {
           if (res.success == 1) {
-            const userData = res.data;
+            const userData = {
+              ...res.data,
+              server: server.servername,
+              db: db.name,
+              password: this.encryption.encrypt(password),
+            };
+            console.log(userData);
             this.setLocalData('userData', userData);
             this.user.next(userData);
             this.navigation.navigateTo(['/home']);
@@ -85,6 +96,10 @@ export class ApiService {
 
   getCurrentUser() {
     return this.user.getValue();
+  }
+
+  getCurrentServer() {
+    return this.server.getValue();
   }
 
   signout() {

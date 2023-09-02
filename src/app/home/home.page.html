@@ -1,24 +1,4 @@
-<ion-menu contentId="main-content">
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Menu de navigation</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <ion-content>
-    <div class="flex flex-col h-full font-sans pb-4 px-4">
-      <ion-list class="flex-1">
-        <!-- <h5 class="text-neutral-300 font-semibold pl-4">Modules</h5> -->
-        <ion-item class="cursor-pointer" (click)="goTo('ventes')" button>
-          <ion-label class="font-sans">Ventes</ion-label>
-        </ion-item>
-      </ion-list>
-      <ion-menu-toggle>
-        <app-button (click)="signOut()" text="Se déconnecter"></app-button>
-      </ion-menu-toggle>
-    </div>
-  </ion-content>
-</ion-menu>
-<div class="ion-page" id="main-content">
+<div class="ion-page font-sans" id="main-content">
   <ion-content [fullscreen]="true">
     <ion-header class="font-sans">
       <ion-toolbar>
@@ -28,19 +8,38 @@
             class="pr-6 flex items-center gap-2 relative"
             *ngIf="user$ | async"
           >
-            <ion-menu-toggle>
-              <div class="flex items-center gap-2 cursor-pointer">
-                <ion-label class="text-white font-sans select-none"
-                  >{{ user.name }}</ion-label
-                >
-                <ion-avatar class="w-10 h-10 p-2 bg-white">
-                  <img [src]="user.image" alt="" />
-                </ion-avatar>
-              </div>
-            </ion-menu-toggle>
+            <div class="flex items-center gap-2 cursor-pointer">
+              <ion-label class="text-white font-sans select-none"
+                >{{ user.name }}</ion-label
+              >
+              <ion-avatar class="w-10 h-10 p-2 bg-white">
+                <img [src]="user.image" alt="" />
+              </ion-avatar>
+            </div>
           </div>
         </div>
       </ion-toolbar>
     </ion-header>
+    <ul class="menu grid p-4 grid-cols-3 gap-1">
+      <div
+        class="w-full aspect-square cursor-pointer group transition"
+        (click)="goTo('ventes')"
+      >
+        <div
+          class="bg-neutral-80 border border-neutral-90 rounded-md h-full w-full grid place-items-center group-hover:bg-primary-200 transition"
+        >
+          <img
+            src="assets/icon/ventes.png"
+            alt=""
+            class="group-hover:invert transition"
+          />
+        </div>
+        <div
+          class="text-left mt-2 font-sans text-neutral-200 font-semibold group-hover:text-primary-200 transition"
+        >
+          Ventes
+        </div>
+      </div>
+    </ul>
   </ion-content>
 </div>

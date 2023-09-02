@@ -6,7 +6,7 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent implements OnInit {
-  @Input() show_modal: boolean = false;
+  show_modal: boolean = false;
 
   constructor() {}
 
@@ -14,9 +14,13 @@ export class ModalComponent implements OnInit {
 
   closeModal() {
     this.show_modal = false;
+    console.log('CLOSE MODAL');
+    console.log('this.show_modal', this.show_modal);
   }
 
   openModal() {
     this.show_modal = true;
+    console.log('OPEN MODAL');
+    console.log('this.show_modal', this.show_modal);
   }
 }

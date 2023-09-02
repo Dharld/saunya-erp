@@ -13,6 +13,7 @@ import {
   AnimationController,
   DomController,
   GestureController,
+  IonMenu,
   Platform,
 } from '@ionic/angular';
 import {
@@ -28,6 +29,7 @@ import {
 } from 'rxjs';
 import { Customer } from 'src/app/core/model/customer.model';
 import { Devis } from 'src/app/core/model/devis.model';
+import { ApiService } from 'src/app/core/services/api.service';
 import { NavigationService } from 'src/app/core/services/navigation.service';
 import { ToasterService } from 'src/app/core/services/toastr.service';
 import { VentesService } from 'src/app/core/services/ventes.service';
@@ -41,7 +43,8 @@ import { States } from 'src/utils/states';
   styleUrls: ['./devis.component.scss'],
 })
 export class DevisComponent implements OnInit, AfterViewInit {
-  @ViewChild(ModalComponent) modal!: ModalComponent;
+  @ViewChild(IonMenu) menu!: IonMenu;
+  @ViewChild('modal') modal!: ModalComponent;
   devisToDelete: Devis | null = null;
 
   @ViewChildren('container', { read: ElementRef })
@@ -62,7 +65,8 @@ export class DevisComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private ventesService: VentesService,
     private toast: ToasterService,
-    private plt: Platform
+    private plt: Platform,
+    private api: ApiService
   ) {}
 
   ngOnInit() {
@@ -198,7 +202,7 @@ export class DevisComponent implements OnInit, AfterViewInit {
   }
 
   openModal(devis: Devis) {
-    this.show_modal = true;
+    this.modal.openModal();
     this.devisToDelete = devis;
   }
 
@@ -209,13 +213,13 @@ export class DevisComponent implements OnInit, AfterViewInit {
       .pipe(
         catchError((err) => {
           this.devisToDelete = null;
-          this.show_modal = false;
+          this.modal.closeModal();
           return throwError(err);
         })
       )
       .subscribe((result) => {
         if (result) {
-          this.ventesService.getAllDevis().subscribe(() => {
+          this.ventesService.getAllDevis('', -1, true).subscribe(() => {
             this.loadingDelete = false;
             this.toast.showSuccess(
               `Le devis ${this.devisToDelete!.displayName} - ${
@@ -224,7 +228,7 @@ export class DevisComponent implements OnInit, AfterViewInit {
               'Succès'
             );
             this.devisToDelete = null;
-            this.show_modal = false;
+            this.modal.closeModal();
           });
         }
       });
@@ -237,5 +241,16 @@ export class DevisComponent implements OnInit, AfterViewInit {
   setActiveClient(c: Customer) {
     this.activeClient = c;
     this.clientChange.next(true);
+  }
+
+  goTo(location: string) {
+    this.menu.close();
+
+    this.navigation.navigateTo([`/${location}`]);
+  }
+
+  signOut() {
+    this.navigation.navigateTo(['/auth/login'], this.route);
+    this.api.signout();
   }
 }

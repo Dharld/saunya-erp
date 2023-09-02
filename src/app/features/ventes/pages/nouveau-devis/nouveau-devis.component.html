@@ -146,22 +146,21 @@
         </div>
         <div class="button flex flex-col gap-2 mt-8">
           <app-button
-            type="button"
-            text="Confirmer"
-            (click)="confirmDevis()"
-            [loading]="confirmLoading"
-            *ngIf="mode === 'edit'"
-          ></app-button>
-          <app-button
             type="submit"
             [loading]="createLoading"
-            [blueLoading]="createLoading"
             text="{{
               this.mode == 'edit'
                 ? 'Modifier le dévis'
                 : 'Créer un nouveau devis'
             }}"
-            styles="{{ mode === 'edit' ? 'outlineButton' : '' }}"
+          ></app-button>
+          <app-button
+            type="button"
+            text="Confirmer"
+            (click)="confirmDevis()"
+            [blueLoading]="confirmLoading"
+            *ngIf="mode === 'edit'"
+            styles="outlineButton"
           ></app-button>
         </div>
       </form>

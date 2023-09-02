@@ -1,61 +1,99 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Commande</ion-title>
-  </ion-toolbar>
-</ion-header>
-<div class="wrapper py-4 px-4 h-[calc(100%-56px)] flex flex-col">
-  <app-modal [show_modal]="show_modal">
-    <div
-      class="h-[70px] bg-primary-400 text-white px-4 flex items-center font-semibold text-h4"
-      title
-    >
-      Modal de confirmation
+<ion-menu contentId="main-content-devis" #menu>
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Menu de navigation</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    <div class="flex flex-col h-full font-sans pb-4 px-4">
+      <ion-list class="flex-1">
+        <!-- <h5 class="text-neutral-300 font-semibold pl-4">Modules</h5> -->
+        <ion-item class="cursor-pointer" (click)="goTo('ventes')" button>
+          <ion-label class="font-sans">Ventes</ion-label>
+        </ion-item>
+        <ion-item class="cursor-pointer" (click)="goTo('home')" button>
+          <ion-label class="font-sans">Home</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <app-button
+        (click)="menu.close(); signOut()"
+        text="Se déconnecter"
+      ></app-button>
     </div>
-    <div class="wrapper p-4" body>
-      <h4 class="text-primary-900 font-semibold">
-        Voulez vous vraiment supprimer ce dévis ?
-      </h4>
-      <div class="text-body-large text-neutral-400 my-4">
-        La suppression d'un dévis est définitive et ne peut être annuler.
-      </div>
-      <div class="buttons flex justify-between gap-1 mt-8">
-        <app-button
-          text="Supprimer"
-          class="flex-1"
-          (click)="deleteDevis()"
-          [loading]="loadingDelete"
-        ></app-button>
-        <app-button
-          text="Annuler"
-          class="flex-1"
-          styles="outlineButton"
-          (click)="show_modal = false"
-        ></app-button>
-      </div>
-    </div>
-  </app-modal>
-  <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
-  <div class="chips my-4">
-    <swiper-container slides-per-view="auto" grab-cursor="true">
-      <swiper-slide *ngFor="let c of clients">
-        <ion-chip
-          (click)="setActiveClient(c)"
-          [ngClass]="{ active: c === activeClient }"
+  </ion-content>
+</ion-menu>
+<div id="main-content-commande">
+  <ion-header>
+    <ion-toolbar>
+      <div class="flex">
+        <ion-title>Commande</ion-title>
+        <div
+          class="p-2 hover:bg-primary-200 mr-2 rounded-full"
+          (click)="menu.open()"
         >
-          <ion-label>{{ c.name }}</ion-label>
-        </ion-chip>
-      </swiper-slide>
-    </swiper-container>
-  </div>
-  <div *ngIf="order$ | async">
-    <app-list-wrapper
-      [devis]="order$ | async"
-      [loading]="loading"
-      (clickedDevis)="openModal($event)"
-    ></app-list-wrapper>
-  </div>
-  <app-spinner *ngIf="loading"></app-spinner>
-  <div class="fixed bottom-4 right-4 z-50">
-    <app-button [fab]="true" (click)="createNewOrder()"></app-button>
+          <ion-img
+            src="assets/icon/grid-menu.png"
+            class="w-6 h-6 cursor-pointer"
+          ></ion-img>
+        </div>
+      </div>
+    </ion-toolbar>
+  </ion-header>
+  <div class="wrapper py-4 px-4 h-[calc(100%-56px)] flex flex-col">
+    <app-modal #modal>
+      <div
+        class="h-[70px] bg-primary-400 text-white px-4 flex items-center font-semibold text-h4"
+        title
+      >
+        Modal de confirmation
+      </div>
+      <div class="wrapper p-4" body>
+        <h4 class="text-primary-900 font-semibold">
+          Voulez vous vraiment supprimer ce dévis ?
+        </h4>
+        <div class="text-body-large text-neutral-400 my-4">
+          La suppression d'un dévis est définitive et ne peut être annuler.
+        </div>
+        <div class="buttons flex justify-between gap-1 mt-8">
+          <app-button
+            text="Supprimer"
+            class="flex-1"
+            (click)="deleteDevis()"
+            [loading]="loadingDelete"
+          ></app-button>
+          <app-button
+            text="Annuler"
+            class="flex-1"
+            styles="outlineButton"
+            (click)="show_modal = false"
+          ></app-button>
+        </div>
+      </div>
+    </app-modal>
+    <app-searchbar (searchText)="setSearchText($event)"></app-searchbar>
+    <div class="chips my-4">
+      <swiper-container slides-per-view="auto" grab-cursor="true">
+        <swiper-slide *ngFor="let c of clients">
+          <ion-chip
+            (click)="setActiveClient(c)"
+            [ngClass]="{ active: c === activeClient }"
+          >
+            <ion-label>{{ c.name }}</ion-label>
+          </ion-chip>
+        </swiper-slide>
+      </swiper-container>
+    </div>
+    <div *ngIf="order$ | async">
+      <app-list-wrapper
+        [devis]="order$ | async"
+        [loading]="loading"
+        (clickedDevis)="openModal($event)"
+      ></app-list-wrapper>
+    </div>
+    <app-spinner *ngIf="loading"></app-spinner>
+    <div class="fixed bottom-4 right-4 z-50">
+      <app-button [fab]="true" (click)="createNewOrder()"></app-button>
+    </div>
   </div>
 </div>

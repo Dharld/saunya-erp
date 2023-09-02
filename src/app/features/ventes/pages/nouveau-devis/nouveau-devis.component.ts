@@ -173,6 +173,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     );
   }
+
   ngAfterViewInit(): void {}
 
   goBack() {
@@ -262,7 +263,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
         );
 
       updateDevis$.subscribe(() => {
-        this.venteServices.getAllDevis().subscribe(() => {
+        this.venteServices.getAllDevis('', -1, true).subscribe(() => {
           this.toastr.showSuccess(
             'Le dévis a été modifié avec succès !',
             'Success'
@@ -280,7 +281,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
       addDevis$.subscribe(() => {
         this.createLoading = false;
         this.venteServices.clearEditedDevis();
-        this.venteServices.getAllDevis().subscribe(() => {
+        this.venteServices.getAllDevis('', -1, true).subscribe(() => {
           const status = this.network.getCurrentNetworkStatus();
           if (status.connected) {
             this.toastr.showSuccess(
@@ -316,6 +317,7 @@ export class NouveauDevisComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
   }
+
   ngOnDestroy(): void {
     this.sub.unsubscribe();
     this.routeSub.unsubscribe();

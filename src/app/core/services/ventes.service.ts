@@ -220,15 +220,12 @@ export class VentesService {
     partner_id = -1,
     refresh = false
   ): Observable<any[]> {
-    // return this.devis.pipe(delay(500));
     this.loading.next(true);
     const status = this.network.getCurrentNetworkStatus();
     if (status.connected === false || !refresh) {
       return from(this.getLocalData('quotations')).pipe(
         map((devis) => {
           const devisArr = devis.filter((d: any) => {
-            // console.log(d);
-            // console.log(`${d.displayName} - ${searchTerm} - ${partner_id}`);
             if (partner_id === -1)
               return (d.displayName as string)
                 .toLowerCase()

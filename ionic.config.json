@@ -4,5 +4,11 @@
     "cordova": {},
     "capacitor": {}
   },
-  "type": "angular"
+  "type": "angular",
+  "proxies": [
+    {
+      "path": "/api",
+      "proxyUrl": "https://comptabilite.net-2s.com"
+    }
+  ]
 }
